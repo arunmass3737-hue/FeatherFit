@@ -4327,6 +4327,11 @@ input:checked + .toggle-slider:before {
   .dept-poster-content {
     padding: 1.25rem;
   }
+  .dept-poster-title {
+    font-size: 1.25rem;
+  }
+}
+
 /* ==========================================================================
    NEW ARRIVALS SPOTLIGHT BANNER SECTION
    ========================================================================== */
@@ -5451,6 +5456,8 @@ input:checked + .toggle-slider:before {
   .dashboard-kpi-grid {
     grid-template-columns: 1fr;
   }
+}
+
 /* Clean Dashboard Tab Navigation */
 .dash-tab-btn {
   padding: 0.75rem 1.25rem;
