@@ -317,8 +317,8 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
           </button>
         </div>
 
-        <!-- 4 KPI Metrics Grid -->
-        <div class="admin-kpi-grid">
+        <!-- 5 KPI Metrics Grid including Live Transit Radar -->
+        <div class="admin-kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
           <!-- Total Revenue -->
           <div class="admin-kpi-card">
             <div class="kpi-top">
@@ -331,9 +331,90 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
                 </span>
               </div>
             </div>
+            <div class="kpi-value" id="kpi-total-revenue">₹2,14,350</div>
+            <div class="kpi-trend positive">
+              <span>+18.4% this month</span>
+            </div>
+          </div>
+
+          <!-- Total Orders -->
+          <div class="admin-kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-title">Total Orders</span>
+              <div class="kpi-icon-pill">
+                <span class="lottie-icon lottie-icon-lg" data-lottie-icon="orders" data-lottie-primary="#6A1B6E" data-lottie-secondary="#F26D6D">
+                  <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-total-orders">143</div>
+            <div class="kpi-trend positive">
+              <span>+12 today</span>
+            </div>
+          </div>
+
+          <!-- Active Fits -->
+          <div class="admin-kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-title">Active Fits</span>
+              <div class="kpi-icon-pill">
+                <span class="lottie-icon lottie-icon-lg" data-lottie-icon="products" data-lottie-primary="#6A1B6E" data-lottie-secondary="#B5258F">
+                  <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-total-products">17 Fits</div>
+            <div class="kpi-trend neutral">
+              <span>3 Collections Live</span>
+            </div>
+          </div>
+
+          <!-- Average Order Value -->
+          <div class="admin-kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-title">Avg Order Value</span>
+              <div class="kpi-icon-pill">
+                <span class="lottie-icon lottie-icon-lg" data-lottie-icon="analytics" data-lottie-primary="#6A1B6E" data-lottie-secondary="#E0245E">
+                  <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </span>
+              </div>
+            </div>
             <div class="kpi-value" id="kpi-aov">₹1,302</div>
             <div class="kpi-trend positive">
               <span>+6.2% high value</span>
+            </div>
+          </div>
+
+          <!-- Problem Alerts Card: Live Transit Radar -->
+          <div class="admin-kpi-card" style="border: 1.5px solid #F0D7E7; background: linear-gradient(135deg, #FFFFFF 0%, #FDF7FB 100%); cursor: pointer;" onclick="window.FeatherAdmin.setOrderStatusFilter('delayed'); window.FeatherAdmin.setSection('orders');" title="Click to view Delayed Shipments">
+            <div class="kpi-top">
+              <span class="kpi-title" style="color: #6A1B6E; font-weight: 800;">⚡ Transit Radar</span>
+              <div class="kpi-icon-pill" style="background: #FDF2F4;">
+                <span class="lottie-icon lottie-icon-lg" data-lottie-icon="orders" data-lottie-primary="#E0245E" data-lottie-secondary="#DC2626">
+                  <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <div class="kpi-value" style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap;">
+              <span>In transit: <span id="kpi-transit-count" style="color: #6A1B6E;">2</span></span>
+              <span style="color: #CBD5E1;">|</span>
+              <span style="color: #DC2626;">Delayed: <span id="kpi-delayed-count">1</span></span>
+            </div>
+            <div class="kpi-trend" style="color: #DC2626; font-size: 0.78rem;">
+              <span>🚨 Click to inspect delayed shipments &rarr;</span>
             </div>
           </div>
         </div>
@@ -406,12 +487,12 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
               <thead>
                 <tr>
                   <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Primary Item</th>
+                  <th>Customer & Destination</th>
+                  <th>Items</th>
                   <th>Total</th>
+                  <th>Tracking & Carrier</th>
                   <th>Status</th>
-                  <th>Update Status</th>
-                  <th>Actions</th>
+                  <th>Dispatch Actions</th>
                 </tr>
               </thead>
               <tbody id="recent-orders-tbody">
@@ -521,19 +602,26 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
       <section class="admin-section" id="section-orders">
         <div class="section-header-row">
           <div>
-            <h2>Orders & Shipments</h2>
-            <p>Track customer purchases, update live delivery statuses, and delete or inspect invoices.</p>
+            <h2>Orders & Live Dispatch Radar</h2>
+            <p>Manage carrier assignments, tracking links, WhatsApp updates, and resolve delayed shipments.</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button type="button" class="btn-secondary-light" onclick="window.FeatherAdmin.openModal('bulk-csv-modal')" style="border-color: #6A1B6E; color: #6A1B6E;">
+              <span>📥 Bulk CSV Tracking Upload</span>
+            </button>
           </div>
         </div>
 
         <!-- Filter Pills -->
         <div class="admin-table-controls">
-          <div class="filter-pill-group">
-            <button type="button" class="filter-btn active" data-order-filter="all" onclick="window.FeatherAdmin.setOrderStatusFilter('all')">All Orders</button>
-            <button type="button" class="filter-btn" data-order-filter="Pending" onclick="window.FeatherAdmin.setOrderStatusFilter('Pending')">Pending</button>
-            <button type="button" class="filter-btn" data-order-filter="Processing" onclick="window.FeatherAdmin.setOrderStatusFilter('Processing')">Processing</button>
-            <button type="button" class="filter-btn" data-order-filter="Shipped" onclick="window.FeatherAdmin.setOrderStatusFilter('Shipped')">Shipped</button>
-            <button type="button" class="filter-btn" data-order-filter="Delivered" onclick="window.FeatherAdmin.setOrderStatusFilter('Delivered')">Delivered</button>
+          <div class="filter-pill-group" style="flex-wrap: wrap;">
+            <button type="button" class="filter-btn active" data-order-filter="all" onclick="window.FeatherAdmin.setOrderStatusFilter('all')">All Orders (<span id="count-filter-all">6</span>)</button>
+            <button type="button" class="filter-btn" data-order-filter="shipped" onclick="window.FeatherAdmin.setOrderStatusFilter('shipped')">🚚 In Transit (<span id="count-filter-shipped">2</span>)</button>
+            <button type="button" class="filter-btn" data-order-filter="pending" onclick="window.FeatherAdmin.setOrderStatusFilter('pending')">Pending (<span id="count-filter-pending">2</span>)</button>
+            <button type="button" class="filter-btn" data-order-filter="delivered" onclick="window.FeatherAdmin.setOrderStatusFilter('delivered')">✓ Delivered (<span id="count-filter-delivered">2</span>)</button>
+            <button type="button" class="filter-btn" data-order-filter="no_tracking" onclick="window.FeatherAdmin.setOrderStatusFilter('no_tracking')" style="color: #D97706;">⚠️ Needs Tracking (<span id="count-filter-notracking">1</span>)</button>
+            <button type="button" class="filter-btn" data-order-filter="delayed" onclick="window.FeatherAdmin.setOrderStatusFilter('delayed')" style="color: #DC2626;">🚨 Delayed > 5d (<span id="count-filter-delayed">1</span>)</button>
+            <button type="button" class="filter-btn" data-order-filter="rto" onclick="window.FeatherAdmin.setOrderStatusFilter('rto')">↩️ RTO (<span id="count-filter-rto">0</span>)</button>
           </div>
         </div>
 
@@ -543,12 +631,11 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
             <thead>
               <tr>
                 <th>Order ID</th>
-                <th>Customer</th>
-                <th>Primary Item</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Update Status</th>
-                <th>Actions</th>
+                <th>Customer & Destination</th>
+                <th>Items & Total</th>
+                <th>Tracking & Carrier</th>
+                <th>Status & Age</th>
+                <th>Dispatch Actions</th>
               </tr>
             </thead>
             <tbody id="all-orders-tbody">
@@ -917,6 +1004,153 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
   <!-- Scripts -->
   <script src="data/products.js"></script>
   <script src="js/admin.js"></script>
+
+  <!-- ==========================================================================
+       MODAL 1: ORDER SHIPPING, DISPATCH & TIMELINE MODAL
+       ========================================================================== -->
+  <div class="admin-modal-overlay" id="order-shipping-modal">
+    <div class="admin-modal" style="max-width: 680px;">
+      <div class="admin-modal-header">
+        <div>
+          <h3 class="admin-modal-title" id="ship-modal-title">Order Dispatch & Live Tracking</h3>
+          <span style="font-size: 0.78rem; color: #724E79;" id="ship-modal-subtitle">Configure carrier details and activity milestones</span>
+        </div>
+        <button type="button" class="admin-modal-close" onclick="window.FeatherAdmin.closeModal('order-shipping-modal')">&times;</button>
+      </div>
+
+      <div class="admin-modal-body" style="padding: 1.5rem;">
+        
+        <!-- Order Summary Strip -->
+        <div id="ship-modal-order-summary" style="background: #FAF0F6; border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- 1. Live Shipping Box -->
+        <div class="shipping-box">
+          <div class="shipping-box-header">
+            <div>
+              <h4 style="font-size: 1.05rem; font-weight: 800; color: #3B0F4A; margin: 0;">Courier & Shipping Configuration</h4>
+              <span style="font-size: 0.75rem; color: #724E79;">Saves carrier, tracking number, and auto-generates tracking quicklinks</span>
+            </div>
+            <span class="badge badge-purple" id="ship-modal-status-badge">SHIPPED</span>
+          </div>
+
+          <form id="shipping-details-form" onsubmit="window.FeatherAdmin.handleSaveShippingDetails(event)">
+            <input type="hidden" id="ship-order-id" />
+
+            <div class="form-row" style="margin-bottom: 1rem;">
+              <div class="form-group">
+                <label for="ship-carrier-select">Select Carrier Partner</label>
+                <select id="ship-carrier-select" class="form-control" onchange="window.FeatherAdmin.handleCarrierChange(this.value)">
+                  <option value="Blue Dart Express">Blue Dart Express</option>
+                  <option value="Delhivery">Delhivery</option>
+                  <option value="India Post Speed">India Post Speed Post</option>
+                  <option value="DTDC Express">DTDC Express</option>
+                  <option value="Shadowfax">Shadowfax</option>
+                  <option value="Xpressbees">Xpressbees</option>
+                  <option value="Other Courier">Other Courier</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="ship-tracking-number">AWB / Tracking Number</label>
+                <input type="text" id="ship-tracking-number" class="form-control" placeholder="e.g. BD-9402849182" required />
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-bottom: 1.25rem;">
+              <div class="form-group">
+                <label for="ship-est-delivery">Estimated Delivery Date</label>
+                <input type="date" id="ship-est-delivery" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="ship-update-status">Change Order Status</label>
+                <select id="ship-update-status" class="form-control">
+                  <option value="Shipped">Shipped (In Transit)</option>
+                  <option value="Out for Delivery">Out for Delivery</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="RTO">Return to Origin (RTO)</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" id="ship-save-btn" class="btn-cta-crimson" style="width: 100%; height: 44px; justify-content: center; font-size: 0.92rem;">
+              <span>💾 Save & Mark as Shipped</span>
+            </button>
+          </form>
+
+          <!-- Action Buttons Strip -->
+          <div class="shipping-actions-bar" id="ship-actions-bar" style="display: none;">
+            <a id="btn-track-parcel" href="#" target="_blank" class="btn-primary" style="height: 38px; font-size: 0.82rem; background: #6A1B6E; text-decoration: none;">
+              🚀 Track Parcel in Carrier Site
+            </a>
+
+            <button type="button" class="btn-secondary-light" style="height: 38px; font-size: 0.82rem;" onclick="window.FeatherAdmin.copyCustomerTrackingLink()">
+              📋 Copy Link for Customer
+            </button>
+
+            <a id="btn-whatsapp-notify" href="#" target="_blank" class="btn-whatsapp-action">
+              💬 Send Tracking on WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <!-- 2. Status History (Timeline) -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: #3B0F4A; margin: 0;">Status History & Activity Log</h4>
+          </div>
+
+          <div class="timeline-stepper" id="ship-modal-timeline">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-secondary-light" onclick="window.FeatherAdmin.closeModal('order-shipping-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: BULK CSV TRACKING UPLOAD
+       ========================================================================== -->
+  <div class="admin-modal-overlay" id="bulk-csv-modal">
+    <div class="admin-modal" style="max-width: 580px;">
+      <div class="admin-modal-header">
+        <div>
+          <h3 class="admin-modal-title">Bulk CSV Tracking Upload</h3>
+          <span style="font-size: 0.78rem; color: #724E79;">Update 20+ orders simultaneously with tracking numbers</span>
+        </div>
+        <button type="button" class="admin-modal-close" onclick="window.FeatherAdmin.closeModal('bulk-csv-modal')">&times;</button>
+      </div>
+
+      <div class="admin-modal-body" style="padding: 1.5rem;">
+        <p style="font-size: 0.85rem; color: #724E79; line-height: 1.45; margin-bottom: 1rem;">
+          Paste your CSV lines below or upload a .csv file. The columns must be: <br />
+          <code style="background: #FDF2F4; color: #E0245E; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">order_id, carrier, tracking_number</code>
+        </p>
+
+        <div style="margin-bottom: 1rem;">
+          <textarea id="bulk-csv-input" class="form-control" rows="6" placeholder="FF-90214, Blue Dart, BD-9402849182&#10;FF-90213, Delhivery, DEL-8401928&#10;FF-90210, India Post, IPS-77192830" style="font-family: monospace; font-size: 0.85rem;"></textarea>
+        </div>
+
+        <div id="bulk-csv-result" style="display: none; padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem;"></div>
+
+        <div style="background: #FAF0F6; border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-size: 0.78rem; color: #3B0F4A;">
+          💡 <strong>Tip:</strong> Daily dispatches can be exported directly from Blue Dart or Delhivery Excel sheet and pasted here in 1 click!
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-secondary-light" onclick="window.FeatherAdmin.closeModal('bulk-csv-modal')">Cancel</button>
+        <button type="button" id="btn-process-csv" class="btn-cta-crimson" onclick="window.FeatherAdmin.processBulkCsv()">Apply Bulk Updates →</button>
+      </div>
+    </div>
+  </div>
+
 <?php endif; ?>
 </body>
 </html>

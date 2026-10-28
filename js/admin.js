@@ -29,6 +29,41 @@
     CUSTOM_ANNOUNCEMENT: "ff_custom_announcement"
   };
 
+  
+  // Carrier Quicklink URL Builder
+  function buildCarrierTrackingUrl(carrierName, trackingNo) {
+    if (!trackingNo || trackingNo === 'Pending') return '';
+    const cleanNo = encodeURIComponent(String(trackingNo).trim());
+    const c = (carrierName || '').toLowerCase();
+    if (c.includes('blue dart') || c.includes('bluedart')) {
+      return `https://www.bluedart.com/tracking?trackNumber=${cleanNo}`;
+    }
+    if (c.includes('delhivery')) {
+      return `https://www.delhivery.com/track/package/${cleanNo}`;
+    }
+    if (c.includes('india post') || c.includes('speed post')) {
+      return `https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx?consignmentNo=${cleanNo}`;
+    }
+    if (c.includes('dtdc')) {
+      return `https://www.dtdc.in/tracking/shipment-tracking.asp?tracking_no=${cleanNo}`;
+    }
+    if (c.includes('shadowfax')) {
+      return `https://tracker.shadowfax.in/#/track/${cleanNo}`;
+    }
+    if (c.includes('xpressbees')) {
+      return `https://www.xpressbees.com/track?isawb=true&trackid=${cleanNo}`;
+    }
+    return `https://www.google.com/search?q=${encodeURIComponent((carrierName || '') + ' tracking ' + cleanNo)}`;
+  }
+
+  function isOrderDelayed(o) {
+    if (o.status !== 'Shipped') return false;
+    if (o.deliveredAt) return false;
+    const shippedTime = o.shippedAt ? new Date(o.shippedAt).getTime() : (o.date ? new Date(o.date).getTime() : 0);
+    if (!shippedTime) return false;
+    return (Date.now() - shippedTime) > (5 * 86400 * 1000);
+  }
+
   // Seed default demonstration orders if none exist
   const defaultOrders = [
     {
@@ -322,7 +357,16 @@
     let filtered = [...state.orders];
 
     if (state.orderStatusFilter !== "all") {
-      filtered = filtered.filter(o => o.status.toLowerCase() === state.orderStatusFilter.toLowerCase());
+      const f = state.orderStatusFilter.toLowerCase();
+      if (f === 'no_tracking') {
+        filtered = filtered.filter(o => o.status === 'Shipped' && (!o.trackingNumber || o.trackingNumber === 'Pending' || o.trackingNumber.trim() === ''));
+      } else if (f === 'delayed') {
+        filtered = filtered.filter(o => isOrderDelayed(o));
+      } else if (f === 'rto') {
+        filtered = filtered.filter(o => (o.status || '').toLowerCase() === 'rto');
+      } else {
+        filtered = filtered.filter(o => (o.status || '').toLowerCase() === f);
+      }
     }
 
     if (state.globalSearchQuery) {
@@ -352,51 +396,83 @@
     const statusBadges = {
       "Pending": "badge-warning",
       "Processing": "badge-info",
+      "Packed": "badge-info",
       "Shipped": "badge-purple",
+      "Out for Delivery": "badge-purple",
       "Delivered": "badge-success",
-      "Cancelled": "badge-danger"
+      "Cancelled": "badge-danger",
+      "RTO": "badge-danger"
     };
     const badgeClass = statusBadges[o.status] || "badge-purple";
     const itemCount = o.items ? o.items.reduce((s, i) => s + (i.qty || 1), 0) : 1;
     const firstItemName = o.items && o.items[0] ? o.items[0].name : "Luxury Apparel Drop";
     const orderKey = o.id || o.orderNumber;
+    const delayed = isOrderDelayed(o);
+    const hasTracking = o.trackingNumber && o.trackingNumber !== "Pending" && o.trackingNumber.trim() !== "";
+    const trackingLink = hasTracking ? (o.trackingUrl || buildCarrierTrackingUrl(o.carrier, o.trackingNumber)) : "";
+    const custPhone = o.customer?.phone || "+91 98765 43210";
+    const cleanPhoneDigits = custPhone.replace(/[^0-9]/g, '');
+    const cleanPhone10 = cleanPhoneDigits.length >= 10 ? cleanPhoneDigits.slice(-10) : cleanPhoneDigits;
+    const custName = o.customer?.name || "Customer";
+    const publicTrackUrl = window.location.origin + '/track.php?order=' + encodeURIComponent(orderKey) + '&phone=' + cleanPhone10;
+
+    const waMessage = `Hi ${custName}, unga order #${orderKey} ship aayiduchu! 🚀\nCarrier: ${o.carrier || 'Express Courier'}\nAWB Tracking: ${o.trackingNumber}\nTrack live parcel here: ${publicTrackUrl}\nEstimated Delivery: ${o.estimatedDelivery || 'In 2-3 Days'}\n\nThank you for choosing Feather Fits!`;
+    const waUrl = `https://wa.me/91${cleanPhone10}?text=${encodeURIComponent(waMessage)}`;
 
     return `
-      <tr>
-        <td><strong style="color: var(--admin-purple-primary); font-family: monospace;">${orderKey}</strong></td>
+      <tr class="${delayed ? 'order-row-delayed' : ''}">
         <td>
-          <div style="font-weight: 700; color: var(--admin-black);">${o.customer?.name || (o.shippingAddress?.firstName ? `${o.shippingAddress.firstName} ${o.shippingAddress.lastName}` : "Valued Member")}</div>
-          <span style="font-size: 0.75rem; color: var(--admin-text-faint);">${o.customer?.city || o.shippingAddress?.city || "Chennai"}</span>
+          <a href="track.php?order=${encodeURIComponent(orderKey)}&phone=${cleanPhone10}" target="_blank" style="color: var(--admin-purple-primary); font-family: monospace; font-weight: 800; text-decoration: none;" title="Open Public Customer Tracking Portal">
+            ${orderKey} ↗
+          </a>
+          <div style="font-size: 0.72rem; color: var(--admin-text-faint);">${o.date || (o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'Today')}</div>
         </td>
         <td>
-          <div style="max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem;" title="${firstItemName}">
+          <div style="font-weight: 700; color: var(--admin-black);">${custName}</div>
+          <div style="font-size: 0.75rem; color: var(--admin-text-faint);">${custPhone} &bull; ${o.customer?.city || "Chennai"}</div>
+        </td>
+        <td>
+          <div style="max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.82rem;" title="${firstItemName}">
             ${firstItemName}
           </div>
-          <span style="font-size: 0.75rem; color: var(--admin-text-faint);">${itemCount} item(s)</span>
-        </td>
-        <td><strong style="color: var(--admin-black);">₹${Number(o.total).toLocaleString("en-IN")}</strong></td>
-        <td>
-          <span class="badge ${badgeClass}">${o.status}</span>
+          <div style="font-size: 0.75rem; color: var(--admin-text-faint);">${itemCount} item(s) &bull; <strong style="color: var(--admin-black);">₹${Number(o.total).toLocaleString("en-IN")}</strong></div>
         </td>
         <td>
-          <select class="status-select" onchange="window.FeatherAdmin.updateOrderStatus('${orderKey}', this.value)">
-            <option value="Pending" ${o.status === "Pending" ? "selected" : ""}>Pending</option>
-            <option value="Processing" ${o.status === "Processing" ? "selected" : ""}>Processing</option>
-            <option value="Shipped" ${o.status === "Shipped" ? "selected" : ""}>Shipped</option>
-            <option value="Delivered" ${o.status === "Delivered" ? "selected" : ""}>Delivered</option>
-            <option value="Cancelled" ${o.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
-          </select>
+          ${hasTracking ? `
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span class="carrier-badge">${o.carrier || 'Express'}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.4rem; font-family: monospace; font-size: 0.82rem; font-weight: 700; color: #3B0F4A;">
+                <span>📦 ${o.trackingNumber}</span>
+                <a href="${trackingLink}" target="_blank" class="track-icon-btn" title="Track in Carrier Site (Opens in New Tab)">↗</a>
+                <a href="${waUrl}" target="_blank" class="whatsapp-icon-btn" title="Send Tracking Link via WhatsApp">💬</a>
+              </div>
+            </div>
+          ` : `
+            <button type="button" class="btn-needs-tracking" onclick="window.FeatherAdmin.openShippingModal('${orderKey}')" title="Click to add carrier & tracking number">
+              ⚠️ Needs Tracking
+            </button>
+          `}
         </td>
         <td>
-          <div class="table-actions">
-            <button type="button" class="btn-icon-action" title="View Order Details" onclick="window.FeatherAdmin.viewOrderDetails('${orderKey}')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
+          <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+            <span class="badge ${badgeClass}">${o.status}</span>
+            ${delayed ? `<span class="badge badge-delayed">🚨 Delayed > 5d</span>` : ''}
+            ${(o.status === 'Shipped' || o.status === 'Out for Delivery') ? `
+              <button type="button" class="btn-quick-deliver" onclick="window.FeatherAdmin.markAsDelivered('${orderKey}')" title="Click to manually mark order as Delivered">
+                ✓ Mark Delivered
+              </button>
+            ` : ''}
+          </div>
+        </td>
+        <td>
+          <div class="table-actions" style="gap: 0.45rem;">
+            <button type="button" class="btn-dispatch-action" onclick="window.FeatherAdmin.openShippingModal('${orderKey}')" title="Shipping & Dispatch Details">
+              <span>🚚 Dispatch</span>
             </button>
             <button type="button" class="btn-icon-action danger" title="Delete Order" onclick="window.FeatherAdmin.deleteOrder('${orderKey}')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
@@ -1127,6 +1203,224 @@
     });
   }
 
+  
+  // Active Order being edited in shipping modal
+  let currentShippingOrderId = null;
+
+  function openShippingModal(orderId) {
+    const order = state.orders.find(o => (o.id === orderId || o.orderNumber === orderId));
+    if (!order) {
+      showToast('Order not found.', 'danger');
+      return;
+    }
+    currentShippingOrderId = orderId;
+
+    const titleEl = document.getElementById('ship-modal-order-id');
+    const carrierEl = document.getElementById('ship-carrier-select');
+    const trackingEl = document.getElementById('ship-tracking-input');
+    const estEl = document.getElementById('ship-est-delivery');
+    const statusEl = document.getElementById('ship-update-status');
+    const quicklinkEl = document.getElementById('ship-quicklink-preview');
+    const actionsBar = document.getElementById('ship-actions-bar');
+    const trackBtn = document.getElementById('btn-track-parcel');
+    const waBtn = document.getElementById('btn-whatsapp-notify');
+    const timelineEl = document.getElementById('ship-modal-timeline');
+
+    if (titleEl) titleEl.textContent = `Order #${orderId} — ${order.customer?.name || 'Customer'}`;
+    if (carrierEl) carrierEl.value = order.carrier || 'Blue Dart Express';
+    if (trackingEl) trackingEl.value = (order.trackingNumber && order.trackingNumber !== 'Pending') ? order.trackingNumber : '';
+    if (estEl) estEl.value = order.estimatedDelivery || '';
+    if (statusEl) statusEl.value = order.status || 'Shipped';
+
+    function updateModalQuicklink() {
+      const carrier = carrierEl ? carrierEl.value : '';
+      const tracking = trackingEl ? trackingEl.value.trim() : '';
+      if (tracking) {
+        const link = buildCarrierTrackingUrl(carrier, tracking);
+        if (quicklinkEl) quicklinkEl.value = link;
+        if (actionsBar) actionsBar.style.display = 'flex';
+        if (trackBtn) trackBtn.href = link;
+
+        const custPhone = order.customer?.phone || '+91 98765 43210';
+        const cleanPhoneDigits = custPhone.replace(/[^0-9]/g, '');
+        const cleanPhone10 = cleanPhoneDigits.length >= 10 ? cleanPhoneDigits.slice(-10) : cleanPhoneDigits;
+        const custName = order.customer?.name || 'Customer';
+        const publicTrackUrl = window.location.origin + '/track.php?order=' + encodeURIComponent(orderId) + '&phone=' + cleanPhone10;
+        const waMsg = `Hi ${custName}, unga order #${orderId} ship aayiduchu! 🚀\nCarrier: ${carrier}\nAWB Tracking: ${tracking}\nTrack live parcel here: ${publicTrackUrl}\nEstimated Delivery: ${estEl ? estEl.value : 'In 2-3 Days'}\n\nFeather Fits support team.`;
+        if (waBtn) waBtn.href = `https://wa.me/91${cleanPhone10}?text=${encodeURIComponent(waMsg)}`;
+      } else {
+        if (quicklinkEl) quicklinkEl.value = '';
+        if (actionsBar) actionsBar.style.display = 'none';
+      }
+    }
+
+    if (carrierEl) carrierEl.onchange = updateModalQuicklink;
+    if (trackingEl) trackingEl.oninput = updateModalQuicklink;
+    updateModalQuicklink();
+
+    // Render Timeline History
+    if (timelineEl) {
+      const timeline = order.timeline && Array.isArray(order.timeline) ? order.timeline : [
+        { status: 'Order Placed', time: order.date || '2026-10-27 09:15 AM', note: 'Payment verified via Razorpay / UPI', updatedBy: 'System' },
+        { status: 'Packed', time: '2026-10-27 12:45 PM', note: 'Passed luxury QA check', updatedBy: 'Warehouse' },
+        { status: order.status || 'Shipped', time: 'Today', note: `Status: ${order.status}`, updatedBy: 'Admin' }
+      ];
+
+      timelineEl.innerHTML = timeline.map((step, idx) => `
+        <div class="timeline-step">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; flex-wrap: wrap;">
+              <strong style="color: #3B0F4A; font-size: 0.88rem;">${step.status}</strong>
+              <span style="font-size: 0.72rem; color: #724E79;">${step.time}</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #724E79; margin-top: 0.2rem;">${step.note || ''}</div>
+            <div style="font-size: 0.7rem; color: #B5258F; margin-top: 0.15rem; font-weight: 700;">By ${step.updatedBy || 'Staff'}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Attach form submit handler
+    const form = document.getElementById('order-shipping-form');
+    if (form) {
+      form.onsubmit = function(e) {
+        e.preventDefault();
+        const carrier = carrierEl.value;
+        const tracking = trackingEl.value.trim();
+        const estDelivery = estEl.value;
+        const newStatus = statusEl.value;
+        const saveBtn = document.getElementById('ship-save-btn');
+
+        if (!tracking) {
+          showToast('Please enter a tracking number.', 'danger');
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span>Saving & Marking as Shipped...</span>';
+
+        fetch('api/shipping.php?action=update_shipping', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: currentShippingOrderId,
+            carrier: carrier,
+            trackingNumber: tracking,
+            estimatedDelivery: estDelivery,
+            status: newStatus
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<span>💾 Save & Mark as Shipped</span>';
+          if (data.success) {
+            showToast(`Order #${currentShippingOrderId} updated to ${newStatus}!`, 'success');
+            loadOrders();
+            updateModalQuicklink();
+            closeModal('order-shipping-modal');
+          } else {
+            showToast(data.error || 'Failed to update shipping.', 'danger');
+          }
+        })
+        .catch(err => {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<span>💾 Save & Mark as Shipped</span>';
+          showToast('Network error while saving tracking.', 'danger');
+        });
+      };
+    }
+
+    openModal('order-shipping-modal');
+  }
+
+  function markAsDelivered(orderId) {
+    if (!confirm(`Are you sure you want to mark Order #${orderId} as DELIVERED?`)) return;
+
+    fetch('api/shipping.php?action=update_status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: orderId,
+        status: 'Delivered',
+        note: 'Customer delivered confirmation (Marked via Admin Dashboard)'
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showToast(`Order #${orderId} marked as DELIVERED! ✓`, 'success');
+        loadOrders();
+      } else {
+        showToast(data.error || 'Failed to update status.', 'danger');
+      }
+    })
+    .catch(() => showToast('Network error updating status.', 'danger'));
+  }
+
+  function copyCustomerTrackingLink() {
+    if (!currentShippingOrderId) return;
+    const order = state.orders.find(o => o.id === currentShippingOrderId || o.orderNumber === currentShippingOrderId);
+    const custPhone = order?.customer?.phone || '9876543210';
+    const cleanDigits = custPhone.replace(/[^0-9]/g, '');
+    const clean10 = cleanDigits.length >= 10 ? cleanDigits.slice(-10) : cleanDigits;
+    const url = window.location.origin + '/track.php?order=' + encodeURIComponent(currentShippingOrderId) + '&phone=' + clean10;
+
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Public tracking link copied to clipboard! 📋', 'success');
+    }).catch(() => {
+      showToast('Copied: ' + url, 'info');
+    });
+  }
+
+  function processBulkCsv() {
+    const input = document.getElementById('bulk-csv-input');
+    const resultEl = document.getElementById('bulk-csv-result');
+    const btn = document.getElementById('btn-process-csv');
+    if (!input || !input.value.trim()) {
+      showToast('Please paste CSV rows to process.', 'danger');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Processing CSV...';
+
+    fetch('api/shipping.php?action=bulk_upload_csv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ csv: input.value.trim() })
+    })
+    .then(res => res.json())
+    .then(data => {
+      btn.disabled = false;
+      btn.textContent = 'Apply Bulk Updates →';
+      if (data.success) {
+        resultEl.style.display = 'block';
+        resultEl.style.background = '#ECFDF5';
+        resultEl.style.color = '#065F46';
+        resultEl.innerHTML = `✓ ${data.message}`;
+        showToast(`Successfully updated ${data.updatedCount} orders!`, 'success');
+        loadOrders();
+        setTimeout(() => {
+          closeModal('bulk-csv-modal');
+          resultEl.style.display = 'none';
+          input.value = '';
+        }, 1600);
+      } else {
+        resultEl.style.display = 'block';
+        resultEl.style.background = '#FEF2F2';
+        resultEl.style.color = '#991B1B';
+        resultEl.textContent = data.error || 'Failed to process CSV.';
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.textContent = 'Apply Bulk Updates →';
+      showToast('Error uploading CSV data.', 'danger');
+    });
+  }
+
   // Expose Global Admin API
   window.FeatherAdmin = {
     logout: function() {
@@ -1149,6 +1443,10 @@
     toggleMobileSidebar,
     closeMobileSidebar,
     showToast,
+    openShippingModal,
+    markAsDelivered,
+    copyCustomerTrackingLink,
+    processBulkCsv,
     // Advanced Image & Banner CMS methods
     setBannerTab,
     updateBannerPreviewField,

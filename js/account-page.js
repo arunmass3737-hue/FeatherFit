@@ -465,43 +465,160 @@
       `;
     }
 
+    const stages = ['Placed', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'];
+
+    function getStepIndex(status) {
+      const s = (status || '').toLowerCase();
+      if (s === 'delivered') return 4;
+      if (s === 'out for delivery') return 3;
+      if (s === 'shipped') return 2;
+      if (s === 'packed' || s === 'processing') return 1;
+      return 0;
+    }
+
+    function buildCarrierUrl(carrier, tracking) {
+      if (!tracking || tracking === 'Pending') return '';
+      const t = encodeURIComponent(String(tracking).trim());
+      const c = (carrier || '').toLowerCase();
+      if (c.includes('blue dart')) return `https://www.bluedart.com/tracking?trackNumber=${t}`;
+      if (c.includes('delhivery')) return `https://www.delhivery.com/track/package/${t}`;
+      if (c.includes('post')) return `https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx?consignmentNo=${t}`;
+      if (c.includes('dtdc')) return `https://www.dtdc.in/tracking/shipment-tracking.asp?tracking_no=${t}`;
+      return `https://www.google.com/search?q=${encodeURIComponent((carrier || '') + ' tracking ' + t)}`;
+    }
+
+    const phone10 = (currentUser?.phone || '9876543210').replace(/[^0-9]/g, '').slice(-10);
+
     return `
       <div>
-        <h3 style="font-size: 1.15rem; font-weight: 800; color: #3B0F4A; margin-bottom: 1.25rem;">
-          Recent Orders & Live Shipments
-        </h3>
-        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-          ${userOrders.map(order => `
-            <div style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.25rem; background: #FFF9FC;">
-              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.85rem; margin-bottom: 1rem;">
-                <div>
-                  <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #724E79;">ORDER NUMBER</span>
-                  <div style="font-size: 1rem; font-weight: 800; color: #3B0F4A;">${order.orderNumber}</div>
-                </div>
-                <div>
-                  <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #724E79;">STATUS</span>
-                  <div style="font-size: 0.85rem; font-weight: 800; color: #059669;">${order.status} &bull; ${order.carrier || "Blue Dart"}</div>
-                </div>
-                <div>
-                  <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #724E79;">TOTAL</span>
-                  <div style="font-size: 1.05rem; font-weight: 800; color: #E0245E;">₹${Number(order.total).toLocaleString('en-IN')}</div>
-                </div>
-              </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #3B0F4A; margin: 0;">
+              My Orders & Live Tracking
+            </h3>
+            <span style="font-size: 0.78rem; color: #724E79;">Real-time progress, carrier dispatch details & estimated delivery</span>
+          </div>
 
-              <!-- Items list -->
-              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                ${order.items.map(item => `
-                  <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="${item.image || 'assets/images/anime-tee-model-front.jpg'}" style="width: 50px; height: 50px; border-radius: var(--radius-xs); object-fit: cover; border: 1px solid var(--color-border);" />
-                    <div style="flex: 1;">
-                      <div style="font-size: 0.9rem; font-weight: 700; color: #3B0F4A;">${item.name}</div>
-                      <div style="font-size: 0.78rem; color: #724E79;">Size: ${item.size} &bull; Qty: ${item.quantity || 1} &bull; ₹${item.price}</div>
+          <a href="track.php" class="btn-secondary" style="height: 36px; font-size: 0.78rem; padding: 0 0.95rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; border-color: #6A1B6E; color: #6A1B6E;">
+            <span>🔍 Public Track Portal</span>
+          </a>
+        </div>
+
+        <!-- Notification Note: Order confirmation notice -->
+        <div style="background: #FAF0F6; border: 1px solid #F0D7E7; border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.65rem;">
+          <span style="font-size: 1.1rem;">🔔</span>
+          <span style="font-size: 0.8rem; color: #3B0F4A; line-height: 1.4;">
+            <strong>Tracking Notice:</strong> Tracking details ship aana udane SMS & WhatsApp la live quicklink oda anuppuvom. "Where is my order?" calls thevai illa!
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.75rem;">
+          ${userOrders.map(order => {
+            const currentStepIdx = getStepIndex(order.status);
+            const orderId = order.orderNumber || order.id || 'FF-89214';
+            const carrier = order.carrier || 'Blue Dart Express';
+            const trackingNo = order.trackingNumber || 'Pending';
+            const hasTracking = trackingNo && trackingNo !== 'Pending';
+            const carrierTrackUrl = buildCarrierUrl(carrier, trackingNo);
+            const publicTrackUrl = `track.php?order=${encodeURIComponent(orderId)}&phone=${phone10}`;
+            const waHelpMsg = encodeURIComponent(`Hi Feather Fits team, en order #${orderId} pathi status update thevai paduthu. Please help!`);
+
+            return `
+              <div style="border: 1.5px solid #F0D7E7; border-radius: var(--radius-md); padding: 1.5rem; background: #FFFFFF; box-shadow: 0 4px 14px rgba(106, 27, 110, 0.04);">
+                
+                <!-- Order Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid #F0D7E7; padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                  <div>
+                    <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: #724E79; display: block;">ORDER NUMBER</span>
+                    <strong style="font-size: 1.1rem; color: #3B0F4A; font-family: monospace;">#${orderId}</strong>
+                  </div>
+                  <div>
+                    <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: #724E79; display: block;">ESTIMATED DELIVERY</span>
+                    <strong style="font-size: 0.92rem; color: #059669;">${order.estimatedDelivery || 'In 2-3 Days'}</strong>
+                  </div>
+                  <div>
+                    <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: #724E79; display: block;">TOTAL PAID</span>
+                    <strong style="font-size: 1.15rem; color: #E0245E;">₹${Number(order.total).toLocaleString('en-IN')}</strong>
+                  </div>
+                </div>
+
+                <!-- 5-Stage Stepper Progress Bar -->
+                <div style="margin-bottom: 1.5rem; padding: 0.5rem 0.25rem;">
+                  <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 0.65rem;">
+                    <!-- Track Line Behind -->
+                    <div style="position: absolute; top: 12px; left: 20px; right: 20px; height: 3px; background: #F0D7E7; z-index: 1;"></div>
+                    <div style="position: absolute; top: 12px; left: 20px; width: ${Math.min(100, Math.max(0, (currentStepIdx / 4) * 100))}%; height: 3px; background: linear-gradient(90deg, #6A1B6E, #E0245E); z-index: 2; transition: width 0.3s ease;"></div>
+
+                    ${stages.map((stg, i) => {
+                      const isCompleted = i <= currentStepIdx;
+                      const isCurrent = i === currentStepIdx;
+                      return `
+                        <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; width: 60px;">
+                          <div style="width: 26px; height: 26px; border-radius: 50%; background: ${isCompleted ? (isCurrent ? '#E0245E' : '#6A1B6E') : '#FFFFFF'}; border: 2px solid ${isCompleted ? (isCurrent ? '#E0245E' : '#6A1B6E') : '#CBD5E1'}; color: ${isCompleted ? '#fff' : '#94A3B8'}; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; box-shadow: ${isCurrent ? '0 0 0 3px rgba(224, 36, 94, 0.25)' : 'none'};">
+                            ${isCompleted ? '✓' : (i + 1)}
+                          </div>
+                          <span style="font-size: 0.68rem; font-weight: ${isCompleted ? '800' : '600'}; color: ${isCompleted ? '#3B0F4A' : '#94A3B8'}; margin-top: 0.35rem; text-align: center; line-height: 1.2;">
+                            ${stg}
+                          </span>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <!-- Carrier & Tracking Info Box -->
+                <div style="background: #FDF7FB; border: 1px solid #F0D7E7; border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                  <div>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #724E79; text-transform: uppercase;">CARRIER & AWB TRACKING</span>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem;">
+                      <span style="font-weight: 800; color: #3B0F4A; font-size: 0.88rem;">${carrier}</span>
+                      <code style="background: #FFFFFF; border: 1px solid #F0D7E7; padding: 0.2rem 0.55rem; border-radius: 4px; font-weight: 800; color: #6A1B6E; font-size: 0.82rem;">${trackingNo}</code>
                     </div>
                   </div>
-                `).join('')}
+
+                  <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    ${hasTracking ? `
+                      <button type="button" class="btn-secondary" style="height: 34px; font-size: 0.75rem; padding: 0 0.85rem;" onclick="navigator.clipboard.writeText('${trackingNo}').then(() => alert('AWB Tracking number copied: ${trackingNo}'));">
+                        📋 Copy AWB
+                      </button>
+                      <a href="${carrierTrackUrl}" target="_blank" class="btn-primary" style="height: 34px; font-size: 0.75rem; padding: 0 0.95rem; background: #6A1B6E; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
+                        <span>🚀 Track Parcel ↗</span>
+                      </a>
+                    ` : `
+                      <span style="font-size: 0.78rem; color: #D97706; font-weight: 700;">⏳ Packing in progress &bull; Tracking will update soon</span>
+                    `}
+                    <a href="${publicTrackUrl}" target="_blank" class="btn-secondary" style="height: 34px; font-size: 0.75rem; padding: 0 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; color: #B5258F; border-color: #F0D7E7;">
+                      <span>Live Tracker</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Items in Order -->
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; border-bottom: 1px dashed #F0D7E7; padding-bottom: 1rem; margin-bottom: 1rem;">
+                  ${(order.items || []).map(item => `
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                      <img src="${item.image || 'assets/images/anime-tee-model-front.jpg'}" style="width: 54px; height: 54px; border-radius: var(--radius-xs); object-fit: cover; border: 1px solid var(--color-border);" />
+                      <div style="flex: 1;">
+                        <div style="font-size: 0.9rem; font-weight: 800; color: #3B0F4A;">${item.name}</div>
+                        <div style="font-size: 0.78rem; color: #724E79;">Size: ${item.size || 'L'} &bull; Qty: ${item.quantity || item.qty || 1} &bull; ₹${item.price || 1299}</div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+
+                <!-- Footer Help concierge -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                  <span style="font-size: 0.78rem; color: #724E79;">
+                    Parcel update aagala? Direct support available 24/7.
+                  </span>
+                  <a href="https://wa.me/919876543210?text=${waHelpMsg}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 800; color: #25D366; text-decoration: none;">
+                    <span>💬 WhatsApp Support (Order #${orderId})</span>
+                  </a>
+                </div>
+
               </div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
     `;

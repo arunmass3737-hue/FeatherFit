@@ -29,7 +29,7 @@
       <div class="footer-col">
         <h4>Customer Care</h4>
         <ul>
-          <li><a href="account.php?tab=tracking">Track Your Order</a></li>
+          <li><a href="track.php">Track Your Order</a></li>
           <li><a href="javascript:void(0)" onclick="if(window.FeatherApp){window.FeatherApp.openWishlistDrawer();}">Saved Wishlist</a></li>
           <li><a href="javascript:void(0)" onclick="if(window.FeatherApp){window.FeatherApp.openCartDrawer();}">Shopping Bag</a></li>
           <li><a href="account.php">My Account & Orders</a></li>

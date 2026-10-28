@@ -1760,3 +1760,271 @@ button[onclick*="add-product-modal"]:hover {
   font-weight: 900 !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 }
+
+/* ==========================================================================
+   ADMIN SHIPPING & DISPATCH ENGINE STYLES
+   ========================================================================== */
+.shipping-box {
+  background: #FDF7FB;
+  border: 1.5px solid #F0D7E7;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.shipping-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #F0D7E7;
+}
+
+.shipping-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px dashed #F0D7E7;
+}
+
+.btn-whatsapp-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #25D366;
+  color: #FFFFFF;
+  border: none;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-whatsapp-action:hover {
+  background: #1DA851;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
+.timeline-stepper {
+  position: relative;
+  border-left: 2px solid #F0D7E7;
+  margin-left: 0.85rem;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.timeline-node {
+  position: relative;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -2.05rem;
+  top: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #6A1B6E;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 2px #F0D7E7;
+}
+
+.timeline-node.active .timeline-dot {
+  background: #E0245E;
+  box-shadow: 0 0 0 3px rgba(224, 36, 94, 0.35);
+}
+
+.csv-dropzone {
+  border: 2px dashed #B5258F;
+  background: #FAF0F6;
+  border-radius: var(--radius-md);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.csv-dropzone:hover {
+  background: #FBEAF3;
+  border-color: #E0245E;
+}
+
+.tag-delayed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: #FDF2F4;
+  color: #DC2626;
+  border: 1px solid #F87171;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+/* Order Table Shipping & Tracking Badges */
+.carrier-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-xs);
+  background: #FBEAF3;
+  color: #6A1B6E;
+  border: 1px solid #F0D7E7;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.track-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: #6A1B6E;
+  color: #FFFFFF !important;
+  font-size: 0.72rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.track-icon-btn:hover {
+  background: #B5258F;
+  transform: translateY(-1px);
+}
+
+.whatsapp-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: #25D366;
+  color: #FFFFFF !important;
+  font-size: 0.72rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.whatsapp-icon-btn:hover {
+  background: #1DA851;
+  transform: translateY(-1px);
+}
+
+.btn-needs-tracking {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #FFFBEB;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-needs-tracking:hover {
+  background: #FEF3C7;
+  transform: translateY(-1px);
+}
+
+.badge-delayed {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.order-row-delayed {
+  background: #FFF5F5 !important;
+}
+
+.btn-quick-deliver {
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.btn-quick-deliver:hover {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+.btn-dispatch-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-xs);
+  background: linear-gradient(135deg, #6A1B6E, #B5258F);
+  color: #FFFFFF;
+  border: none;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-dispatch-action:hover {
+  background: linear-gradient(135deg, #3B0F4A, #6A1B6E);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(106, 27, 110, 0.25);
+}
+
+.timeline-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+.timeline-step .timeline-dot {
+  position: absolute;
+  left: -1.95rem;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #6A1B6E;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 2px #F0D7E7;
+}
+
+.timeline-step:last-child .timeline-dot {
+  background: #E0245E;
+  box-shadow: 0 0 0 3px rgba(224, 36, 94, 0.35);
+}
+
+.timeline-step .timeline-content {
+  background: #FFFFFF;
+  border: 1px solid #F0D7E7;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  width: 100%;
+}

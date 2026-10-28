@@ -1,0 +1,37 @@
+[
+  {
+    "id": "bluedart",
+    "name": "Blue Dart Express",
+    "urlTemplate": "https://www.bluedart.com/tracking?trackNumber={TRACKING}"
+  },
+  {
+    "id": "delhivery",
+    "name": "Delhivery",
+    "urlTemplate": "https://www.delhivery.com/track/package/{TRACKING}"
+  },
+  {
+    "id": "indiapost",
+    "name": "India Post Speed",
+    "urlTemplate": "https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx?consignmentNo={TRACKING}"
+  },
+  {
+    "id": "dtdc",
+    "name": "DTDC Express",
+    "urlTemplate": "https://www.dtdc.in/tracking/shipment-tracking.asp?tracking_no={TRACKING}"
+  },
+  {
+    "id": "shadowfax",
+    "name": "Shadowfax",
+    "urlTemplate": "https://tracker.shadowfax.in/#/track/{TRACKING}"
+  },
+  {
+    "id": "xpressbees",
+    "name": "Xpressbees",
+    "urlTemplate": "https://www.xpressbees.com/track?isawb=true&trackid={TRACKING}"
+  },
+  {
+    "id": "other",
+    "name": "Other Courier",
+    "urlTemplate": ""
+  }
+]

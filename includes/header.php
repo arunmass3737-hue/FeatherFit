@@ -81,6 +81,11 @@ $pageDescription = $pageDescription ?? 'Shop premium graphic T-shirts and luxury
               <span class="nav-pill-badge">New</span>
             </a>
           </li>
+          <li>
+            <a href="track.php" class="nav-link <?php echo ($currentPage ?? '') === 'track' ? 'active' : ''; ?>">
+              <span>Track Order</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -156,7 +161,7 @@ $pageDescription = $pageDescription ?? 'Shop premium graphic T-shirts and luxury
         </ul>
         <span class="mobile-drawer-heading">Quick Actions</span>
         <div class="mobile-drawer-grid">
-          <a href="account.php?tab=tracking" class="mobile-shortcut-btn">
+          <a href="track.php" class="mobile-shortcut-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             <span>Track Order</span>
           </a>
