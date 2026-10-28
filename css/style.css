@@ -4327,14 +4327,197 @@ input:checked + .toggle-slider:before {
   .dept-poster-content {
     padding: 1.25rem;
   }
-  .dept-poster-title {
-    font-size: 1.25rem;
+/* ==========================================================================
+   NEW ARRIVALS SPOTLIGHT BANNER SECTION
+   ========================================================================== */
+.new-arrivals-banner-section {
+  padding: 1.5rem 0 2.5rem 0;
+  background: var(--color-bg);
+}
+
+.new-arrivals-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.new-arrivals-card {
+  background: linear-gradient(135deg, #18031d 0%, #2f0b37 50%, #58124c 100%);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  box-shadow: 0 16px 40px rgba(45, 11, 52, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  min-height: 380px;
+}
+
+.new-arrivals-card::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -20%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(214, 37, 104, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.new-arrivals-content {
+  padding: 3rem 3.5rem;
+  color: #FFFFFF;
+  position: relative;
+  z-index: 1;
+}
+
+.new-arrivals-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(255, 117, 140, 0.2);
+  border: 1px solid rgba(255, 117, 140, 0.4);
+  color: #FF758C;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.new-arrivals-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #FFFFFF;
+  margin-bottom: 0.85rem;
+}
+
+.new-arrivals-title span {
+  background: linear-gradient(135deg, #FF758C 0%, #FFD700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.new-arrivals-desc {
+  font-size: 0.95rem;
+  color: #E2D3E0;
+  line-height: 1.6;
+  max-width: 520px;
+  margin-bottom: 1.75rem;
+}
+
+.new-arrivals-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.new-arrivals-btn {
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 24px rgba(214, 37, 104, 0.4);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.new-arrivals-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(214, 37, 104, 0.55);
+}
+
+.new-arrivals-perk {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: #EEDEE6;
+  opacity: 0.9;
+}
+
+.new-arrivals-visual {
+  position: relative;
+  height: 100%;
+  min-height: 380px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-arrivals-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.6s ease;
+}
+
+.new-arrivals-card:hover .new-arrivals-visual img {
+  transform: scale(1.04);
+}
+
+.new-arrivals-tag {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  background: rgba(29, 7, 34, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.75rem 1.15rem;
+  border-radius: var(--radius-md);
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.new-arrivals-tag-label {
+  font-size: 0.72rem;
+  color: #FF758C;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.new-arrivals-tag-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.new-arrivals-tag-price {
+  font-size: 0.92rem;
+  color: #FFD700;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .new-arrivals-card {
+    grid-template-columns: 1fr;
+  }
+  .new-arrivals-content {
+    padding: 2.25rem 1.75rem;
+  }
+  .new-arrivals-title {
+    font-size: 1.75rem;
+  }
+  .new-arrivals-visual {
+    height: 280px;
+    min-height: 280px;
   }
 }
 
-/* ==========================================================================
-   DEDICATED ACCOUNT PAGE & MINI DASHBOARD STYLES
-   ========================================================================== */
 /* ==========================================================================
    DEDICATED ACCOUNT PAGE, USER AUTH PORTAL & DASHBOARD STYLES
    ========================================================================== */
