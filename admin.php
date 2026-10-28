@@ -22,10 +22,306 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Admin Stylesheet -->
-  <link rel="stylesheet" href="css/admin.css" />
+  <!-- Core & Admin Stylesheets with Dynamic Cache Busting -->
+  <link rel="stylesheet" href="css/style.css?v=<?php echo @filemtime(__DIR__ . '/css/style.css') ?: time(); ?>" />
+  <link rel="stylesheet" href="css/admin.css?v=<?php echo @filemtime(__DIR__ . '/css/admin.css') ?: time(); ?>" />
   <script src="js/lottie.min.js"></script>
   <script src="js/lottie-icons.js"></script>
+
+  <!-- Embedded Luxury Admin Portal Styles (Guarantees 100% styled display even if CDN caches external CSS) -->
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body.is-logged-out {
+      margin: 0;
+      padding: 0;
+      background-color: #190422 !important;
+      font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      color: #2D1432;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Executive Portal Full-Screen Canvas */
+    .admin-login-screen {
+      min-height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #190422;
+      background-image: 
+        radial-gradient(circle at 12% 18%, rgba(224, 36, 94, 0.32) 0%, transparent 45%),
+        radial-gradient(circle at 88% 82%, rgba(106, 27, 110, 0.48) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(59, 15, 74, 0.65) 0%, transparent 65%);
+      padding: 2.5rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .admin-login-screen::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Glassmorphic Luxury Card */
+    .admin-login-card {
+      width: 100%;
+      max-width: 490px;
+      background: rgba(255, 255, 255, 0.985);
+      border-radius: 24px;
+      padding: 2.5rem 2.25rem;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65), 0 0 0 1.5px rgba(240, 215, 231, 0.7);
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      animation: adminSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes adminSlideUp {
+      from { opacity: 0; transform: translateY(22px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Brand Header */
+    .admin-login-logo {
+      text-align: center;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .admin-login-logo .admin-logo-mark {
+      width: 58px;
+      height: 58px;
+      font-size: 1.65rem;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #3B0F4A 0%, #6A1B6E 50%, #E0245E 100%);
+      color: #FFFFFF;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 24px rgba(106, 27, 110, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .admin-login-logo h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.65rem;
+      font-weight: 900;
+      color: #200729;
+      letter-spacing: -0.01em;
+      margin: 0 0 0.2rem 0;
+      line-height: 1.2;
+    }
+
+    .admin-login-logo span {
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #E0245E;
+    }
+
+    .admin-login-subtitle {
+      text-align: center;
+      font-size: 0.86rem;
+      color: #724E79;
+      margin: 0 0 1.4rem 0;
+      line-height: 1.5;
+    }
+
+    /* Segmented Auth Tabs */
+    .admin-auth-tabs {
+      display: flex;
+      background: #F6EDF4;
+      padding: 5px;
+      border-radius: 14px;
+      margin-bottom: 1.4rem;
+      gap: 5px;
+      border: 1.5px solid #ECD7E6;
+    }
+
+    .admin-auth-tab {
+      flex: 1;
+      padding: 0.72rem 0.6rem;
+      border: none;
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #724E79;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .admin-auth-tab:hover {
+      color: #3B0F4A;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .admin-auth-tab.active {
+      background: #3B0F4A;
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(59, 15, 74, 0.35);
+    }
+
+    .admin-auth-panel {
+      display: none;
+      animation: adminPanelFade 0.22s ease;
+    }
+
+    .admin-auth-panel.active {
+      display: block;
+    }
+
+    @keyframes adminPanelFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Alerts */
+    .admin-login-alert {
+      background: #FEF2F2;
+      border: 1px solid #FCA5A5;
+      color: #991B1B;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .admin-login-alert.success {
+      background: #ECFDF5;
+      border-color: #6EE7B7;
+      color: #065F46;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.84rem;
+      color: #200729;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 46px;
+      padding: 0.75rem 1rem;
+      border-radius: 11px;
+      background: #FAF0F6;
+      border: 1.5px solid #F0D7E7;
+      color: #200729;
+      font-size: 0.92rem;
+      font-family: inherit;
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .form-control:focus {
+      outline: none;
+      background: #FFFFFF;
+      border-color: #E0245E;
+      box-shadow: 0 0 0 3.5px rgba(224, 36, 94, 0.16);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    /* Primary CTA Button */
+    .btn-admin-cta {
+      width: 100%;
+      height: 48px;
+      background: linear-gradient(135deg, #3B0F4A 0%, #6A1B6E 50%, #E0245E 100%);
+      color: #FFFFFF;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.96rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 24px rgba(224, 36, 94, 0.35);
+      margin-top: 1rem;
+    }
+
+    .btn-admin-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(224, 36, 94, 0.48);
+    }
+
+    .btn-admin-cta:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-eye-toggle {
+      transition: color 0.2s ease;
+    }
+    .btn-eye-toggle:hover {
+      color: #3B0F4A !important;
+    }
+
+    /* Security Pill */
+    .admin-security-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.6rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed #ECD7E6;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #724E79;
+    }
+
+    @media (max-width: 520px) {
+      .admin-login-card {
+        padding: 1.85rem 1.4rem;
+        border-radius: 20px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
 </head>
 <body class="admin-body <?php echo !$isAdminLoggedIn ? 'is-logged-out' : ''; ?>">
 
@@ -1195,9 +1491,9 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="data/products.js"></script>
-  <script src="js/admin.js"></script>
+  <!-- Scripts with Dynamic Cache Busting -->
+  <script src="data/products.js?v=<?php echo @filemtime(__DIR__ . '/data/products.js') ?: time(); ?>"></script>
+  <script src="js/admin.js?v=<?php echo @filemtime(__DIR__ . '/js/admin.js') ?: time(); ?>"></script>
 
   <!-- ==========================================================================
        MODAL 1: ORDER SHIPPING, DISPATCH & TIMELINE MODAL
