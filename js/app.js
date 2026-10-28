@@ -585,24 +585,6 @@
               <h3 class="card-title">
                 <a href="product.html?id=${product.id}">${product.name}</a>
               </h3>
-              
-              <div class="card-rating">
-                ${"★".repeat(Math.floor(product.rating))}
-                <span>${product.rating.toFixed(1)}</span>
-                <span class="reviews">(${product.reviewsCount})</span>
-              </div>
-
-              <div class="card-swatches">
-                ${product.colors
-                  .map(
-                    (c, idx) => `
-                    <span class="swatch-dot ${idx === 0 ? "active" : ""}" 
-                          style="background-color: ${c.hex};" 
-                          title="${c.name}"></span>
-                  `
-                  )
-                  .join("")}
-              </div>
 
               <div class="card-footer">
                 <div class="card-price-wrap">
