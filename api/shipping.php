@@ -13,6 +13,52 @@ header('Content-Type: application/json; charset=utf-8');
 $ordersPath = dirname(__DIR__) . '/data/orders.json';
 $carriersPath = dirname(__DIR__) . '/data/carriers.json';
 
+require_once dirname(__DIR__) . '/config/db.php';
+
+function getShippingOrders() {
+    global $ordersPath;
+    $orders = [];
+    $pdo = getDBConnection();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->query("SELECT * FROM orders ORDER BY created_at DESC");
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (!empty($rows)) {
+                foreach ($rows as $r) {
+                    $orders[] = [
+                        'id' => $r['id'],
+                        'customer' => [
+                            'name' => $r['customer_name'],
+                            'email' => $r['customer_email'],
+                            'phone' => $r['customer_phone'],
+                            'city' => $r['customer_city']
+                        ],
+                        'items' => is_string($r['items']) ? json_decode($r['items'], true) : ($r['items'] ?? []),
+                        'subtotal' => (float)$r['subtotal'],
+                        'tax' => (float)$r['tax'],
+                        'shippingFee' => (float)$r['shipping_fee'],
+                        'total' => (float)$r['total'],
+                        'status' => $r['status'],
+                        'carrier' => $r['carrier'],
+                        'trackingNumber' => $r['tracking_number'],
+                        'trackingUrl' => $r['tracking_url'],
+                        'estimatedDelivery' => $r['estimated_delivery'],
+                        'shippedAt' => $r['shipped_at'],
+                        'deliveredAt' => $r['delivered_at'],
+                        'timeline' => is_string($r['timeline']) ? json_decode($r['timeline'], true) : ($r['timeline'] ?? []),
+                        'date' => $r['created_at'],
+                        'createdAt' => $r['created_at']
+                    ];
+                }
+                return $orders;
+            }
+        } catch (Exception $e) {
+            error_log("MySQL getShippingOrders error: " . $e->getMessage());
+        }
+    }
+    return readJSONFile($ordersPath, []);
+}
+
 function readJSONFile($path, $fallback = []) {
     if (file_exists($path)) {
         $content = file_get_contents($path);
@@ -93,7 +139,7 @@ switch ($action) {
     // 1. GET ORDERS WITH SHIPPING METRICS & FILTERS (ADMIN)
     // =========================================================================
     case 'get_orders':
-        $orders = readJSONFile($ordersPath, []);
+        $orders = getShippingOrders();
         $filter = strtolower($_GET['filter'] ?? 'all');
 
         $metrics = [
@@ -217,6 +263,25 @@ switch ($action) {
 
         writeJSONFile($ordersPath, $orders);
 
+        // Sync to MySQL orders table
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $sql = "UPDATE orders SET carrier = ?, tracking_number = ?, tracking_url = ?, status = 'Shipped', shipped_at = NOW(), estimated_delivery = ?, timeline = ? WHERE id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    $carrier,
+                    $trackingNumber,
+                    $updatedOrder['trackingUrl'],
+                    $estDelivery,
+                    json_encode($updatedOrder['timeline']),
+                    $orderId
+                ]);
+            } catch (Exception $e) {
+                error_log("MySQL update_shipping error: " . $e->getMessage());
+            }
+        }
+
         // Pre-build WhatsApp share message
         $custName = $updatedOrder['customer']['name'] ?? 'Customer';
         $custPhone = cleanPhoneDigits($updatedOrder['customer']['phone'] ?? '');
@@ -285,6 +350,22 @@ switch ($action) {
         }
 
         writeJSONFile($ordersPath, $orders);
+
+        // Sync to MySQL orders table
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $sql = "UPDATE orders SET status = ?, timeline = ? WHERE id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    $newStatus,
+                    json_encode($updatedOrder['timeline']),
+                    $orderId
+                ]);
+            } catch (Exception $e) {
+                error_log("MySQL update_status error: " . $e->getMessage());
+            }
+        }
         echo json_encode([
             'success' => true,
             'message' => "Order #$orderId status updated to $newStatus.",
@@ -396,7 +477,7 @@ switch ($action) {
             exit;
         }
 
-        $orders = readJSONFile($ordersPath, []);
+        $orders = getShippingOrders();
         $foundOrder = null;
         $inputDigits = cleanPhoneDigits($phoneOrEmail);
 

@@ -24,6 +24,8 @@ function writeJSONFile($path, $data) {
     return file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 }
 
+require_once dirname(__DIR__) . '/config/db.php';
+
 switch ($action) {
     case 'save_banner':
         $dept = $inputData['dept'] ?? 'all';
@@ -36,6 +38,33 @@ switch ($action) {
         $allBanners = readJSONFile($bannersPath, []);
         $allBanners[$dept] = array_merge($allBanners[$dept] ?? [], $banner);
         writeJSONFile($bannersPath, $allBanners);
+
+        // Sync to MySQL banners table
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $sql = "INSERT INTO banners (dept, badge, title, subtitle, image, primary_cta_label, primary_cta_dept, secondary_cta_label, secondary_cta_dept)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE 
+                        badge=VALUES(badge), title=VALUES(title), subtitle=VALUES(subtitle), 
+                        image=VALUES(image), primary_cta_label=VALUES(primary_cta_label), primary_cta_dept=VALUES(primary_cta_dept),
+                        secondary_cta_label=VALUES(secondary_cta_label), secondary_cta_dept=VALUES(secondary_cta_dept)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    $dept,
+                    $banner['badge'] ?? '',
+                    $banner['title'] ?? '',
+                    $banner['subtitle'] ?? '',
+                    $banner['image'] ?? 'assets/images/hero-banner.jpg',
+                    $banner['primaryCta']['label'] ?? 'Shop Now',
+                    $banner['primaryCta']['dept'] ?? 'men',
+                    $banner['secondaryCta']['label'] ?? 'Explore',
+                    $banner['secondaryCta']['dept'] ?? 'women'
+                ]);
+            } catch (Exception $e) {
+                error_log("MySQL save_banner error: " . $e->getMessage());
+            }
+        }
 
         echo json_encode(['success' => true, 'dept' => $dept, 'banners' => $allBanners]);
         break;
@@ -65,6 +94,41 @@ switch ($action) {
         }
 
         writeJSONFile($productsPath, $products);
+
+        // Sync to MySQL products table
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $sql = "INSERT INTO products (id, department, category, category_name, name, base_price, original_price, rating, reviews_count, badge, description, images, colors, sizes, stock)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE 
+                        department=VALUES(department), category=VALUES(category), category_name=VALUES(category_name), 
+                        name=VALUES(name), base_price=VALUES(base_price), original_price=VALUES(original_price), 
+                        badge=VALUES(badge), description=VALUES(description), images=VALUES(images), 
+                        colors=VALUES(colors), sizes=VALUES(sizes), stock=VALUES(stock)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    $pId,
+                    $product['department'] ?? 'men',
+                    $product['category'] ?? 'men-tshirts',
+                    $product['categoryName'] ?? "Men's Apparel",
+                    $product['name'],
+                    (float)($product['basePrice'] ?? 999),
+                    (float)($product['originalPrice'] ?? round(($product['basePrice'] ?? 999) * 1.35)),
+                    (float)($product['rating'] ?? 4.9),
+                    (int)($product['reviewCount'] ?? $product['reviewsCount'] ?? 25),
+                    $product['badge'] ?? '',
+                    $product['description'] ?? '',
+                    json_encode($product['images'] ?? []),
+                    json_encode($product['colors'] ?? []),
+                    json_encode($product['sizes'] ?? []),
+                    json_encode($product['stock'] ?? [])
+                ]);
+            } catch (Exception $e) {
+                error_log("MySQL save_product error: " . $e->getMessage());
+            }
+        }
+
         echo json_encode(['success' => true, 'product' => $product, 'count' => count($products)]);
         break;
 
@@ -81,12 +145,36 @@ switch ($action) {
         }));
 
         writeJSONFile($productsPath, $filtered);
+
+        // Delete from MySQL products table
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
+                $stmt->execute([$pId]);
+            } catch (Exception $e) {
+                error_log("MySQL delete_product error: " . $e->getMessage());
+            }
+        }
+
         echo json_encode(['success' => true, 'deletedId' => $pId, 'count' => count($filtered)]);
         break;
 
     case 'save_announcement':
         $text = $inputData['announcement'] ?? '';
         writeJSONFile($announcementPath, ['text' => $text, 'updatedAt' => date('c')]);
+
+        // Sync to MySQL announcements table
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO announcements (id, text) VALUES (1, ?) ON DUPLICATE KEY UPDATE text=VALUES(text), updated_at=NOW()");
+                $stmt->execute([$text]);
+            } catch (Exception $e) {
+                error_log("MySQL save_announcement error: " . $e->getMessage());
+            }
+        }
+
         echo json_encode(['success' => true, 'text' => $text]);
         break;
 

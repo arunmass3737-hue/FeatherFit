@@ -4,11 +4,54 @@
  * Provides clean access to products, banners, departments, and arrivals.
  */
 
+require_once dirname(__DIR__) . '/config/db.php';
+
+function mapDbProductRow($r) {
+    return [
+        'id' => $r['id'],
+        'department' => $r['department'],
+        'category' => $r['category'],
+        'categoryName' => $r['category_name'],
+        'name' => $r['name'],
+        'basePrice' => (float)$r['base_price'],
+        'originalPrice' => (float)$r['original_price'],
+        'rating' => (float)($r['rating'] ?? 4.9),
+        'reviewsCount' => (int)($r['reviews_count'] ?? 100),
+        'badge' => $r['badge'] ?? '',
+        'description' => $r['description'] ?? '',
+        'images' => is_string($r['images']) ? json_decode($r['images'], true) : ($r['images'] ?? []),
+        'colors' => is_string($r['colors']) ? json_decode($r['colors'], true) : ($r['colors'] ?? []),
+        'sizes' => is_string($r['sizes']) ? json_decode($r['sizes'], true) : ($r['sizes'] ?? []),
+        'stock' => is_string($r['stock']) ? json_decode($r['stock'], true) : ($r['stock'] ?? [])
+    ];
+}
+
 function getFeatherProducts() {
     static $products = null;
     if ($products !== null) {
         return $products;
     }
+
+    // 1. Live Query from Hostinger MySQL Database
+    $pdo = getDBConnection();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->query("SELECT * FROM products ORDER BY id ASC");
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (!empty($rows)) {
+                $mapped = [];
+                foreach ($rows as $r) {
+                    $mapped[] = mapDbProductRow($r);
+                }
+                $products = $mapped;
+                return $products;
+            }
+        } catch (Exception $e) {
+            error_log("MySQL getFeatherProducts Error: " . $e->getMessage());
+        }
+    }
+
+    // 2. Fallback to products.json if MySQL is offline or not yet configured
     $jsonPath = __DIR__ . '/products.json';
     if (file_exists($jsonPath)) {
         $json = file_get_contents($jsonPath);
@@ -23,6 +66,23 @@ function getFeatherProducts() {
 
 function getFeatherProductById($id) {
     if (empty($id)) return null;
+
+    // 1. Direct MySQL Query
+    $pdo = getDBConnection();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ? LIMIT 1");
+            $stmt->execute([$id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                return mapDbProductRow($row);
+            }
+        } catch (Exception $e) {
+            error_log("MySQL getFeatherProductById Error: " . $e->getMessage());
+        }
+    }
+
+    // 2. Fallback to array iteration
     $products = getFeatherProducts();
     foreach ($products as $p) {
         if (strcasecmp($p['id'], $id) === 0) {
@@ -37,6 +97,41 @@ function getFeatherBanners() {
     if ($banners !== null) {
         return $banners;
     }
+
+    // 1. Live Query from Hostinger MySQL Database
+    $pdo = getDBConnection();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->query("SELECT * FROM banners");
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (!empty($rows)) {
+                $result = [];
+                foreach ($rows as $r) {
+                    $dept = $r['dept'] ?: 'all';
+                    $result[$dept] = [
+                        'badge' => $r['badge'] ?? '',
+                        'title' => $r['title'] ?? '',
+                        'subtitle' => $r['subtitle'] ?? '',
+                        'image' => $r['image'] ?? 'assets/images/hero-banner.jpg',
+                        'primaryCta' => [
+                            'label' => $r['primary_cta_label'] ?? 'Shop Now',
+                            'dept' => $r['primary_cta_dept'] ?? 'men'
+                        ],
+                        'secondaryCta' => [
+                            'label' => $r['secondary_cta_label'] ?? 'Explore',
+                            'dept' => $r['secondary_cta_dept'] ?? 'women'
+                        ]
+                    ];
+                }
+                $banners = $result;
+                return $banners;
+            }
+        } catch (Exception $e) {
+            error_log("MySQL getFeatherBanners Error: " . $e->getMessage());
+        }
+    }
+
+    // 2. Fallback to banners.json
     $jsonPath = __DIR__ . '/banners.json';
     if (file_exists($jsonPath)) {
         $json = file_get_contents($jsonPath);
@@ -142,6 +237,15 @@ function getProductOriginalPrice($product) {
 }
 
 function getFeatherAnnouncement() {
+    $pdo = getDBConnection();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->query("SELECT text FROM announcements ORDER BY id ASC LIMIT 1");
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!empty($row['text'])) return $row['text'];
+        } catch (Exception $e) {}
+    }
+
     $annPath = __DIR__ . '/announcement.json';
     if (file_exists($annPath)) {
         $data = json_decode(file_get_contents($annPath), true);

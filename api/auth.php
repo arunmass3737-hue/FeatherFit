@@ -21,6 +21,8 @@ $usersPath = dirname(__DIR__) . '/data/users.json';
 $adminsPath = dirname(__DIR__) . '/data/admins.json';
 $otpsPath = dirname(__DIR__) . '/data/otps.json';
 
+require_once dirname(__DIR__) . '/config/db.php';
+
 function readJSON($path, $fallback = []) {
     if (file_exists($path)) {
         $content = file_get_contents($path);
@@ -175,6 +177,29 @@ switch ($action) {
         $users[] = $newUser;
         writeJSON($usersPath, $users);
 
+        // Sync to MySQL users table
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $sql = "INSERT INTO users (id, first_name, last_name, name, email, phone, password, is_verified, member_since, tier, coins, preferred_size, addresses)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, 'VIP Member', 0, 'L', '[]')
+                        ON DUPLICATE KEY UPDATE name=VALUES(name), password=VALUES(password)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    $newUser['id'],
+                    $firstName,
+                    $lastName,
+                    $name,
+                    $email,
+                    '+91 ' . $phone,
+                    $password,
+                    date('Y')
+                ]);
+            } catch (Exception $e) {
+                error_log("MySQL register user error: " . $e->getMessage());
+            }
+        }
+
         $safeUser = $newUser;
         unset($safeUser['passwordHash']);
         $_SESSION['feather_user'] = $safeUser;
@@ -203,13 +228,44 @@ switch ($action) {
         $foundUser = null;
         $cleanIdentifierPhone = cleanPhone($identifier);
 
-        foreach ($users as $u) {
-            $uEmail = strtolower($u['email'] ?? '');
-            $uPhone = cleanPhone($u['phone'] ?? '');
+        // Check MySQL users table first
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
+                $stmt->execute([$identifier, $cleanIdentifierPhone, '+91 ' . $cleanIdentifierPhone]);
+                $dbUser = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($dbUser) {
+                    $foundUser = [
+                        'id' => $dbUser['id'],
+                        'firstName' => $dbUser['first_name'],
+                        'lastName' => $dbUser['last_name'],
+                        'name' => $dbUser['name'],
+                        'email' => $dbUser['email'],
+                        'phone' => $dbUser['phone'],
+                        'password' => $dbUser['password'],
+                        'isVerified' => (bool)$dbUser['is_verified'],
+                        'memberSince' => $dbUser['member_since'],
+                        'tier' => $dbUser['tier'],
+                        'coins' => (int)$dbUser['coins'],
+                        'preferredSize' => $dbUser['preferred_size'],
+                        'addresses' => is_string($dbUser['addresses']) ? json_decode($dbUser['addresses'], true) : ($dbUser['addresses'] ?? [])
+                    ];
+                }
+            } catch (Exception $e) {
+                error_log("MySQL user_login error: " . $e->getMessage());
+            }
+        }
 
-            if ($uEmail === $identifier || ($cleanIdentifierPhone && $uPhone === $cleanIdentifierPhone)) {
-                $foundUser = $u;
-                break;
+        if (!$foundUser) {
+            foreach ($users as $u) {
+                $uEmail = strtolower($u['email'] ?? '');
+                $uPhone = cleanPhone($u['phone'] ?? '');
+
+                if ($uEmail === $identifier || ($cleanIdentifierPhone && $uPhone === $cleanIdentifierPhone)) {
+                    $foundUser = $u;
+                    break;
+                }
             }
         }
 
@@ -275,10 +331,27 @@ switch ($action) {
         $admins = readJSON($adminsPath, []);
         $foundAdmin = null;
 
-        foreach ($admins as $adm) {
-            if (strtolower($adm['username'] ?? '') === $usernameOrEmail || strtolower($adm['email'] ?? '') === $usernameOrEmail) {
-                $foundAdmin = $adm;
-                break;
+        // Check MySQL admins table first
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $stmt = $pdo->prepare("SELECT * FROM admins WHERE LOWER(username) = ? OR LOWER(email) = ? LIMIT 1");
+                $stmt->execute([$usernameOrEmail, $usernameOrEmail]);
+                $dbAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($dbAdmin) {
+                    $foundAdmin = $dbAdmin;
+                }
+            } catch (Exception $e) {
+                error_log("MySQL admin_login error: " . $e->getMessage());
+            }
+        }
+
+        if (!$foundAdmin) {
+            foreach ($admins as $adm) {
+                if (strtolower($adm['username'] ?? '') === $usernameOrEmail || strtolower($adm['email'] ?? '') === $usernameOrEmail) {
+                    $foundAdmin = $adm;
+                    break;
+                }
             }
         }
 
@@ -352,6 +425,25 @@ switch ($action) {
 
         $admins[] = $newAdmin;
         writeJSON($adminsPath, $admins);
+
+        // Sync to MySQL admins table
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $sql = "INSERT INTO admins (id, username, email, name, role, password) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    $newAdmin['id'],
+                    $username,
+                    $email,
+                    $name,
+                    $role,
+                    $password
+                ]);
+            } catch (Exception $e) {
+                error_log("MySQL create_admin error: " . $e->getMessage());
+            }
+        }
 
         echo json_encode([
             'success' => true,
