@@ -17,7 +17,13 @@
   let currentQty = 1;
 
   function initPdp() {
-    const products = window.FEATHER_PRODUCTS || [];
+    let products = window.FEATHER_PRODUCTS || [];
+    try {
+      const adminProds = JSON.parse(localStorage.getItem("ff_admin_products_v1") || "null");
+      if (Array.isArray(adminProds) && adminProds.length > 0) {
+        products = adminProds;
+      }
+    } catch(e) {}
     activeProduct = products.find((p) => p.id === productId) || products[0];
 
     if (!activeProduct) return;

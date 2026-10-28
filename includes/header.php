@@ -33,10 +33,10 @@ $pageDescription = $pageDescription ?? 'Shop premium graphic T-shirts and luxury
 </head>
 <body class="<?php echo htmlspecialchars($bodyClass ?? ''); ?>">
 
-  <!-- Top Announcement Bar -->
+  <!-- Top VIP Promo Announcement Bar -->
   <aside class="announcement-bar" role="complementary">
     <span class="pill">Free Delivery</span>
-    <span>Complimentary Standard Shipping on all orders over ₹999 &bull; Use code <strong>FEATHER15</strong> for 15% off your first fit</span>
+    <span id="announcement-bar-text"><?php echo function_exists('getFeatherAnnouncement') ? getFeatherAnnouncement() : 'Complimentary Standard Shipping on all orders over ₹999 &bull; Use code <strong>FEATHER20</strong> for 20% off'; ?></span>
   </aside>
 
   <!-- Sticky Site Header -->

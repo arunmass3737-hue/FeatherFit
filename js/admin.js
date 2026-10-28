@@ -152,10 +152,28 @@
     state.products = JSON.parse(JSON.stringify(base));
   }
 
-  function saveProducts() {
+  function saveProducts(productToSync = null, isDelete = false) {
     localStorage.setItem(STORAGE_KEYS.ADMIN_PRODUCTS, JSON.stringify(state.products));
+    localStorage.setItem("ff_sync_trigger", Date.now().toString());
     renderProductsTable();
     renderKpiStats();
+
+    // Direct sync to server JSON storage
+    if (productToSync) {
+      if (isDelete) {
+        fetch('api/admin.php?action=delete_product', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: productToSync.id || productToSync })
+        }).catch(err => console.warn('Server sync error', err));
+      } else {
+        fetch('api/admin.php?action=save_product', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product: productToSync })
+        }).catch(err => console.warn('Server sync error', err));
+      }
+    }
   }
 
   // Load Custom Banners
@@ -173,8 +191,19 @@
     state.customBanners = Object.assign({}, JSON.parse(JSON.stringify(base)), banners);
   }
 
-  function saveCustomBanners() {
+  function saveCustomBanners(dept = null) {
     localStorage.setItem(STORAGE_KEYS.CUSTOM_BANNERS, JSON.stringify(state.customBanners));
+    localStorage.setItem("ff_sync_trigger", Date.now().toString());
+
+    // Direct sync to server JSON storage
+    const targetDept = dept || state.activeBannerTab;
+    if (state.customBanners && state.customBanners[targetDept]) {
+      fetch('api/admin.php?action=save_banner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dept: targetDept, banner: state.customBanners[targetDept] })
+      }).catch(err => console.warn('Server sync error', err));
+    }
   }
 
   // Load orders
@@ -692,7 +721,7 @@
     if (!state.customBanners[dept].primaryCta) state.customBanners[dept].primaryCta = {};
     state.customBanners[dept].primaryCta.label = ctaLabel;
 
-    saveCustomBanners();
+    saveCustomBanners(dept);
     showToast(`${dept.toUpperCase()} Hero Banner successfully published to live store!`, "success");
   }
 
@@ -708,6 +737,14 @@
   function saveAnnouncementBar() {
     const val = document.getElementById("announcement-text-input").value.trim();
     localStorage.setItem(STORAGE_KEYS.CUSTOM_ANNOUNCEMENT, val);
+    localStorage.setItem("ff_sync_trigger", Date.now().toString());
+
+    fetch('api/admin.php?action=save_announcement', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ announcement: val })
+    }).catch(err => console.warn('Server sync error', err));
+
     showToast("Announcement bar updated across all pages!", "success");
   }
 
@@ -845,7 +882,7 @@
     prod.badge = badge;
     if (image) prod.images = [image];
 
-    saveProducts();
+    saveProducts(prod);
     closeModal("edit-product-modal");
     showToast(`Updated "${name}" details successfully!`);
   }
@@ -893,7 +930,7 @@
     };
 
     state.products.unshift(newProduct);
-    saveProducts();
+    saveProducts(newProduct);
     closeModal("add-product-modal");
     showToast(`Added "${name}" to store catalog!`);
     e.target.reset();
@@ -909,7 +946,7 @@
 
     if (confirm(`Are you sure you want to delete "${prod.name}" from the store catalog? This action cannot be undone.`)) {
       state.products = state.products.filter(p => p.id !== productId);
-      saveProducts();
+      saveProducts(prod, true);
       showToast(`Deleted "${prod.name}" from catalog.`, "warning");
     }
   }

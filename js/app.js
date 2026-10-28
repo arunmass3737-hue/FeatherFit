@@ -374,7 +374,7 @@
     const track = document.getElementById("new-arrivals-carousel-track");
     if (!track) return;
 
-    const allProducts = window.FEATHER_PRODUCTS || state.products || [];
+    const allProducts = state.products || window.FEATHER_PRODUCTS || [];
     const deptProducts = allProducts.filter((p) => p.department === state.newArrivalsDept);
 
     if (deptProducts.length === 0) {
@@ -2518,10 +2518,41 @@
     // Sync custom announcement if configured in Admin
     const customAnnounce = localStorage.getItem("ff_custom_announcement");
     if (customAnnounce) {
-      document.querySelectorAll(".announcement-bar span:last-child, .announcement-content span:last-child").forEach((el) => {
+      document.querySelectorAll("#announcement-bar-text, .announcement-bar span:last-child, .announcement-content span:last-child").forEach((el) => {
         el.innerHTML = customAnnounce;
       });
     }
+
+    // Live Cross-Tab Synchronizer (When admin adjusts products/banners, storefront updates instantly!)
+    window.addEventListener("storage", (e) => {
+      if (e.key === "ff_sync_trigger" || e.key === "ff_admin_products_v1" || e.key === "ff_custom_banners" || e.key === "ff_custom_announcement") {
+        try {
+          const freshProds = JSON.parse(localStorage.getItem("ff_admin_products_v1") || "null");
+          if (Array.isArray(freshProds)) {
+            state.products = freshProds;
+          }
+          const freshAnnounce = localStorage.getItem("ff_custom_announcement");
+          if (freshAnnounce) {
+            document.querySelectorAll("#announcement-bar-text, .announcement-bar span:last-child, .announcement-content span:last-child").forEach((el) => {
+              el.innerHTML = freshAnnounce;
+            });
+          }
+          renderHeroBanner(state.currentDepartment);
+          renderNewArrivalsCarousel();
+          renderProducts();
+        } catch (err) {
+          console.error("Live sync error", err);
+        }
+      }
+    });
+
+    // Keyboard shortcut to open Admin Command Center: Ctrl + Shift + A
+    window.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        window.open('admin.php', '_blank');
+      }
+    });
 
     // Sync active nav pills on load
     document.querySelectorAll(".nav-link[data-dept], .mobile-nav-link[data-dept]").forEach((link) => {

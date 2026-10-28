@@ -140,3 +140,12 @@ function getProductBasePrice($product) {
 function getProductOriginalPrice($product) {
     return $product['originalPrice'] ?? round(getProductBasePrice($product) * 1.35);
 }
+
+function getFeatherAnnouncement() {
+    $annPath = __DIR__ . '/announcement.json';
+    if (file_exists($annPath)) {
+        $data = json_decode(file_get_contents($annPath), true);
+        if (!empty($data['text'])) return $data['text'];
+    }
+    return "USE CODE <strong>FEATHER20</strong> FOR 20% OFF ALL OVERSIZED STREETWEAR • FREE EXPRESS SHIPPING OVER ₹999";
+}
