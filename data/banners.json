@@ -1,0 +1,58 @@
+{
+  "all": {
+    "badge": "FEATHER FITS • CONFIDENCE FITS YOU",
+    "title": "Confidence Fits You. <span>Express Every Vibe.</span>",
+    "subtitle": "Elevate your daily rotation with heavyweight combed cotton tees, iconic anime art, cinematic vintage graphics, and modern street tailoring across Men, Women & Kids.",
+    "image": "assets/images/hero-banner.jpg",
+    "primaryCta": {
+      "label": "Explore Men's Drops",
+      "dept": "men"
+    },
+    "secondaryCta": {
+      "label": "Explore Women's Fits",
+      "dept": "women"
+    }
+  },
+  "men": {
+    "badge": "MEN'S APPAREL • STREETWEAR & ESSENTIALS",
+    "title": "Men's Streetwear <span>& Modern Tailoring.</span>",
+    "subtitle": "Engineered for pure style and heavy-cotton durability. Browse oversized anime prints, casual linen overshirts, and tailored utility cargos.",
+    "image": "assets/images/mens-apparel.jpg",
+    "primaryCta": {
+      "label": "Shop Men's T-Shirts",
+      "subcat": "men-tshirts"
+    },
+    "secondaryCta": {
+      "label": "Shop Men's Shirts",
+      "subcat": "men-shirts"
+    }
+  },
+  "women": {
+    "badge": "WOMEN'S COLLECTION • CONTEMPORARY ELEGANCE",
+    "title": "Women's Luxury <span>Street & Relaxed Fits.</span>",
+    "subtitle": "Chic structured blazers, breezy linen overshirts, cropped organic cotton tees, and matching coordinates tailored to perfection.",
+    "image": "assets/images/womens-apparel.jpg",
+    "primaryCta": {
+      "label": "Shop Women's Tops",
+      "subcat": "women-tshirts"
+    },
+    "secondaryCta": {
+      "label": "Shop Women's Shirts",
+      "subcat": "women-shirts"
+    }
+  },
+  "kids": {
+    "badge": "KIDS' STREETWEAR • PLAYFUL & DURABLE",
+    "title": "Kids' Anime Drops <span>& Urban Playwear.</span>",
+    "subtitle": "Ultra-soft 100% hypoallergenic combed cotton tees, authentic anime designs, light breathable overshirts, and comfortable play sets.",
+    "image": "assets/images/kids-hero-banner.jpg",
+    "primaryCta": {
+      "label": "Shop Kids' Anime Tees",
+      "subcat": "kids-tshirts"
+    },
+    "secondaryCta": {
+      "label": "Shop Kids' Sets",
+      "subcat": "kids-sets"
+    }
+  }
+}
