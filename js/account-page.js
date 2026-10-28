@@ -79,14 +79,14 @@
   }
 
   // Active state
-  let activeTab = "orders"; // 'orders', 'addresses', 'coins', 'profile'
+  let activeTab = "orders"; // 'orders', 'addresses', 'profile'
   let showAddAddress = false;
   let authMode = "login"; // 'login' or 'register'
 
   function initAccountPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get("tab");
-    if (tabParam && ["orders", "tracking", "addresses", "coins", "profile"].includes(tabParam)) {
+    if (tabParam && ["orders", "tracking", "addresses", "profile"].includes(tabParam)) {
       activeTab = tabParam === "tracking" ? "orders" : tabParam;
     }
     render();
@@ -205,19 +205,16 @@
             </div>
           </div>
 
-          <!-- Header Right: Coins badge + Logout -->
+          <!-- Header Right: Logout -->
           <div style="display: flex; align-items: center; gap: 0.85rem;">
-            <div style="background: #FFF9FC; border: 1px solid var(--color-secondary); padding: 0.5rem 0.9rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 800; color: var(--color-secondary);">
-              🪙 ₹${u.coins || 450} Coins
-            </div>
-            <button type="button" class="btn-order-action" style="height: 40px; padding: 0 1rem;" onclick="window.FeatherAccount.signOut()">
+            <button type="button" class="btn-order-action" style="height: 40px; padding: 0 1.25rem;" onclick="window.FeatherAccount.signOut()">
               Sign Out
             </button>
           </div>
 
         </div>
 
-        <!-- 4 Simple Tabs Navigation -->
+        <!-- 3 Simple Tabs Navigation -->
         <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--color-border); padding-bottom: 0.25rem; overflow-x: auto;">
           <button 
             type="button" 
@@ -235,15 +232,6 @@
             style="font-size: 0.92rem; padding: 0.85rem 1.25rem;"
           >
             📍 Saved Addresses (${(u.addresses || []).length})
-          </button>
-
-          <button 
-            type="button" 
-            class="dash-tab-btn ${activeTab === 'coins' ? 'active' : ''}" 
-            onclick="window.FeatherAccount.switchTab('coins')"
-            style="font-size: 0.92rem; padding: 0.85rem 1.25rem;"
-          >
-            🪙 Feather Coins (₹${u.coins || 450})
           </button>
 
           <button 
@@ -271,8 +259,6 @@
         return renderSimpleOrders();
       case "addresses":
         return renderSimpleAddresses(u);
-      case "coins":
-        return renderSimpleCoins(u);
       case "profile":
         return renderSimpleProfile(u);
       default:
@@ -456,45 +442,7 @@
   }
 
   // -------------------------------------------------------------
-  // TAB 3: FEATHER COINS (Simple & Clean)
-  // -------------------------------------------------------------
-  function renderSimpleCoins(u) {
-    const coins = u.coins || 450;
-
-    return `
-      <div>
-        <div style="background: linear-gradient(135deg, #2D0B34 0%, #58124C 100%); border-radius: var(--radius-lg); padding: 2rem; color: #fff; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.85;">Feather Member Wallet</span>
-            <div style="font-size: 2rem; font-weight: 800; color: #FFD700; margin: 0.25rem 0;">🪙 ${coins} Coins</div>
-            <p style="font-size: 0.9rem; opacity: 0.9; margin: 0;">1 Coin = ₹1. Total store credit: <strong>₹${coins}</strong></p>
-          </div>
-          <a href="index.html#catalog-section" class="btn-primary" style="background: #fff; color: var(--color-primary); font-weight: 800; height: 44px; padding: 0 1.5rem;">
-            Use Coins at Checkout →
-          </a>
-        </div>
-
-        <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--color-primary); margin-bottom: 0.75rem;">How it works:</h4>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-          <div style="background: var(--color-bg); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-            <strong style="color: var(--color-primary); display: block; margin-bottom: 0.25rem;">🎉 +200 on Signup</strong>
-            <span style="font-size: 0.82rem; color: var(--color-text-muted);">Welcome coins credited automatically when you register.</span>
-          </div>
-          <div style="background: var(--color-bg); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-            <strong style="color: var(--color-primary); display: block; margin-bottom: 0.25rem;">💳 5% Prepaid Cashback</strong>
-            <span style="font-size: 0.82rem; color: var(--color-text-muted);">Earn 5% of order value back on UPI or card payments.</span>
-          </div>
-          <div style="background: var(--color-bg); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-            <strong style="color: var(--color-primary); display: block; margin-bottom: 0.25rem;">⚡ 1-Tap Redemption</strong>
-            <span style="font-size: 0.82rem; color: var(--color-text-muted);">Apply your coins with 1 click during checkout for instant discounts.</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // -------------------------------------------------------------
-  // TAB 4: PROFILE DETAILS (Simple & Clean)
+  // TAB 3: PROFILE DETAILS (Simple & Clean)
   // -------------------------------------------------------------
   function renderSimpleProfile(u) {
     return `
