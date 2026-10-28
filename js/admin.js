@@ -1434,6 +1434,47 @@
     });
   }
 
+  
+  function handleCreateAdminSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('new-adm-name').value.trim();
+    const email = document.getElementById('new-adm-email').value.trim();
+    const username = document.getElementById('new-adm-user').value.trim();
+    const role = document.getElementById('new-adm-role').value;
+    const password = document.getElementById('new-adm-pass').value;
+    const alertEl = document.getElementById('create-admin-alert');
+    const btn = document.getElementById('btn-save-new-admin');
+
+    btn.disabled = true;
+    btn.textContent = 'Creating Administrator...';
+
+    fetch('api/auth.php?action=create_admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, username, role, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      btn.disabled = false;
+      btn.textContent = 'Create Administrator →';
+      if (data.success) {
+        showToast(data.message, 'success');
+        document.getElementById('create-admin-form').reset();
+        closeModal('add-admin-modal');
+      } else {
+        alertEl.style.display = 'block';
+        alertEl.style.background = '#FEF2F2';
+        alertEl.style.color = '#991B1B';
+        alertEl.textContent = data.error || 'Failed to create admin.';
+      }
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = 'Create Administrator →';
+      showToast('Network error creating administrator.', 'danger');
+    });
+  }
+
   // Expose Global Admin API
   window.FeatherAdmin = {
     logout: function() {
@@ -1456,6 +1497,7 @@
     toggleMobileSidebar,
     closeMobileSidebar,
     showToast,
+    handleCreateAdminSubmit,
     openShippingModal,
     markAsDelivered,
     copyCustomerTrackingLink,

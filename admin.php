@@ -54,8 +54,7 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
             type="text" 
             id="admin-login-user" 
             class="form-control" 
-            placeholder="admin or admin@featherfits.com" 
-            value="admin" 
+            placeholder="Enter username or email" 
             required 
             autocomplete="username"
           />
@@ -63,26 +62,26 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
 
         <div class="form-group" style="margin-bottom: 1.5rem;">
           <label for="admin-login-pass">Password</label>
-          <input 
-            type="password" 
-            id="admin-login-pass" 
-            class="form-control" 
-            placeholder="••••••••" 
-            value="admin123" 
-            required 
-            autocomplete="current-password"
-          />
+          <div style="position: relative;">
+            <input 
+              type="password" 
+              id="admin-login-pass" 
+              class="form-control" 
+              placeholder="Enter admin password" 
+              required 
+              autocomplete="current-password"
+              style="padding-right: 44px;"
+            />
+            <button type="button" class="btn-eye-toggle" onclick="window.togglePassVisibility('admin-login-pass', this)" aria-label="Toggle Password Visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: #724E79; display: flex; align-items: center; justify-content: center; padding: 4px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
         </div>
 
         <button type="submit" id="admin-login-btn" class="btn-cta-crimson" style="width: 100%; height: 48px; font-size: 0.95rem; justify-content: center; gap: 0.6rem;">
           <span class="lottie-icon" data-lottie-icon="storefront" data-lottie-primary="#FFFFFF" data-lottie-secondary="#FFFFFF" style="width: 18px; height: 18px;"></span>
           <span>Authorize & Enter Dashboard</span>
         </button>
-
-        <div class="admin-login-hint">
-          <span>⚡ Default Super Admin:</span>
-          <code>admin / admin123</code>
-        </div>
 
         <div style="text-align: center; margin-top: 1.5rem;">
           <a href="index.php" style="color: var(--color-coral); font-size: 0.85rem; font-weight: 700; text-decoration: none;">&larr; Return to Customer Storefront</a>
@@ -1212,6 +1211,76 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
       <span>More</span>
     </button>
   </nav>
+
+
+  <!-- ==========================================================================
+       MODAL: CREATE NEW ADMINISTRATOR
+       ========================================================================== -->
+  <div class="admin-modal-overlay" id="add-admin-modal">
+    <div class="admin-modal" style="max-width: 520px;">
+      <div class="admin-modal-header">
+        <div>
+          <h3 class="admin-modal-title">Create New Administrator</h3>
+          <span style="font-size: 0.78rem; color: #724E79;">Add an authorized team member to Admin Command Center</span>
+        </div>
+        <button type="button" class="admin-modal-close" onclick="window.FeatherAdmin.closeModal('add-admin-modal')">&times;</button>
+      </div>
+
+      <form id="create-admin-form" onsubmit="window.FeatherAdmin.handleCreateAdminSubmit(event)">
+        <div class="admin-modal-body" style="padding: 1.5rem;">
+          <div id="create-admin-alert" style="display: none; padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem;"></div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="new-adm-name">Full Name</label>
+            <input type="text" id="new-adm-name" class="form-control" placeholder="e.g. Vikram Rathore" required />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="new-adm-email">Work Email</label>
+            <input type="email" id="new-adm-email" class="form-control" placeholder="vikram@featherfits.com" required />
+          </div>
+
+          <div class="form-row" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="new-adm-user">Username</label>
+              <input type="text" id="new-adm-user" class="form-control" placeholder="e.g. vikram_admin" required />
+            </div>
+            <div class="form-group">
+              <label for="new-adm-role">Role</label>
+              <select id="new-adm-role" class="form-control">
+                <option value="Super Admin">Super Admin</option>
+                <option value="Catalog Manager">Catalog Manager</option>
+                <option value="Fulfillment Lead">Fulfillment Lead</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="new-adm-pass">Password (Plain text)</label>
+            <div style="position: relative;">
+              <input 
+                type="password" 
+                id="new-adm-pass" 
+                class="form-control" 
+                placeholder="Enter password" 
+                minlength="4" 
+                required 
+                style="padding-right: 44px;"
+              />
+              <button type="button" onclick="window.togglePassVisibility('new-adm-pass', this)" aria-label="Toggle Password Visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: #724E79; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-secondary-light" onclick="window.FeatherAdmin.closeModal('add-admin-modal')">Cancel</button>
+          <button type="submit" id="btn-save-new-admin" class="btn-cta-crimson">Create Administrator →</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 <?php endif; ?>
 </body>

@@ -1,3 +1,16 @@
+
+  window.togglePassVisibility = function(inputId, btnEl) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    if (btnEl) {
+      btnEl.innerHTML = isPass
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+    }
+  };
+
 /**
  * FEATHER FITS — VIP MEMBER DASHBOARD & AUTHENTICATION PORTAL
  * Architecture:
@@ -150,7 +163,7 @@
             Member Sign In
           </button>
           <button type="button" class="auth-nav-tab ${authMode === 'register' ? 'active' : ''}" onclick="window.FeatherAccount.switchAuthMode('register')">
-            Create Account (+100 Coins)
+            Create Account
           </button>
         </div>
 
@@ -170,14 +183,6 @@
 
   function renderLoginForm() {
     return `
-      <!-- 1-Click Demo Shortcut -->
-      <div style="background: #FDF7FB; border: 1px dashed #E0245E; border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem; text-align: center;">
-        <span style="font-size: 0.75rem; font-weight: 700; color: #E0245E; display: block; margin-bottom: 0.4rem;">⚡ Quick Demo Login:</span>
-        <button type="button" class="btn-primary" style="height: 36px; font-size: 0.8rem; width: 100%; justify-content: center; background: linear-gradient(135deg, #6A1B6E, #B5258F);" onclick="window.FeatherAccount.quickDemoLogin()">
-          Sign In as Arun Kumar (VIP Member)
-        </button>
-      </div>
-
       <form onsubmit="window.FeatherAccount.handleUserLogin(event)">
         <div style="margin-bottom: 1rem;">
           <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #3B0F4A; margin-bottom: 0.35rem;">
@@ -188,8 +193,7 @@
             id="auth-login-identifier" 
             class="form-input" 
             style="height: 44px; width: 100%;" 
-            placeholder="arun.kumar@featherfits.com or 9876543210" 
-            value="arun.kumar@featherfits.com"
+            placeholder="Enter your email or 10-digit mobile number" 
             required 
           />
         </div>
@@ -198,15 +202,19 @@
           <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #3B0F4A; margin-bottom: 0.35rem;">
             Password
           </label>
-          <input 
-            type="password" 
-            id="auth-login-pass" 
-            class="form-input" 
-            style="height: 44px; width: 100%;" 
-            value="user123"
-            placeholder="••••••••" 
-            required 
-          />
+          <div style="position: relative;">
+            <input 
+              type="password" 
+              id="auth-login-pass" 
+              class="form-input" 
+              style="height: 44px; width: 100%; padding-right: 44px;" 
+              placeholder="Enter your password" 
+              required 
+            />
+            <button type="button" onclick="window.togglePassVisibility('auth-login-pass', this)" aria-label="Toggle Password Visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: #724E79; display: flex; align-items: center; justify-content: center; padding: 4px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
         </div>
 
         <button type="submit" id="auth-login-submit-btn" class="btn-primary" style="width: 100%; height: 46px; justify-content: center; font-size: 0.95rem; background: linear-gradient(135deg, #6A1B6E, #E0245E);">
@@ -285,15 +293,20 @@
           <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #3B0F4A; margin-bottom: 0.35rem;">
             Create Password
           </label>
-          <input 
-            type="password" 
-            id="reg-password" 
-            class="form-input" 
-            style="height: 44px; width: 100%;" 
-            placeholder="Min 6 characters" 
-            minlength="6"
-            required 
-          />
+          <div style="position: relative;">
+            <input 
+              type="password" 
+              id="reg-password" 
+              class="form-input" 
+              style="height: 44px; width: 100%; padding-right: 44px;" 
+              placeholder="Min 6 characters" 
+              minlength="6"
+              required 
+            />
+            <button type="button" onclick="window.togglePassVisibility('reg-password', this)" aria-label="Toggle Password Visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: #724E79; display: flex; align-items: center; justify-content: center; padding: 4px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
         </div>
 
         <button type="submit" id="reg-submit-btn" class="btn-primary" style="width: 100%; height: 46px; justify-content: center; font-size: 0.95rem; background: linear-gradient(135deg, #E0245E, #F26D6D);">
@@ -366,7 +379,7 @@
         </div>
 
         <button type="submit" id="verify-otp-submit-btn" class="btn-primary" style="width: 100%; height: 48px; justify-content: center; font-size: 0.95rem; background: linear-gradient(135deg, #6A1B6E, #E0245E);">
-          <span>Verify OTP & Activate Membership (+100 Coins) →</span>
+          <span>Verify OTP & Activate Membership  →</span>
         </button>
 
         <div style="text-align: center; margin-top: 1.25rem;">
@@ -906,13 +919,13 @@
         } else {
           showAuthAlert(data.error || "OTP verification failed.");
           btn.disabled = false;
-          btn.innerHTML = "<span>Verify OTP & Activate Membership (+100 Coins) →</span>";
+          btn.innerHTML = "<span>Verify OTP & Activate Membership  →</span>";
         }
       })
       .catch(err => {
         showAuthAlert("Connection error. Please try again.");
         btn.disabled = false;
-        btn.innerHTML = "<span>Verify OTP & Activate Membership (+100 Coins) →</span>";
+        btn.innerHTML = "<span>Verify OTP & Activate Membership  →</span>";
       });
     },
 

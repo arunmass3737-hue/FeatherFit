@@ -163,11 +163,11 @@ switch ($action) {
             'name' => $name,
             'email' => $email,
             'phone' => '+91 ' . $phone,
-            'passwordHash' => password_hash($password, PASSWORD_DEFAULT),
+            'password' => $password,
             'isVerified' => true,
             'memberSince' => date('Y'),
             'tier' => 'VIP Member',
-            'coins' => 100, // Welcome bonus coins!
+            'coins' => 0,
             'preferredSize' => 'L',
             'addresses' => []
         ];
@@ -231,8 +231,11 @@ switch ($action) {
             unset($otps[$key]);
             writeJSON($otpsPath, $otps);
         } else {
-            // Login via Password
-            if (empty($password) || !password_verify($password, $foundUser['passwordHash'] ?? '')) {
+            // Login via Password (Plain text check with fallback)
+            $storedPass = $foundUser['password'] ?? $foundUser['passwordHash'] ?? '';
+            $isCorrect = ($password === $storedPass) || (strlen($storedPass) > 20 && password_verify($password, $storedPass));
+
+            if (empty($password) || !$isCorrect) {
                 echo json_encode(['success' => false, 'error' => 'Incorrect password. Please try again or use OTP login.']);
                 exit;
             }
@@ -279,7 +282,10 @@ switch ($action) {
             }
         }
 
-        if (!$foundAdmin || !password_verify($password, $foundAdmin['passwordHash'] ?? '')) {
+        $storedAdminPass = $foundAdmin['password'] ?? $foundAdmin['passwordHash'] ?? '';
+        $isAdminPassCorrect = ($password === $storedAdminPass) || (strlen($storedAdminPass) > 20 && password_verify($password, $storedAdminPass));
+
+        if (!$foundAdmin || !$isAdminPassCorrect) {
             echo json_encode(['success' => false, 'error' => 'Invalid admin credentials. Access denied.']);
             exit;
         }
@@ -306,6 +312,79 @@ switch ($action) {
     // =========================================================================
     // 7. GET ACTIVE SESSION STATE
     // =========================================================================
+
+    // =========================================================================
+    // 7. CREATE NEW ADMINISTRATOR (ADMIN ONLY)
+    // =========================================================================
+    case 'create_admin':
+        $username = trim(strtolower($inputData['username'] ?? ''));
+        $email = trim(strtolower($inputData['email'] ?? ''));
+        $name = trim($inputData['name'] ?? '');
+        $role = trim($inputData['role'] ?? 'Manager');
+        $password = $inputData['password'] ?? '';
+
+        if (empty($username) || empty($password) || empty($email) || empty($name)) {
+            echo json_encode(['success' => false, 'error' => 'Username, Email, Full Name, and Password are all required.']);
+            exit;
+        }
+
+        $admins = readJSON($adminsPath, []);
+        foreach ($admins as $adm) {
+            if (strtolower($adm['username'] ?? '') === $username) {
+                echo json_encode(['success' => false, 'error' => "Admin username '$username' is already taken."]);
+                exit;
+            }
+            if (strtolower($adm['email'] ?? '') === $email) {
+                echo json_encode(['success' => false, 'error' => "Admin email '$email' is already registered."]);
+                exit;
+            }
+        }
+
+        $newAdmin = [
+            'id' => 'adm_' . time(),
+            'username' => $username,
+            'email' => $email,
+            'name' => $name,
+            'role' => $role,
+            'password' => $password, // Plain text password as requested!
+            'createdAt' => date('c')
+        ];
+
+        $admins[] = $newAdmin;
+        writeJSON($adminsPath, $admins);
+
+        echo json_encode([
+            'success' => true,
+            'message' => "New administrator '$name' (@$username) created successfully!",
+            'admin' => [
+                'id' => $newAdmin['id'],
+                'username' => $username,
+                'email' => $email,
+                'name' => $name,
+                'role' => $role
+            ]
+        ]);
+        break;
+
+    // =========================================================================
+    // 8. LIST ALL ADMINISTRATORS
+    // =========================================================================
+    case 'get_admins':
+        $admins = readJSON($adminsPath, []);
+        $safeList = array_map(function($a) {
+            return [
+                'id' => $a['id'],
+                'username' => $a['username'],
+                'email' => $a['email'],
+                'name' => $a['name'],
+                'role' => $a['role'] ?? 'Admin',
+                'password' => $a['password'] ?? '********',
+                'createdAt' => $a['createdAt'] ?? ''
+            ];
+        }, $admins);
+        echo json_encode(['success' => true, 'admins' => $safeList]);
+        break;
+
     case 'get_session':
     default:
         echo json_encode([

@@ -16,14 +16,14 @@ CREATE TABLE IF NOT EXISTS `admins` (
   `email` varchar(191) NOT NULL UNIQUE,
   `name` varchar(150) NOT NULL,
   `role` varchar(50) NOT NULL DEFAULT 'Super Admin',
-  `password_hash` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `admins` (`id`, `username`, `email`, `name`, `role`, `password_hash`, `created_at`)
-VALUES ('admin_01', 'admin', 'admin@featherfits.com', 'Arun Kumar', 'Super Admin', '$2y$10$hphcTuNecyh3cjh90ClewOgzgPbos.m0vvsrIVcC6dYJ.iIwG4icS', '2026-10-28 09:00:00')
+INSERT INTO `admins` (`id`, `username`, `email`, `name`, `role`, `password`, `created_at`)
+VALUES ('admin_01', 'admin', 'admin@featherfits.com', 'Arun Kumar', 'Super Admin', 'admin123', '2026-10-28 09:00:00')
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);
 
 -- ------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `name` varchar(150) NOT NULL,
   `email` varchar(191) NOT NULL UNIQUE,
   `phone` varchar(20) NOT NULL UNIQUE,
-  `password_hash` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `is_verified` tinyint(1) NOT NULL DEFAULT 1,
   `member_since` varchar(10) DEFAULT '2024',
   `tier` varchar(50) DEFAULT 'VIP Member',
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   KEY `idx_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `name`, `email`, `phone`, `password_hash`, `is_verified`, `member_since`, `tier`, `coins`, `preferred_size`, `addresses`)
-VALUES ('usr_9876543210', 'Arun', 'Kumar', 'Arun Kumar', 'arun.kumar@featherfits.com', '9876543210', '$2y$10$ReWAYp83QghjRUMZuHx8mO1Ya34MDexnmTZBXnU.TP1.w3uLWQ8Oa', 1, '2024', 'VIP Member', 450, 'L', '[{"id":"addr_1","tag":"Home","isDefault":true,"name":"Arun Kumar","phone":"+91 98765 43210","line1":"42, Gandhi Road, T. Nagar","city":"Chennai","state":"Tamil Nadu","postalCode":"600017"}]')
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `name`, `email`, `phone`, `password`, `is_verified`, `member_since`, `tier`, `coins`, `preferred_size`, `addresses`)
+VALUES ('usr_9876543210', 'Arun', 'Kumar', 'Arun Kumar', 'arun.kumar@featherfits.com', '9876543210', 'user123', 1, '2024', 'VIP Member', 450, 'L', '[{"id":"addr_1","tag":"Home","isDefault":true,"name":"Arun Kumar","phone":"+91 98765 43210","line1":"42, Gandhi Road, T. Nagar","city":"Chennai","state":"Tamil Nadu","postalCode":"600017"}]')
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);
 
 -- ------------------------------------------------------------------------------
