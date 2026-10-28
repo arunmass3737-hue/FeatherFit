@@ -289,6 +289,11 @@
     if (prodBadge) prodBadge.textContent = productsCount;
     if (orderBadge) orderBadge.textContent = state.orders.length;
 
+    const mobProdBadge = document.getElementById("mobile-badge-products");
+    if (mobProdBadge) mobProdBadge.textContent = productsCount;
+    const mobOrderBadge = document.getElementById("mobile-badge-orders");
+    if (mobOrderBadge) mobOrderBadge.textContent = state.orders.length;
+
     const menCount = state.products.filter(p => p.department === "men").length;
     const womenCount = state.products.filter(p => p.department === "women").length;
     const kidsCount = state.products.filter(p => p.department === "kids").length;
@@ -1082,9 +1087,16 @@
   function setSection(sectionId) {
     state.activeSection = sectionId;
 
+    // Sidebar desktop links
     document.querySelectorAll(".admin-nav-link[data-section]").forEach(link => {
       const match = link.getAttribute("data-section") === sectionId;
       link.classList.toggle("active", match);
+    });
+
+    // Mobile bottom nav buttons
+    document.querySelectorAll(".admin-mobile-nav-item[data-admin-nav]").forEach(btn => {
+      const match = btn.getAttribute("data-admin-nav") === sectionId;
+      btn.classList.toggle("active", match);
     });
 
     document.querySelectorAll(".admin-section").forEach(sec => {
@@ -1094,6 +1106,7 @@
     if (target) target.classList.add("active");
 
     closeMobileSidebar();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // Filter products by department

@@ -320,7 +320,7 @@
       <span>Shop</span>
     </a>
 
-    <button type="button" class="mobile-nav-item" onclick="if(window.FeatherApp){window.FeatherApp.openTrackingModal();}">
+    <a href="track.php" class="mobile-nav-item <?php echo (($currentPage ?? '') === 'track') ? 'active' : ''; ?>">
       <span class="lottie-icon" data-lottie-icon="orders" data-lottie-primary="#3B0F4A" data-lottie-secondary="#E0245E" style="width: 22px; height: 22px;">
         <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
@@ -328,7 +328,7 @@
         </svg>
       </span>
       <span>Track</span>
-    </button>
+    </a>
 
     <button type="button" class="mobile-nav-item" onclick="if(window.FeatherApp){window.FeatherApp.openWishlistDrawer();}">
       <span class="lottie-icon" data-lottie-icon="wishlist" data-lottie-primary="#E0245E" data-lottie-secondary="#F26D6D" style="width: 22px; height: 22px;">

@@ -1151,6 +1151,68 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
     </div>
   </div>
 
+
+  <!-- ==========================================================================
+       FIXED MOBILE BOTTOM NAVIGATION BAR FOR ADMIN COMMAND
+       ========================================================================== -->
+  <nav class="admin-mobile-bottom-nav" aria-label="Admin Mobile Navigation">
+    <button type="button" class="admin-mobile-nav-item active" data-admin-nav="overview" onclick="window.FeatherAdmin.setSection('overview')">
+      <span class="lottie-icon" data-lottie-icon="overview" data-lottie-primary="#6A1B6E" data-lottie-secondary="#E0245E" style="width: 20px; height: 20px;">
+        <svg class="fallback-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="9"></rect>
+          <rect x="14" y="3" width="7" height="5"></rect>
+          <rect x="14" y="12" width="7" height="9"></rect>
+          <rect x="3" y="16" width="7" height="5"></rect>
+        </svg>
+      </span>
+      <span>Overview</span>
+    </button>
+
+    <button type="button" class="admin-mobile-nav-item" data-admin-nav="orders" onclick="window.FeatherAdmin.setSection('orders')">
+      <span class="lottie-icon" data-lottie-icon="orders" data-lottie-primary="#6A1B6E" data-lottie-secondary="#E0245E" style="width: 20px; height: 20px;">
+        <svg class="fallback-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+      </span>
+      <span class="admin-mobile-badge" id="mobile-badge-orders">6</span>
+      <span>Orders</span>
+    </button>
+
+    <button type="button" class="admin-mobile-nav-item" data-admin-nav="products" onclick="window.FeatherAdmin.setSection('products')">
+      <span class="lottie-icon" data-lottie-icon="products" data-lottie-primary="#6A1B6E" data-lottie-secondary="#E0245E" style="width: 20px; height: 20px;">
+        <svg class="fallback-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        </svg>
+      </span>
+      <span class="admin-mobile-badge" id="mobile-badge-products">17</span>
+      <span>Catalog</span>
+    </button>
+
+    <button type="button" class="admin-mobile-nav-item" data-admin-nav="banners" onclick="window.FeatherAdmin.setSection('banners')">
+      <span class="lottie-icon" data-lottie-icon="banners" data-lottie-primary="#6A1B6E" data-lottie-secondary="#E0245E" style="width: 20px; height: 20px;">
+        <svg class="fallback-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+      </span>
+      <span>Banners</span>
+    </button>
+
+    <button type="button" class="admin-mobile-nav-item" onclick="window.FeatherAdmin.toggleMobileSidebar()">
+      <span class="lottie-icon" data-lottie-icon="customers" data-lottie-primary="#6A1B6E" data-lottie-secondary="#B5258F" style="width: 20px; height: 20px;">
+        <svg class="fallback-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </span>
+      <span>More</span>
+    </button>
+  </nav>
+
 <?php endif; ?>
 </body>
 </html>

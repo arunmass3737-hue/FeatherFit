@@ -1221,24 +1221,25 @@
               <img src="${item.images[0]}" alt="${item.name}" />
             </a>
             <div class="item-details">
-              <h4 class="item-name">
-                <a href="product.php?id=${item.id}" onclick="window.FeatherApp.closeWishlistDrawer()">${item.name}</a>
-              </h4>
-              <span class="item-variant-label">${item.categoryName}</span>
-              
-              <div class="item-price-row">
-                <span class="item-price">₹${item.basePrice.toLocaleString('en-IN')}</span>
-                
-                <a href="product.php?id=${item.id}" class="card-quick-add" onclick="window.FeatherApp.closeWishlistDrawer()">
-                  <span>Select & Buy</span>
-                </a>
-
-                <button class="item-remove-btn" onclick="window.FeatherApp.toggleWishlist('${item.id}')" title="Remove">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class="drawer-item-header">
+                <h4 class="item-name">
+                  <a href="product.php?id=${item.id}" onclick="window.FeatherApp.closeWishlistDrawer()">${item.name}</a>
+                </h4>
+                <button class="item-remove-btn" onclick="window.FeatherApp.toggleWishlist('${item.id}')" title="Remove from Wishlist" aria-label="Remove">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
                 </button>
+              </div>
+              <span class="item-variant-label">${item.categoryName}</span>
+              
+              <div class="drawer-item-actions">
+                <span class="item-price">₹${item.basePrice.toLocaleString('en-IN')}</span>
+                
+                <a href="product.php?id=${item.id}" class="drawer-btn-buy" onclick="window.FeatherApp.closeWishlistDrawer()">
+                  <span>Select & Buy &rarr;</span>
+                </a>
               </div>
             </div>
           </div>
