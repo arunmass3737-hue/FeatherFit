@@ -39,7 +39,7 @@
     const titleCrumb = document.getElementById("pdp-title-crumb");
     if (catLink) {
       catLink.textContent = activeProduct.categoryName;
-      catLink.href = `index.html?department=${activeProduct.department || 'men'}&subcategory=${activeProduct.category}#catalog-section`;
+      catLink.href = `index.php?department=${activeProduct.department || 'men'}&subcategory=${activeProduct.category}#catalog-section`;
       catLink.onclick = (e) => {
         if (window.FeatherApp) {
           window.FeatherApp.setSubcategory(activeProduct.category, activeProduct.department || 'men');
@@ -261,13 +261,13 @@
 
     return `
       <article class="product-card" data-product-id="${product.id}">
-        <a href="product.html?id=${product.id}" class="card-img-wrap">
+        <a href="product.php?id=${product.id}" class="card-img-wrap">
           <img src="${product.images[0]}" alt="${product.name}" class="card-img" loading="lazy" />
           ${product.badge ? `<span class="card-badge">${product.badge}</span>` : ""}
         </a>
         <div class="card-body">
           <span class="card-category">${product.categoryName}</span>
-          <a href="product.html?id=${product.id}" class="card-title">${product.name}</a>
+          <a href="product.php?id=${product.id}" class="card-title">${product.name}</a>
           <div class="card-rating">
             <span>★★★★★</span>
             <span>${product.rating.toFixed(1)}</span>
@@ -277,7 +277,7 @@
             <div class="card-price-wrap">
               <span class="card-price">₹${product.basePrice.toLocaleString('en-IN')}</span>
             </div>
-            <a href="product.html?id=${product.id}" class="card-quick-add">
+            <a href="product.php?id=${product.id}" class="card-quick-add">
               <span>View Fit</span>
             </a>
           </div>

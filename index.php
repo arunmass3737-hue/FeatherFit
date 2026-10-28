@@ -1,460 +1,320 @@
 <?php
 require_once __DIR__ . '/data/products.php';
 
-$currentDept = $_GET['department'] ?? 'all';
-$pageTitle = "Feather Fits — Luxury Streetwear & Graphic Drops | Confidence Fits You";
-$pageDescription = "Discover Feather Fits luxury streetwear, pre-shrunk 240 GSM graphic tees, vintage cinema prints, and premium oversized fits.";
+$validDepts = ['all', 'men', 'women', 'kids'];
+$currentDept = isset($_GET['department']) && in_array($_GET['department'], $validDepts) ? $_GET['department'] : 'all';
+$currentPage = 'home';
 
-if ($currentDept === 'men') {
-    $pageTitle = "Men's Streetwear & Graphic Apparel | Feather Fits";
-    $pageDescription = "Shop Men's oversized graphic tees, heavyweight cotton drops, anime streetwear, and minimalist wardrobe essentials.";
-} elseif ($currentDept === 'women') {
-    $pageTitle = "Women's Oversized Tees & Co-ords | Feather Fits";
-    $pageDescription = "Explore Women's relaxed fits, crop silhouettes, luxury streetwear aesthetics, and exclusive anime collabs.";
-} elseif ($currentDept === 'kids') {
-    $pageTitle = "Kids' Streetwear & Anime Graphic Collection | Feather Fits";
-    $pageDescription = "Comfortable, durable 100% cotton streetwear and bold graphic tees designed for active boys & girls.";
-}
+$deptTitles = [
+    'all'   => "Feather Fits — Confidence Fits You | Premium Apparel & Graphic T-Shirts",
+    'men'   => "Men's Streetwear & Graphic Apparel | Feather Fits",
+    'women' => "Women's Oversized Tees & Co-ords | Feather Fits",
+    'kids'  => "Kids' Streetwear & Anime Graphic Collection | Feather Fits"
+];
 
+$deptDescriptions = [
+    'all'   => "Discover Feather Fits luxury streetwear, pre-shrunk 240 GSM graphic tees, vintage cinema prints, and premium oversized fits.",
+    'men'   => "Shop Men's oversized graphic tees, heavyweight cotton drops, anime streetwear, and minimalist wardrobe essentials.",
+    'women' => "Explore Women's relaxed fits, crop silhouettes, luxury streetwear aesthetics, and exclusive anime collabs.",
+    'kids'  => "Comfortable, durable 100% cotton streetwear and bold graphic tees designed for active boys & girls."
+];
+
+$pageTitle = $deptTitles[$currentDept] ?? $deptTitles['all'];
+$pageDescription = $deptDescriptions[$currentDept] ?? $deptDescriptions['all'];
+
+$banner = getFeatherBannerByDept($currentDept);
 $allProducts = getFeatherProducts();
-$banners = getFeatherBanners();
-$newArrivalsMen = getFeatherNewArrivals('men');
-$newArrivalsWomen = getFeatherNewArrivals('women');
-$newArrivalsKids = getFeatherNewArrivals('kids');
+$subcategories = getFeatherSubcategories($currentDept);
+$arrivals = getFeatherNewArrivals($currentDept);
 
-// Filter products based on selected department
-$filteredProducts = $allProducts;
-if ($currentDept !== 'all') {
-    $filteredProducts = array_filter($allProducts, function($p) use ($currentDept) {
-        return ($p['department'] ?? '') === $currentDept;
-    });
+// Filter products for initial server render based on active department
+$displayedProducts = [];
+foreach ($allProducts as $p) {
+    if ($currentDept === 'all' || ($p['department'] ?? 'men') === $currentDept) {
+        $displayedProducts[] = $p;
+    }
+}
+if (empty($displayedProducts)) {
+    $displayedProducts = $allProducts;
 }
 
-include __DIR__ . '/includes/header.php';
-include __DIR__ . '/includes/navbar.php';
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- ========================================== -->
-<!-- 1. HERO SWIPER SLIDER (Interactive & Modern) -->
-<!-- ========================================== -->
-<section class="relative overflow-hidden bg-brand-dark" data-aos="fade">
-    <div class="swiper heroSwiper w-full h-[540px] sm:h-[620px]">
-        <div class="swiper-wrapper">
-            
-            <!-- Slide 1: Main Brand Drop -->
-            <div class="swiper-slide relative flex items-center">
-                <img src="assets/images/hero-banner.jpg" alt="Streetwear Collection" class="absolute inset-0 w-full h-full object-cover object-center scale-105" />
-                <div class="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/80 to-transparent"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div>
-                
-                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
-                    <div class="max-w-2xl space-y-5" data-aos="fade-up" data-aos-delay="100">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 text-xs font-bold uppercase tracking-widest shadow-glow-sm">
-                            <i data-lucide="zap" class="w-3.5 h-3.5 text-purple-400"></i>
-                            <span>LIMITED EDITION DROPS • 240 GSM</span>
-                        </div>
-                        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black font-cinzel text-white tracking-tight leading-tight">
-                            CONFIDENCE <br /><span class="bg-gradient-to-r from-purple-400 via-pink-300 to-indigo-400 bg-clip-text text-transparent">FITS YOU.</span>
-                        </h1>
-                        <p class="text-sm sm:text-base text-gray-300 max-w-xl font-normal leading-relaxed">
-                            Heavyweight luxury streetwear tailored for effortless attitude. Explore iconic anime art, vintage cinema wash, and minimalist daily essentials.
-                        </p>
-                        <div class="pt-2 flex flex-wrap gap-4 items-center">
-                            <a href="#catalog-section" class="px-7 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-glow-purple hover:scale-105 transition duration-200 flex items-center gap-2">
-                                <span>Shop Current Drop</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                            <a href="index.php?department=men#catalog-section" class="px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full text-xs font-semibold uppercase tracking-wider hover:border-purple-500/40 transition">
-                                Men's Fits
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Slide 2: Men's Streetwear Focus -->
-            <div class="swiper-slide relative flex items-center">
-                <img src="assets/images/mens-apparel.jpg" alt="Men's Apparel" class="absolute inset-0 w-full h-full object-cover object-center" />
-                <div class="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/85 to-transparent"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div>
-
-                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
-                    <div class="max-w-2xl space-y-5">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-widest">
-                            <i data-lucide="shirt" class="w-3.5 h-3.5 text-blue-400"></i>
-                            <span>MEN'S STREETWEAR ARCHIVE</span>
-                        </div>
-                        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black font-cinzel text-white tracking-tight leading-tight">
-                            OVERSIZED FIT. <br /><span class="text-blue-400">RAW STREET ART.</span>
-                        </h2>
-                        <p class="text-sm sm:text-base text-gray-300 max-w-xl font-normal leading-relaxed">
-                            Bio-washed pre-shrunk cotton tees with high-density anime & cinema screenprints designed to last 100+ washes without cracking.
-                        </p>
-                        <div class="pt-2 flex flex-wrap gap-4 items-center">
-                            <a href="index.php?department=men#catalog-section" class="px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-105 transition flex items-center gap-2">
-                                <span>Browse Men's Drop</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Slide 3: Women's Luxury Street Focus -->
-            <div class="swiper-slide relative flex items-center">
-                <img src="assets/images/womens-apparel.jpg" alt="Women's Apparel" class="absolute inset-0 w-full h-full object-cover object-center" />
-                <div class="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/85 to-transparent"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div>
-
-                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
-                    <div class="max-w-2xl space-y-5">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-600/20 border border-pink-500/30 text-pink-300 text-xs font-bold uppercase tracking-widest">
-                            <i data-lucide="sparkle" class="w-3.5 h-3.5 text-pink-400"></i>
-                            <span>WOMEN'S LUXURY STREETWEAR</span>
-                        </div>
-                        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black font-cinzel text-white tracking-tight leading-tight">
-                            BOX-CUT TEES & <br /><span class="text-pink-400">LINEN OVERLAY.</span>
-                        </h2>
-                        <p class="text-sm sm:text-base text-gray-300 max-w-xl font-normal leading-relaxed">
-                            Breezy drop-shoulder silhouettes, cropped vintage aesthetics, and effortless everyday coordinates.
-                        </p>
-                        <div class="pt-2 flex flex-wrap gap-4 items-center">
-                            <a href="index.php?department=women#catalog-section" class="px-7 py-3.5 bg-pink-600 hover:bg-pink-500 text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-105 transition flex items-center gap-2">
-                                <span>Explore Women's Fits</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- Hero Banner Section (Dynamic Server-Rendered with JS Hook IDs) -->
+  <section class="hero-section" id="hero-section" aria-label="Hero Spotlight">
+    <div class="hero-banner-wrap">
+      <img id="hero-banner-image" src="<?php echo htmlspecialchars($banner['image']); ?>" alt="Feather Fits Lookbook" class="hero-bg-img" />
+      <div class="hero-overlay"></div>
+      
+      <div class="hero-content">
+        <div class="hero-brand-badge-pill" id="hero-brand-badge-pill">
+          <img src="assets/images/feather-fits-logo.png" alt="Feather Fits Logo" class="hero-mini-logo" />
+          <span id="hero-banner-badge-text"><?php echo htmlspecialchars($banner['badge']); ?></span>
         </div>
-
-        <!-- Swiper Controls -->
-        <div class="swiper-button-next !right-6"></div>
-        <div class="swiper-button-prev !left-6"></div>
-        <div class="swiper-pagination !bottom-8"></div>
+        <h1 class="hero-title" id="hero-banner-title">
+          <?php echo $banner['title']; ?>
+        </h1>
+        <p class="hero-subtitle" id="hero-banner-subtitle">
+          <?php echo htmlspecialchars($banner['subtitle']); ?>
+        </p>
+        <div class="hero-cta-group" id="hero-banner-cta-group">
+          <?php if (!empty($banner['primaryCta'])): ?>
+            <a href="index.php?department=<?php echo $banner['primaryCta']['dept'] ?? $currentDept; ?>#catalog-section" class="btn-primary" id="hero-banner-btn-primary" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('<?php echo $banner['primaryCta']['dept'] ?? $currentDept; ?>');}">
+              <span><?php echo htmlspecialchars($banner['primaryCta']['label']); ?></span>
+            </a>
+          <?php endif; ?>
+          <?php if (!empty($banner['secondaryCta'])): ?>
+            <a href="index.php?department=<?php echo $banner['secondaryCta']['dept'] ?? $currentDept; ?>#catalog-section" class="btn-secondary" id="hero-banner-btn-secondary" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('<?php echo $banner['secondaryCta']['dept'] ?? $currentDept; ?>');}">
+              <span><?php echo htmlspecialchars($banner['secondaryCta']['label']); ?></span>
+            </a>
+          <?php endif; ?>
+        </div>
+      </div>
     </div>
-</section>
+  </section>
 
-<!-- ========================================== -->
-<!-- 2. NEW ARRIVALS SWIPER CAROUSEL (Smooth Mobile Swipe) -->
-<!-- ========================================== -->
-<section class="py-16 sm:py-24 bg-brand-card/40 border-y border-white/5" data-aos="fade-up">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Header with Department Filter Tabs -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-            <div>
-                <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-purple-400 font-bold mb-2">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                    <span>Fresh Street Arrivals</span>
-                </div>
-                <h2 class="text-2xl sm:text-4xl font-black font-cinzel text-white tracking-tight">
-                    New In The Rotation
-                </h2>
-                <p class="text-xs sm:text-sm text-gray-400 mt-1">Swipe through the latest seasonal releases</p>
-            </div>
-
-            <!-- Department Selector Tabs -->
-            <div class="flex items-center gap-2 p-1.5 bg-white/5 border border-white/10 rounded-full">
-                <button type="button" class="tab-arrival-btn active px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-purple-600 text-white shadow-glow-sm" onclick="switchArrivalsTab('men', this)">
-                    Men
-                </button>
-                <button type="button" class="tab-arrival-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-400 hover:text-white transition-all" onclick="switchArrivalsTab('women', this)">
-                    Women
-                </button>
-                <button type="button" class="tab-arrival-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-400 hover:text-white transition-all" onclick="switchArrivalsTab('kids', this)">
-                    Kids
-                </button>
-            </div>
-        </div>
-
-        <!-- Swiper Container for Men's Arrivals -->
-        <div id="arrivals-swiper-men" class="arrivals-slider-wrap">
-            <div class="swiper arrivalsSwiper w-full">
-                <div class="swiper-wrapper py-4">
-                    <?php foreach ($newArrivalsMen as $item): ?>
-                    <div class="swiper-slide h-auto">
-                        <div class="glass-card rounded-2xl overflow-hidden group flex flex-col h-full">
-                            <div class="relative overflow-hidden aspect-[4/5] bg-black">
-                                <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                                <span class="absolute top-3 left-3 px-2.5 py-1 bg-black/80 backdrop-blur-md text-[10px] font-extrabold uppercase rounded-full text-purple-300 border border-purple-500/30">
-                                    <?= htmlspecialchars($item['badge'] ?? 'FRESH DROP') ?>
-                                </span>
-                                <button type="button" onclick="addToCartDirect('<?= $item['id'] ?>', '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>, '<?= $item['image'] ?>')" class="absolute bottom-3 right-3 p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300" title="Quick Add">
-                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <div class="p-4 flex flex-col flex-1 justify-between">
-                                <div>
-                                    <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider"><?= htmlspecialchars($item['tag'] ?? 'Streetwear') ?></span>
-                                    <h3 class="text-sm font-bold text-white mt-1 line-clamp-1 group-hover:text-purple-300 transition">
-                                        <?= htmlspecialchars($item['name']) ?>
-                                    </h3>
-                                </div>
-                                <div class="mt-3 flex items-center justify-between">
-                                    <span class="text-sm font-bold text-white">₹<?= number_format($item['price']) ?></span>
-                                    <a href="product.php?id=<?= $item['id'] ?>" class="text-xs text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1">
-                                        <span>View</span>
-                                        <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                <div class="swiper-pagination !-bottom-2"></div>
-            </div>
-        </div>
-
-        <!-- Swiper Container for Women's Arrivals -->
-        <div id="arrivals-swiper-women" class="arrivals-slider-wrap hidden">
-            <div class="swiper arrivalsSwiperWomen w-full">
-                <div class="swiper-wrapper py-4">
-                    <?php foreach ($newArrivalsWomen as $item): ?>
-                    <div class="swiper-slide h-auto">
-                        <div class="glass-card rounded-2xl overflow-hidden group flex flex-col h-full">
-                            <div class="relative overflow-hidden aspect-[4/5] bg-black">
-                                <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                                <span class="absolute top-3 left-3 px-2.5 py-1 bg-black/80 backdrop-blur-md text-[10px] font-extrabold uppercase rounded-full text-pink-300 border border-pink-500/30">
-                                    <?= htmlspecialchars($item['badge'] ?? 'FRESH DROP') ?>
-                                </span>
-                                <button type="button" onclick="addToCartDirect('<?= $item['id'] ?>', '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>, '<?= $item['image'] ?>')" class="absolute bottom-3 right-3 p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300" title="Quick Add">
-                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <div class="p-4 flex flex-col flex-1 justify-between">
-                                <div>
-                                    <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider"><?= htmlspecialchars($item['tag'] ?? 'Streetwear') ?></span>
-                                    <h3 class="text-sm font-bold text-white mt-1 line-clamp-1 group-hover:text-pink-300 transition">
-                                        <?= htmlspecialchars($item['name']) ?>
-                                    </h3>
-                                </div>
-                                <div class="mt-3 flex items-center justify-between">
-                                    <span class="text-sm font-bold text-white">₹<?= number_format($item['price']) ?></span>
-                                    <a href="product.php?id=<?= $item['id'] ?>" class="text-xs text-pink-400 hover:text-pink-300 font-semibold flex items-center gap-1">
-                                        <span>View</span>
-                                        <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                <div class="swiper-pagination !-bottom-2"></div>
-            </div>
-        </div>
-
-        <!-- Swiper Container for Kids' Arrivals -->
-        <div id="arrivals-swiper-kids" class="arrivals-slider-wrap hidden">
-            <div class="swiper arrivalsSwiperKids w-full">
-                <div class="swiper-wrapper py-4">
-                    <?php foreach ($newArrivalsKids as $item): ?>
-                    <div class="swiper-slide h-auto">
-                        <div class="glass-card rounded-2xl overflow-hidden group flex flex-col h-full">
-                            <div class="relative overflow-hidden aspect-[4/5] bg-black">
-                                <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                                <span class="absolute top-3 left-3 px-2.5 py-1 bg-black/80 backdrop-blur-md text-[10px] font-extrabold uppercase rounded-full text-amber-300 border border-amber-500/30">
-                                    <?= htmlspecialchars($item['badge'] ?? 'FRESH DROP') ?>
-                                </span>
-                                <button type="button" onclick="addToCartDirect('<?= $item['id'] ?>', '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>, '<?= $item['image'] ?>')" class="absolute bottom-3 right-3 p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300" title="Quick Add">
-                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <div class="p-4 flex flex-col flex-1 justify-between">
-                                <div>
-                                    <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider"><?= htmlspecialchars($item['tag'] ?? 'Streetwear') ?></span>
-                                    <h3 class="text-sm font-bold text-white mt-1 line-clamp-1 group-hover:text-amber-300 transition">
-                                        <?= htmlspecialchars($item['name']) ?>
-                                    </h3>
-                                </div>
-                                <div class="mt-3 flex items-center justify-between">
-                                    <span class="text-sm font-bold text-white">₹<?= number_format($item['price']) ?></span>
-                                    <a href="product.php?id=<?= $item['id'] ?>" class="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1">
-                                        <span>View</span>
-                                        <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                <div class="swiper-pagination !-bottom-2"></div>
-            </div>
-        </div>
-
-    </div>
-</section>
-
-<!-- ========================================== -->
-<!-- 3. CURATED CATALOG SECTION (Dynamic & Filterable) -->
-<!-- ========================================== -->
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24" id="catalog-section">
-    
-    <!-- Breadcrumbs -->
-    <div class="flex items-center gap-2 text-xs text-gray-400 mb-6" data-aos="fade-up">
-        <a href="index.php?department=all" class="hover:text-white transition">Home</a>
-        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-600"></i>
-        <span class="text-purple-300 font-bold uppercase tracking-wider">
-            <?= ($currentDept === 'men') ? "Men's Collection" : (($currentDept === 'women') ? "Women's Collection" : (($currentDept === 'kids') ? "Kids' Streetwear" : "All Collections")) ?>
-        </span>
-    </div>
-
-    <!-- Section Title & Subtitle -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8" data-aos="fade-up">
+  <!-- Department Posters Showcase -->
+  <section class="departments-section" id="department-posters-section" aria-label="Department Collections">
+    <div class="section-container">
+      <div class="section-header" style="margin-bottom: 1.5rem;">
         <div>
-            <h2 class="text-2xl sm:text-4xl font-black font-cinzel text-white tracking-tight">
-                <?= ($currentDept === 'men') ? "Men's Streetwear & Tailoring" : (($currentDept === 'women') ? "Women's Contemporary Fits" : (($currentDept === 'kids') ? "Kids' Anime & Playwear" : "The Complete Drop Archive")) ?>
-            </h2>
-            <p class="text-xs sm:text-sm text-gray-400 mt-1">Pre-shrunk 240 GSM bio-washed heavy combed cotton</p>
+          <span class="dept-badge-pill">PREMIUM COLLECTIONS</span>
+          <h2 class="section-title" id="dept-posters-title">Shop by Category</h2>
+          <p class="section-subtitle">Engineered for pure style, durability, and luxury streetwear comfort</p>
         </div>
+      </div>
 
-        <!-- Department Pills -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
-            <a href="index.php?department=all#catalog-section" class="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition <?= ($currentDept === 'all') ? 'bg-purple-600 text-white shadow-glow-sm' : 'bg-white/5 text-gray-300 hover:text-white border border-white/10' ?>">
-                All Drops
-            </a>
-            <a href="index.php?department=men#catalog-section" class="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition <?= ($currentDept === 'men') ? 'bg-purple-600 text-white shadow-glow-sm' : 'bg-white/5 text-gray-300 hover:text-white border border-white/10' ?>">
-                Men
-            </a>
-            <a href="index.php?department=women#catalog-section" class="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition <?= ($currentDept === 'women') ? 'bg-purple-600 text-white shadow-glow-sm' : 'bg-white/5 text-gray-300 hover:text-white border border-white/10' ?>">
-                Women
-            </a>
-            <a href="index.php?department=kids#catalog-section" class="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition <?= ($currentDept === 'kids') ? 'bg-purple-600 text-white shadow-glow-sm' : 'bg-white/5 text-gray-300 hover:text-white border border-white/10' ?>">
-                Kids
-            </a>
-        </div>
-    </div>
-
-    <!-- Products Grid with AOS Animations -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        <?php foreach ($filteredProducts as $idx => $prod): ?>
-        <article class="glass-card rounded-2xl overflow-hidden group flex flex-col justify-between" data-aos="fade-up" data-aos-delay="<?= ($idx % 4) * 80 ?>">
-            <a href="product.php?id=<?= urlencode($prod['id']) ?>" class="block relative aspect-[4/5] bg-black overflow-hidden">
-                <img src="<?= htmlspecialchars($prod['image']) ?>" alt="<?= htmlspecialchars($prod['name']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                
-                <?php if (!empty($prod['badge'])): ?>
-                <span class="absolute top-3 left-3 px-2.5 py-1 bg-black/80 backdrop-blur-md text-[10px] font-extrabold uppercase rounded-full text-purple-300 border border-purple-500/30">
-                    <?= htmlspecialchars($prod['badge']) ?>
-                </span>
-                <?php endif; ?>
-
-                <?php if (!empty($prod['discount'])): ?>
-                <span class="absolute top-3 right-3 px-2 py-0.5 bg-emerald-950/80 backdrop-blur-md text-[10px] font-bold text-emerald-400 border border-emerald-800/40 rounded-full">
-                    <?= htmlspecialchars($prod['discount']) ?>
-                </span>
-                <?php endif; ?>
-
-                <div class="absolute inset-x-3 bottom-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button type="button" onclick="event.preventDefault(); addToCartDirect('<?= $prod['id'] ?>', '<?= addslashes($prod['name']) ?>', <?= $prod['price'] ?>, '<?= $prod['image'] ?>')" class="w-full py-2.5 bg-purple-600/90 hover:bg-purple-600 text-white text-xs font-bold uppercase rounded-xl backdrop-blur-sm shadow-lg flex items-center justify-center gap-1.5 transition">
-                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
-                        <span>Quick Add</span>
-                    </button>
-                </div>
-            </a>
-
-            <div class="p-4 flex flex-col flex-1 justify-between">
-                <div>
-                    <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider"><?= htmlspecialchars($prod['category'] ?? 'Apparel') ?></span>
-                    <h3 class="text-xs sm:text-sm font-bold text-white mt-1 line-clamp-2 group-hover:text-purple-300 transition">
-                        <a href="product.php?id=<?= urlencode($prod['id']) ?>">
-                            <?= htmlspecialchars($prod['name']) ?>
-                        </a>
-                    </h3>
-                </div>
-
-                <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-sm sm:text-base font-extrabold text-white">₹<?= number_format($prod['price']) ?></span>
-                        <?php if (!empty($prod['originalPrice'])): ?>
-                        <span class="text-xs text-gray-500 line-through">₹<?= number_format($prod['originalPrice']) ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="flex items-center gap-1 text-[11px] text-amber-400 font-bold">
-                        <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i>
-                        <span><?= $prod['rating'] ?? '4.9' ?></span>
-                    </div>
-                </div>
-            </div>
+      <div class="dept-posters-grid" id="department-posters-grid">
+        <!-- Men's Apparel Poster Card -->
+        <article class="dept-poster-card" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('men');}">
+          <div class="dept-poster-img-wrap">
+            <img src="assets/images/mens-apparel.jpg" alt="Men's Streetwear Collection" loading="lazy" />
+          </div>
+          <div class="dept-poster-overlay">
+            <span class="dept-poster-tag">MEN'S WARDROBE</span>
+            <h3 class="dept-poster-title">Streetwear & Anime Drops</h3>
+            <p class="dept-poster-desc">Heavyweight 240 GSM oversized tees, Japanese calligraphy prints, and rugged denim.</p>
+            <a href="index.php?department=men#catalog-section" class="dept-poster-btn">Explore Men's Fits →</a>
+          </div>
         </article>
-        <?php endforeach; ?>
+
+        <!-- Women's Apparel Poster Card -->
+        <article class="dept-poster-card" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('women');}">
+          <div class="dept-poster-img-wrap">
+            <img src="assets/images/womens-apparel.jpg" alt="Women's Contemporary Fashion" loading="lazy" />
+          </div>
+          <div class="dept-poster-overlay">
+            <span class="dept-poster-tag">WOMEN'S EDITION</span>
+            <h3 class="dept-poster-title">Contemporary Street Elegance</h3>
+            <p class="dept-poster-desc">Cropped graphic tees, tailored blazers, relaxed linen overshirts, and co-ord luxury.</p>
+            <a href="index.php?department=women#catalog-section" class="dept-poster-btn">Explore Women's Fits →</a>
+          </div>
+        </article>
+
+        <!-- Kids' Apparel Poster Card -->
+        <article class="dept-poster-card" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('kids');}">
+          <div class="dept-poster-img-wrap">
+            <img src="assets/images/kids-hero-banner.jpg" alt="Kids' Urban Streetwear" loading="lazy" />
+          </div>
+          <div class="dept-poster-overlay">
+            <span class="dept-poster-tag">KIDS' SPECIAL</span>
+            <h3 class="dept-poster-title">Anime Graphics & Playwear</h3>
+            <p class="dept-poster-desc">Hypoallergenic combed cotton tees, vibrant anime screen prints, and easy utility sets.</p>
+            <a href="index.php?department=kids#catalog-section" class="dept-poster-btn">Explore Kids' Fits →</a>
+          </div>
+        </article>
+      </div>
     </div>
-</main>
+  </section>
 
-<!-- Initialize Sliders -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Hero Slider
-        new Swiper('.heroSwiper', {
-            loop: true,
-            autoplay: {
-                delay: 5500,
-                disableOnInteraction: false,
-            },
-            effect: 'fade',
-            fadeEffect: {
-                crossFade: true
-            },
-            speed: 800,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-        });
+  <!-- Dynamic New Arrivals Multi-Carousel Section -->
+  <section class="new-arrivals-section" id="new-arrivals-section" aria-label="Fresh Street Arrivals">
+    <div class="section-container">
+      <div class="arrivals-header-wrap">
+        <div>
+          <span class="arrivals-tag-pill">🔥 JUST DROPPED</span>
+          <h2 class="arrivals-title">New Arrivals</h2>
+          <p class="arrivals-subtitle">Fresh street essentials, limited editions & newly added graphics</p>
+        </div>
 
-        // New Arrivals Sliders (Responsive Breakpoints)
-        initArrivalsSwiper('.arrivalsSwiper');
-        initArrivalsSwiper('.arrivalsSwiperWomen');
-        initArrivalsSwiper('.arrivalsSwiperKids');
-    });
+        <!-- Department Carousel Tabs Filter -->
+        <div class="arrivals-dept-tabs" role="tablist" aria-label="New Arrivals by Department">
+          <button type="button" class="arrivals-tab-btn <?php echo $currentDept === 'men' ? 'active' : ''; ?>" data-dept="men" onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('men');}">
+            <span>Men</span>
+          </button>
+          <button type="button" class="arrivals-tab-btn <?php echo $currentDept === 'women' ? 'active' : ''; ?>" data-dept="women" onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('women');}">
+            <span>Women</span>
+          </button>
+          <button type="button" class="arrivals-tab-btn <?php echo $currentDept === 'kids' ? 'active' : ''; ?>" data-dept="kids" onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('kids');}">
+            <span>Kids</span>
+          </button>
+        </div>
 
-    function initArrivalsSwiper(selector) {
-        new Swiper(selector, {
-            slidesPerView: 1.3,
-            spaceBetween: 14,
-            grabCursor: true,
-            pagination: {
-                el: selector + ' .swiper-pagination',
-                clickable: true,
-            },
-            breakpoints: {
-                540: {
-                    slidesPerView: 2.2,
-                    spaceBetween: 16,
-                },
-                768: {
-                    slidesPerView: 3.2,
-                    spaceBetween: 20,
-                },
-                1024: {
-                    slidesPerView: 4,
-                    spaceBetween: 24,
-                }
-            }
-        });
-    }
+        <!-- Carousel Arrow Navigation -->
+        <div class="arrivals-nav-arrows">
+          <button type="button" class="carousel-arrow-btn" id="arrivals-prev-btn" onclick="if(window.FeatherApp){window.FeatherApp.scrollNewArrivals('prev');}" aria-label="Previous Arrivals">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button type="button" class="carousel-arrow-btn" id="arrivals-next-btn" onclick="if(window.FeatherApp){window.FeatherApp.scrollNewArrivals('next');}" aria-label="Next Arrivals">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
 
-    function switchArrivalsTab(dept, btn) {
-        document.querySelectorAll('.tab-arrival-btn').forEach(b => {
-            b.classList.remove('active', 'bg-purple-600', 'text-white', 'shadow-glow-sm');
-            b.classList.add('text-gray-400');
-        });
-        btn.classList.add('active', 'bg-purple-600', 'text-white', 'shadow-glow-sm');
-        btn.classList.remove('text-gray-400');
+      <!-- Carousel Sliding Track -->
+      <div class="arrivals-carousel-viewport">
+        <div class="arrivals-carousel-track" id="new-arrivals-track">
+          <?php foreach ($arrivals as $arr): 
+              $arrImg = getProductPrimaryImage($arr);
+              $arrPrice = getProductBasePrice($arr);
+              $arrOrig = getProductOriginalPrice($arr);
+              $arrDiscount = $arrOrig > $arrPrice ? round((($arrOrig - $arrPrice) / $arrOrig) * 100) : 0;
+          ?>
+            <div class="arrival-carousel-card" data-product-id="<?php echo htmlspecialchars($arr['id']); ?>">
+              <div class="arrival-card-media">
+                <img src="<?php echo htmlspecialchars($arrImg); ?>" alt="<?php echo htmlspecialchars($arr['name']); ?>" loading="lazy" />
+                <?php if (!empty($arr['badge'])): ?>
+                  <span class="arrival-card-badge"><?php echo htmlspecialchars($arr['badge']); ?></span>
+                <?php endif; ?>
+                <button type="button" class="arrival-quick-cart" onclick="if(window.FeatherApp){window.FeatherApp.addToCart('<?php echo htmlspecialchars($arr['id']); ?>'); event.stopPropagation();}" aria-label="Add to Bag">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                </button>
+              </div>
+              <div class="arrival-card-details">
+                <span class="arrival-dept-tag"><?php echo strtoupper($arr['department'] ?? 'MEN'); ?> &bull; <?php echo htmlspecialchars($arr['categoryName'] ?? 'STREETWEAR'); ?></span>
+                <h4 class="arrival-name"><a href="product.php?id=<?php echo htmlspecialchars($arr['id']); ?>"><?php echo htmlspecialchars($arr['name']); ?></a></h4>
+                <div class="arrival-price-row">
+                  <span class="arrival-price"><?php echo formatPrice($arrPrice); ?></span>
+                  <?php if ($arrOrig > $arrPrice): ?>
+                    <span class="arrival-orig-price"><?php echo formatPrice($arrOrig); ?></span>
+                    <span class="arrival-discount"><?php echo $arrDiscount; ?>% OFF</span>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        document.querySelectorAll('.arrivals-slider-wrap').forEach(wrap => wrap.classList.add('hidden'));
-        const target = document.getElementById('arrivals-swiper-' + dept);
-        if (target) {
-            target.classList.remove('hidden');
-        }
-    }
-</script>
+  <!-- Product Catalog Section -->
+  <main class="category-section" id="catalog-section">
+    <!-- Active Department & Subcategory Breadcrumb Navigator -->
+    <div class="catalog-dept-nav-bar" id="catalog-dept-nav-bar">
+      <div class="catalog-dept-breadcrumbs" id="catalog-dept-breadcrumbs">
+        <a href="index.php?department=all#catalog-section" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('all'); return false;}" style="cursor: pointer;">Home</a>
+        <span>/</span>
+        <span id="breadcrumb-current-dept" style="color: var(--color-primary); font-weight: 700;">
+          <?php 
+            $deptNames = ['all' => 'All Collections', 'men' => "Men's Collection", 'women' => "Women's Collection", 'kids' => "Kids' Collection"];
+            echo $deptNames[$currentDept] ?? 'All Collections';
+          ?>
+        </span>
+        <span id="breadcrumb-subcat-divider" style="display: none;">/</span>
+        <span id="breadcrumb-current-subcat" style="color: var(--color-secondary); display: none;"></span>
+      </div>
+      <button type="button" class="catalog-dept-reset-btn" id="catalog-reset-dept-btn" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('all');}">
+        All Collections
+      </button>
+    </div>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+    <div class="section-header">
+      <div>
+        <h2 class="section-title" id="catalog-section-title"><?php echo ($deptNames[$currentDept] ?? 'All') . ' Collections'; ?></h2>
+        <p class="section-subtitle" id="catalog-section-subtitle">Select a subcategory below or filter with search</p>
+      </div>
+
+      <!-- Category Filter Tabs (Dynamic) -->
+      <div class="category-tabs" id="category-tabs-container">
+        <?php foreach ($subcategories as $sc): ?>
+          <button type="button" class="category-tab-btn <?php echo $sc['id'] === 'all' ? 'active' : ''; ?>" onclick="if(window.FeatherApp){window.FeatherApp.setSubcategory('<?php echo $sc['id']; ?>');}">
+            <?php echo htmlspecialchars($sc['name']); ?>
+          </button>
+        <?php endforeach; ?>
+      </div>
+    </div>
+
+    <!-- Live Search & Sort Toolbar -->
+    <div class="catalog-toolbar">
+      <div class="search-input-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="search" 
+          id="catalog-search-input" 
+          class="catalog-search-input" 
+          placeholder="Search by graphic name, style, or category..." 
+          oninput="if(window.FeatherApp){window.FeatherApp.handleSearchInput(this.value);}" 
+        />
+      </div>
+
+      <div class="toolbar-controls">
+        <select id="catalog-sort-select" class="sort-select" onchange="if(window.FeatherApp){window.FeatherApp.handleSortChange(this.value);}">
+          <option value="featured">Sort by: Featured</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating">Top Customer Rated</option>
+        </select>
+
+        <button type="button" class="size-guide-trigger" onclick="if(window.FeatherApp){window.FeatherApp.openSizeGuideModal('inches');}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+            <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+          </svg>
+          <span>Size Chart Guide</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Grid: 100% SEO-Rendered in PHP & Interactively Managed by JS -->
+    <div class="products-grid" id="products-grid">
+      <?php foreach ($displayedProducts as $prod): 
+          $pId = $prod['id'];
+          $pImg = getProductPrimaryImage($prod);
+          $pPrice = getProductBasePrice($prod);
+          $pOrig = getProductOriginalPrice($prod);
+          $pDiscount = $pOrig > $pPrice ? round((($pOrig - $pPrice) / $pOrig) * 100) : 0;
+          $badge = $prod['badge'] ?? '';
+      ?>
+        <article class="product-card" data-id="<?php echo htmlspecialchars($pId); ?>">
+          <a href="product.php?id=<?php echo htmlspecialchars($pId); ?>" class="product-card-link">
+            <div class="product-image-wrap">
+              <img src="<?php echo htmlspecialchars($pImg); ?>" alt="<?php echo htmlspecialchars($prod['name']); ?>" class="product-primary-img" loading="lazy" />
+              <?php if (!empty($badge)): ?>
+                <span class="product-badge"><?php echo htmlspecialchars($badge); ?></span>
+              <?php endif; ?>
+              <button type="button" class="quick-view-btn" onclick="if(window.FeatherApp){window.FeatherApp.openProductModal('<?php echo htmlspecialchars($pId); ?>'); event.preventDefault(); event.stopPropagation();}">
+                Quick View
+              </button>
+            </div>
+            <div class="product-info">
+              <span class="product-brand"><?php echo htmlspecialchars($prod['categoryName'] ?? 'FEATHER STREETWEAR'); ?></span>
+              <h3 class="product-title"><?php echo htmlspecialchars($prod['name']); ?></h3>
+              <div class="product-price-row">
+                <span class="price-current"><?php echo formatPrice($pPrice); ?></span>
+                <?php if ($pOrig > $pPrice): ?>
+                  <span class="price-original"><?php echo formatPrice($pOrig); ?></span>
+                  <span class="discount-pill"><?php echo $pDiscount; ?>% OFF</span>
+                <?php endif; ?>
+              </div>
+            </div>
+          </a>
+        </article>
+      <?php endforeach; ?>
+    </div>
+  </main>
+
+<?php
+require_once __DIR__ . '/includes/footer.php';
+require_once __DIR__ . '/includes/modals.php';
+?>
+
+  <!-- Scripts -->
+  <script src="data/products.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

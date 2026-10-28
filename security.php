@@ -1,81 +1,212 @@
 <?php
-$pageTitle = "PCI-DSS Security Center | Feather Fits";
-$pageDescription = "Feather Fits security protocols: PCI-DSS SAQ A compliance, 256-bit encryption, tokenized cards, and dynamic UPI.";
-include __DIR__ . '/includes/header.php';
-include __DIR__ . '/includes/navbar.php';
+require_once __DIR__ . '/data/products.php';
+
+$pageTitle = "PCI-DSS Security & Trust Center | Feather Fits";
+$pageDescription = "Feather Fits Security Architecture, PCI-DSS SAQ A Compliance, and 256-bit Bank-grade Encryption details.";
+$currentPage = 'legal';
+$currentDept = 'all';
+
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
-    <div class="text-center max-w-2xl mx-auto mb-12" data-aos="fade-down">
-        <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-            PCI-DSS SAQ A Certified Security Architecture
-        </span>
-        <h1 class="text-3xl sm:text-5xl font-black font-cinzel text-white tracking-tight">Security & Trust Center</h1>
-        <p class="text-xs sm:text-sm text-gray-400 mt-3 leading-relaxed">
-            How Feather Fits safeguards customer transactions, digital identities, and payment security with bank-grade defenses.
-        </p>
-    </div>
+    <style>
+        .legal-page-header {
+            padding: 60px 24px 36px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(142, 68, 173, 0.12) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .legal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(39, 174, 96, 0.15);
+            border: 1px solid rgba(39, 174, 96, 0.4);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #2ecc71;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .legal-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .legal-subtitle {
+            color: #a0a0b0;
+            font-size: 0.95rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .legal-content-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .sec-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .sec-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(142, 68, 173, 0.4);
+        }
+        .sec-icon {
+            font-size: 2rem;
+            margin-bottom: 14px;
+            display: inline-block;
+        }
+        .sec-card h3 {
+            font-size: 1.15rem;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .sec-card p {
+            color: #9090a2;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .legal-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        .legal-section h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            color: #e0d0f5;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .legal-section p, .legal-section li {
+            color: #b8b8cc;
+            font-size: 0.92rem;
+            line-height: 1.75;
+        }
+        .legal-section ul {
+            padding-left: 20px;
+            margin: 12px 0;
+        }
+        .legal-section li {
+            margin-bottom: 8px;
+        }
+        .back-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .back-nav a {
+            color: #c084fc;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-nav a:hover {
+            color: #ffffff;
+        }
+    </style>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" data-aos="fade-up">
-        <div class="glass-panel p-6 rounded-2xl border border-white/10 text-center">
-            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-3">
-                <i data-lucide="shield-check" class="w-6 h-6"></i>
+    <main>
+        <section class="legal-page-header">
+            <div class="legal-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                PCI-DSS Level 1 Compliant Security Architecture
             </div>
-            <h3 class="text-sm font-bold text-white">PCI-DSS Level 1</h3>
-            <p class="text-xs text-gray-400 mt-1">Zero plaintext card storage. Direct gateway vault tokenization.</p>
-        </div>
-
-        <div class="glass-panel p-6 rounded-2xl border border-white/10 text-center">
-            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-3">
-                <i data-lucide="lock" class="w-6 h-6"></i>
-            </div>
-            <h3 class="text-sm font-bold text-white">256-bit TLS/SSL</h3>
-            <p class="text-xs text-gray-400 mt-1">Encrypted browser communications using modern TLS 1.3 ciphers.</p>
-        </div>
-
-        <div class="glass-panel p-6 rounded-2xl border border-white/10 text-center">
-            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-3">
-                <i data-lucide="zap" class="w-6 h-6"></i>
-            </div>
-            <h3 class="text-sm font-bold text-white">Instant UPI Dynamic QR</h3>
-            <p class="text-xs text-gray-400 mt-1">Authenticated doorstep UPI handover and 3D Secure 2.0.</p>
-        </div>
-    </div>
-
-    <div class="glass-panel p-6 sm:p-10 rounded-3xl border border-white/10 space-y-8 text-xs sm:text-sm text-gray-300 leading-relaxed" data-aos="fade-up">
-        
-        <section class="space-y-3">
-            <h2 class="text-base sm:text-lg font-bold font-cinzel text-white flex items-center gap-2">
-                <i data-lucide="shield" class="w-4 h-4 text-purple-400"></i>
-                <span>1. Cardholder Data Environment (CDE) Isolation</span>
-            </h2>
-            <p>
-                Under PCI-DSS SAQ A scope, our web servers are strictly isolated from credit and debit card PAN data. Input fields load in isolated sandboxed iframes hosted directly by PCI Level-1 service providers (Stripe, Razorpay, Cashfree).
-            </p>
+            <h1 class="legal-title">Security &amp; Trust Center</h1>
+            <p class="legal-subtitle">How Feather Fits protects your transactions, sensitive payment card data, and digital identities with enterprise bank-grade security protocols.</p>
         </section>
 
-        <section class="space-y-3">
-            <h2 class="text-base sm:text-lg font-bold font-cinzel text-white flex items-center gap-2">
-                <i data-lucide="package-check" class="w-4 h-4 text-purple-400"></i>
-                <span>2. Doorstep COD Fraud Prevention</span>
-            </h2>
-            <p>
-                Every cash or doorstep UPI order requires SMS OTP verification to prevent fake bookings. Delivery agents utilize tamper-proof packaging and dynamic digital receipts on parcel delivery.
-            </p>
-        </section>
+        <div class="legal-content-wrap">
+            <div class="security-grid">
+                <div class="sec-card">
+                    <span class="sec-icon">🛡️</span>
+                    <h3>PCI-DSS SAQ A Certified</h3>
+                    <p>Cardholder data never touches our web servers. Payments execute directly through encrypted, audited PCI Level-1 gateway tokenizers.</p>
+                </div>
+                <div class="sec-card">
+                    <span class="sec-icon">🔐</span>
+                    <h3>256-bit TLS/SSL Encryption</h3>
+                    <p>All data transmitted between your browser and our servers is secured via ECDSA certificates using high-grade TLS 1.3 encryption.</p>
+                </div>
+                <div class="sec-card">
+                    <span class="sec-icon">⚡</span>
+                    <h3>UPI &amp; Tokenized Vaults</h3>
+                    <p>Instant UPI dynamic QR and 3D Secure 2.0 multi-factor authentication protect every transaction against unauthorized card usage.</p>
+                </div>
+            </div>
 
-        <section class="space-y-3">
-            <h2 class="text-base sm:text-lg font-bold font-cinzel text-white flex items-center gap-2">
-                <i data-lucide="alert-circle" class="w-4 h-4 text-purple-400"></i>
-                <span>3. Responsible Security Disclosure</span>
-            </h2>
-            <p>
-                We welcome ethical hackers to report vulnerabilities to <strong class="text-purple-300">security@featherfits.com</strong>. We acknowledge valid reports within 24 hours.
-            </p>
-        </section>
+            <article class="legal-section">
+                <h2>1. Payment Card Security Architecture</h2>
+                <p>Feather Fits operates under strict compliance with the Payment Card Industry Data Security Standard (PCI-DSS SAQ A). When you purchase apparel on our store:</p>
+                <ul>
+                    <li><strong>Zero Plaintext Storage:</strong> Feather Fits never stores your full 16-digit debit/credit card numbers, expiry dates, or CVV/CVC codes on our databases or web servers.</li>
+                    <li><strong>Direct-to-Gateway Tokenization:</strong> Checkout card details are ingested via iframes hosted directly by regulated payment gateways and tokenized in real time.</li>
+                    <li><strong>3D Secure 2.0 (3DS2):</strong> All electronic card payments are verified with your issuing bank via mandatory OTP or biometrics.</li>
+                </ul>
+            </article>
 
-    </div>
-</main>
+            <article class="legal-section">
+                <h2>2. Doorstep UPI &amp; Cash on Delivery (COD) Safeguards</h2>
+                <p>For customers selecting Doorstep Payment / COD:</p>
+                <ul>
+                    <li>Orders are validated through phone number SMS OTP verification to stop spam and bot submissions.</li>
+                    <li>Delivery personnel provide an authorized, tamper-evident dynamic QR code at the time of parcel handover for seamless UPI scan-and-pay.</li>
+                    <li>Cash collections are backed by immediate digital SMS receipt generation upon receipt.</li>
+                </ul>
+            </article>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+            <article class="legal-section">
+                <h2>3. Network &amp; Infrastructure Defense</h2>
+                <p>Our e-commerce infrastructure features defense-in-depth engineering:</p>
+                <ul>
+                    <li><strong>Enterprise WAF &amp; Rate-Limiting:</strong> Comprehensive Web Application Firewall with real-time DDoS mitigation, rate-limiting, and bad-bot blocking.</li>
+                    <li><strong>Automated Vulnerability Audits:</strong> Continuous vulnerability scans and dependencies updates to eliminate zero-day risks.</li>
+                    <li><strong>Strict CSP &amp; Security Headers:</strong> Strict Content-Security-Policy (CSP), HSTS, X-Content-Type-Options, and X-Frame-Options headers applied to all responses.</li>
+                </ul>
+            </article>
+
+            <div class="back-nav">
+                <a href="index.php">&larr; Return to Feather Fits Home</a>
+                <a href="privacy.php">Review Privacy Policy &rarr;</a>
+            </div>
+        </div>
+    </main>
+
+<?php
+require_once __DIR__ . '/includes/footer.php';
+require_once __DIR__ . '/includes/modals.php';
+?>
+
+  <!-- Scripts -->
+  <script src="data/products.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

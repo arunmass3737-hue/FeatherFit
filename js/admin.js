@@ -12,7 +12,7 @@
  *     - Real File Upload (Drag & Drop or browse computer) for Hero Banners
  *     - Live editing of Badges, Headlines, Subtitles & CTA buttons
  *     - Top Announcement Bar Live Editor
- *     - Syncs instantly with index.html storefront
+ *     - Syncs instantly with index.php storefront
  * - Orders Management & Live Dispatch (Pending, Processing, Shipped, Delivered) + Delete Order
  * - Customers Directory with Lifetime Spend & VIP Badges
  * - Mobile Responsive Drawer & Backdrop Support
@@ -443,7 +443,7 @@
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
               </button>
-              <a href="product.html?id=${p.id}" target="_blank" class="btn-icon-action" title="Preview on Store">
+              <a href="product.php?id=${p.id}" target="_blank" class="btn-icon-action" title="Preview on Store">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                   <polyline points="15 3 21 3 21 9"></polyline>

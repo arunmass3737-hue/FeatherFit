@@ -1,71 +1,154 @@
 <?php
-$pageTitle = "Privacy Policy | Feather Fits India";
-$pageDescription = "Feather Fits privacy policy regarding data collection, encryption, cookies, and customer rights.";
-include __DIR__ . '/includes/header.php';
-include __DIR__ . '/includes/navbar.php';
+require_once __DIR__ . '/data/products.php';
+
+$pageTitle = "Privacy Policy & Data Protection | Feather Fits";
+$pageDescription = "Feather Fits Privacy Policy. Learn how your data is encrypted, processed, and protected under Indian IT Act and Digital Personal Data Protection guidelines.";
+$currentPage = 'legal';
+$currentDept = 'all';
+
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
-    <div class="text-center max-w-2xl mx-auto mb-12" data-aos="fade-down">
-        <span class="inline-flex items-center gap-2 px-3 py-1 bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
-            <i data-lucide="shield" class="w-3.5 h-3.5"></i>
-            User Privacy & Data Protection
-        </span>
-        <h1 class="text-3xl sm:text-5xl font-black font-cinzel text-white tracking-tight">Privacy Policy</h1>
-        <p class="text-xs sm:text-sm text-gray-400 mt-3 leading-relaxed">
-            Effective Date: January 1, 2026 • Feather Fits Apparel Co. is committed to protecting your personal information and privacy rights under Indian IT Act 2000.
-        </p>
-    </div>
+    <style>
+        .legal-page-header {
+            padding: 60px 24px 36px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(142, 68, 173, 0.12) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .legal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #c084fc;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .legal-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .legal-subtitle {
+            color: #a0a0b0;
+            font-size: 0.95rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .legal-content-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+        .legal-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        .legal-section h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            color: #e0d0f5;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .legal-section p, .legal-section li {
+            color: #b8b8cc;
+            font-size: 0.92rem;
+            line-height: 1.75;
+        }
+        .legal-section ul {
+            padding-left: 20px;
+            margin: 12px 0;
+        }
+        .legal-section li {
+            margin-bottom: 8px;
+        }
+        .back-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .back-nav a {
+            color: #c084fc;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-nav a:hover {
+            color: #ffffff;
+        }
+    </style>
 
-    <div class="glass-panel p-6 sm:p-10 rounded-3xl border border-white/10 space-y-8 text-xs sm:text-sm text-gray-300 leading-relaxed" data-aos="fade-up">
-        
-        <section class="space-y-3">
-            <h2 class="text-base sm:text-lg font-bold font-cinzel text-white flex items-center gap-2">
-                <i data-lucide="lock" class="w-4 h-4 text-purple-400"></i>
-                <span>1. Information We Collect</span>
-            </h2>
-            <p>We collect essential information required to deliver your luxury streetwear orders efficiently:</p>
-            <ul class="list-disc pl-5 space-y-1.5 text-gray-400">
-                <li><strong>Contact Information:</strong> Customer full name, delivery address, phone number, and email address.</li>
-                <li><strong>Order History:</strong> Product SKUs, apparel sizing selections, and delivery status logs.</li>
-                <li><strong>Device & Browsing Metrics:</strong> Anonymous telemetry, session identifiers, and IP locations to prevent bot submissions.</li>
-            </ul>
+    <main>
+        <section class="legal-page-header">
+            <div class="legal-badge">Compliance &amp; Consumer Trust</div>
+            <h1 class="legal-title">Privacy Policy</h1>
+            <p class="legal-subtitle">Effective Date: January 1, 2026 &bull; Last Revised: October 2026</p>
         </section>
 
-        <section class="space-y-3">
-            <h2 class="text-base sm:text-lg font-bold font-cinzel text-white flex items-center gap-2">
-                <i data-lucide="credit-card" class="w-4 h-4 text-purple-400"></i>
-                <span>2. Payment Data & PCI-DSS SAQ A Zero-Storage</span>
-            </h2>
-            <p>
-                Feather Fits does <strong>NOT</strong> collect, view, or store full credit/debit card numbers, CVVs, or bank netbanking passwords. All online card transactions execute directly inside regulated bank iframes tokenized via PCI Level-1 gateway infrastructure.
-            </p>
-        </section>
+        <div class="legal-content-wrap">
+            <article class="legal-section">
+                <h2>1. Introduction &amp; Commitment</h2>
+                <p>Feather Fits Apparel Co. ("Feather Fits", "we", "us", or "our") respects your digital privacy. This Privacy Policy outlines our transparent data handling practices when you explore our streetwear collections, utilize our size recommendations, place orders, or subscribe to drop alerts.</p>
+                <p>We comply fully with the Information Technology Act, 2000, and the Digital Personal Data Protection Act (DPDP Act, 2023).</p>
+            </article>
 
-        <section class="space-y-3">
-            <h2 class="text-base sm:text-lg font-bold font-cinzel text-white flex items-center gap-2">
-                <i data-lucide="truck" class="w-4 h-4 text-purple-400"></i>
-                <span>3. Logistics & Third-Party Sharing</span>
-            </h2>
-            <p>
-                Your phone number and delivery location are strictly shared only with our official verified logistics courier partners (Blue Dart, Delhivery) for live parcel dispatch and OTP delivery confirmation. We never sell customer information to third-party advertisers.
-            </p>
-        </section>
+            <article class="legal-section">
+                <h2>2. Information We Collect</h2>
+                <p>We only collect information essential for fulfilling your streetwear orders and enhancing your browsing journey:</p>
+                <ul>
+                    <li><strong>Contact &amp; Shipping Identifiers:</strong> Name, delivery street address, phone number, and email address.</li>
+                    <li><strong>Order &amp; Transaction Details:</strong> Products purchased, variant selections (size, color, graphic edition), and payment method tokens (we never store raw card numbers).</li>
+                    <li><strong>Fit &amp; Preference Data:</strong> Saved sizing preferences and wishlist items stored locally or within your account.</li>
+                    <li><strong>Technical Device Telemetry:</strong> Anonymized browser type, screen resolution, and IP address used strictly for fraud prevention.</li>
+                </ul>
+            </article>
 
-        <section class="space-y-3">
-            <h2 class="text-base sm:text-lg font-bold font-cinzel text-white flex items-center gap-2">
-                <i data-lucide="mail" class="w-4 h-4 text-purple-400"></i>
-                <span>4. Grievance Redressal Officer</span>
-            </h2>
-            <p>For any privacy requests or data deletion petitions, contact our designated Grievance Officer:</p>
-            <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-xs text-gray-400 space-y-1">
-                <p><strong class="text-white">Officer:</strong> Arun Kumar (Chief Privacy Officer)</p>
-                <p><strong class="text-white">Email:</strong> privacy@featherfits.com</p>
-                <p><strong class="text-white">Address:</strong> Feather Fits Apparel Co., 42 Gandhi Road, T. Nagar, Chennai 600017</p>
+            <article class="legal-section">
+                <h2>3. Payment Security &amp; Tokenization</h2>
+                <p>All electronic transactions are processed through PCI-DSS Level 1 certified payment gateways. When you enter card or UPI credentials, they are encrypted end-to-end via 256-bit TLS/SSL and tokenized directly at the gateway. Feather Fits never views or stores CVV codes or payment passwords.</p>
+            </article>
+
+            <article class="legal-section">
+                <h2>4. Grievance Officer &amp; Inquiries</h2>
+                <p>For any questions regarding your data or to request account deletion, reach out to our appointed Grievance Officer:</p>
+                <p style="color: #c084fc; font-weight: 600;">privacy@featherfits.com &bull; Feather Fits HQ, T. Nagar, Chennai - 600017</p>
+            </article>
+
+            <div class="back-nav">
+                <a href="index.php">&larr; Return to Storefront</a>
+                <a href="terms.php">Read Terms of Service &rarr;</a>
             </div>
-        </section>
+        </div>
+    </main>
 
-    </div>
-</main>
+<?php
+require_once __DIR__ . '/includes/footer.php';
+require_once __DIR__ . '/includes/modals.php';
+?>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+  <!-- Scripts -->
+  <script src="data/products.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

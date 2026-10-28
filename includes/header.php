@@ -1,149 +1,172 @@
 <?php
-if (!isset($pageTitle)) {
-    $pageTitle = "Feather Fits — Confidence Fits You | Premium Apparel & Graphic T-Shirts";
-}
-if (!isset($pageDescription)) {
-    $pageDescription = "Feather Fits luxury streetwear, pre-shrunk 240 GSM graphic tees, vintage cinema prints, and premium oversized fits.";
-}
-if (!isset($currentDept)) {
-    $currentDept = $_GET['department'] ?? 'all';
-}
+/**
+ * FEATHER FITS — HEADER & NAVIGATION COMPONENT
+ * Variables expected:
+ * $pageTitle (string)
+ * $pageDescription (string)
+ * $currentDept (string: 'all', 'men', 'women', 'kids')
+ * $currentPage (string: 'home', 'product', 'checkout', 'account', 'admin', 'legal')
+ */
+
+$currentDept = $currentDept ?? 'all';
+$currentPage = $currentPage ?? 'home';
+$pageTitle = $pageTitle ?? 'Feather Fits — Confidence Fits You | Premium Apparel & Graphic T-Shirts';
+$pageDescription = $pageDescription ?? 'Discover Feather Fits luxury streetwear, pre-shrunk 240 GSM graphic tees, vintage cinema prints, and premium oversized fits.';
 ?>
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle) ?></title>
-    <meta name="description" content="<?= htmlspecialchars($pageDescription) ?>">
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS v3 via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            dark: '#08080c',
-                            card: '#111118',
-                            surface: '#181824',
-                            border: 'rgba(255, 255, 255, 0.08)',
-                            borderHover: 'rgba(168, 85, 247, 0.4)',
-                            purple: '#a855f7',
-                            lightPurple: '#c084fc',
-                            deepPurple: '#581c87',
-                            gold: '#fbbf24',
-                            emerald: '#10b981'
-                        }
-                    },
-                    fontFamily: {
-                        cinzel: ['Cinzel', 'serif'],
-                        sans: ['Plus Jakarta Sans', 'sans-serif']
-                    },
-                    boxShadow: {
-                        'glow-purple': '0 0 35px -5px rgba(168, 85, 247, 0.35)',
-                        'glow-sm': '0 0 15px -3px rgba(168, 85, 247, 0.25)',
-                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
-                    }
-                }
-            }
-        }
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><?php echo htmlspecialchars($pageTitle); ?></title>
+  <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>" />
+  <meta name="theme-color" content="#2D0B34" />
 
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
-    <!-- Swiper.js v11 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
-    <!-- AOS (Animate On Scroll) CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
-
-    <!-- Custom Utility & Swiper Customization -->
-    <style>
-        body {
-            background-color: #08080c;
-            color: #f3f4f6;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* Glassmorphism Classes */
-        .glass-panel {
-            background: rgba(17, 17, 24, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glass-card {
-            background: rgba(24, 24, 36, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .glass-card:hover {
-            border-color: rgba(168, 85, 247, 0.4);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px -10px rgba(168, 85, 247, 0.25);
-        }
-
-        /* Swiper Customizations */
-        .swiper-button-next, .swiper-button-prev {
-            width: 44px !important;
-            height: 44px !important;
-            background: rgba(17, 17, 24, 0.85);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            color: #fff !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            transition: all 0.2s ease;
-        }
-        .swiper-button-next:hover, .swiper-button-prev:hover {
-            background: #a855f7;
-            border-color: #a855f7;
-            transform: scale(1.08);
-        }
-        .swiper-button-next::after, .swiper-button-prev::after {
-            font-size: 16px !important;
-            font-weight: 800;
-        }
-        .swiper-pagination-bullet {
-            background: rgba(255, 255, 255, 0.4) !important;
-            opacity: 1 !important;
-            width: 8px !important;
-            height: 8px !important;
-            transition: all 0.3s ease !important;
-        }
-        .swiper-pagination-bullet-active {
-            background: #a855f7 !important;
-            width: 26px !important;
-            border-radius: 999px !important;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #08080c;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2a2a3c;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a855f7;
-        }
-    </style>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/carousel.css" />
 </head>
-<body class="bg-brand-dark text-gray-100 min-h-screen flex flex-col selection:bg-purple-500/30 selection:text-purple-200">
+<body>
+
+  <!-- Top VIP Promo Announcement Bar -->
+  <aside class="announcement-bar" role="region" aria-label="Announcement">
+    <div class="announcement-content">
+      <span>⚡ FLASH DROP:</span>
+      <span>USE CODE <strong>FEATHER20</strong> FOR 20% OFF ALL OVERSIZED STREETWEAR &bull; FREE EXPRESS SHIPPING OVER ₹999</span>
+    </div>
+  </aside>
+
+  <!-- Sticky Main Header & Navigation -->
+  <header class="site-header" id="site-header">
+    <div class="header-container">
+      
+      <!-- Mobile Hamburger Button & Brand Logo -->
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button type="button" class="hamburger-btn" id="mobile-menu-toggle" onclick="window.FeatherApp.toggleMobileMenu()" aria-label="Open Navigation Menu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <a href="index.php" class="brand-logo" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('all');}" aria-label="Feather Fits Home">
+          <img src="assets/images/feather-fits-logo.png" alt="Feather Fits — Confidence Fits You" />
+        </a>
+      </div>
+
+      <!-- Navigation Categories (Home, Men, Women, Kids) -->
+      <nav class="main-navigation" aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li>
+            <a href="index.php?department=all#catalog-section" class="nav-link <?php echo $currentDept === 'all' && $currentPage === 'home' ? 'active' : ''; ?>" data-dept="all" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('all'); event.preventDefault();}">
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="index.php?department=men#catalog-section" class="nav-link <?php echo $currentDept === 'men' ? 'active' : ''; ?>" data-dept="men" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('men'); event.preventDefault();}">
+              <span>Men</span>
+            </a>
+          </li>
+          <li>
+            <a href="index.php?department=women#catalog-section" class="nav-link <?php echo $currentDept === 'women' ? 'active' : ''; ?>" data-dept="women" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('women'); event.preventDefault();}">
+              <span>Women</span>
+            </a>
+          </li>
+          <li>
+            <a href="index.php?department=kids#catalog-section" class="nav-link <?php echo $currentDept === 'kids' ? 'active' : ''; ?>" data-dept="kids" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('kids'); event.preventDefault();}">
+              <span>Kids</span>
+              <span class="nav-pill-badge">New</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="nav-actions">
+
+        <!-- Wishlist Icon -->
+        <button type="button" class="action-btn" id="wishlist-action-btn" onclick="window.FeatherApp.openWishlistDrawer()" aria-label="View Wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span class="badge-count" id="wishlist-badge-count" style="display: none;">0</span>
+        </button>
+
+        <!-- Shopping Cart Icon -->
+        <button type="button" class="action-btn" id="cart-action-btn" onclick="window.FeatherApp.openCartDrawer()" aria-label="View Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="badge-count" id="cart-badge-count" style="display: none;">0</span>
+        </button>
+
+        <!-- User Account Icon -->
+        <a href="account.php" class="action-btn <?php echo $currentPage === 'account' ? 'active' : ''; ?>" id="user-action-btn" aria-label="User Account Dashboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Slide-Out Drawer -->
+  <div class="drawer-overlay" id="mobile-menu-overlay">
+    <aside class="drawer mobile-nav-drawer" id="mobile-menu-drawer" role="dialog" aria-label="Mobile Navigation">
+      <div class="drawer-header">
+        <div class="brand-logo">
+          <img src="assets/images/feather-fits-logo.png" alt="Feather Fits" style="height: 38px;" />
+        </div>
+        <button class="modal-close-btn" onclick="window.FeatherApp.toggleMobileMenu()" aria-label="Close Navigation">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="mobile-drawer-body">
+        <div class="mobile-drawer-search">
+          <input 
+            type="search" 
+            placeholder="Search fits, anime, vintage..." 
+            class="catalog-search-input" 
+            style="padding-left: 1rem;"
+            oninput="window.FeatherApp.handleSearchInput(this.value)" 
+          />
+        </div>
+        <span class="mobile-drawer-heading">Browse Collections</span>
+        <ul class="mobile-drawer-nav">
+          <li><a href="index.php?department=all#catalog-section" class="mobile-nav-link <?php echo $currentDept === 'all' ? 'active' : ''; ?>" data-dept="all" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('all'); window.FeatherApp.toggleMobileMenu();}">🏠 Home & All Drops</a></li>
+          <li><a href="index.php?department=men#catalog-section" class="mobile-nav-link <?php echo $currentDept === 'men' ? 'active' : ''; ?>" data-dept="men" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('men'); window.FeatherApp.toggleMobileMenu();}">👔 Men's Collection</a></li>
+          <li><a href="index.php?department=women#catalog-section" class="mobile-nav-link <?php echo $currentDept === 'women' ? 'active' : ''; ?>" data-dept="women" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('women'); window.FeatherApp.toggleMobileMenu();}">👗 Women's Collection</a></li>
+          <li><a href="index.php?department=kids#catalog-section" class="mobile-nav-link <?php echo $currentDept === 'kids' ? 'active' : ''; ?>" data-dept="kids" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('kids'); window.FeatherApp.toggleMobileMenu();}">🧒 Kids' Streetwear <span class="nav-pill-badge" style="margin-left: 6px;">New</span></a></li>
+        </ul>
+        <span class="mobile-drawer-heading">Quick Actions</span>
+        <div class="mobile-drawer-grid">
+          <a href="account.php?tab=tracking" class="mobile-shortcut-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Track Order</span>
+          </a>
+          <button class="mobile-shortcut-btn" onclick="window.FeatherApp.openSizeGuideModal('inches'); window.FeatherApp.toggleMobileMenu();">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+            <span>Size Chart</span>
+          </button>
+          <button class="mobile-shortcut-btn" onclick="window.FeatherApp.openWishlistDrawer(); window.FeatherApp.toggleMobileMenu();">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span>Wishlist</span>
+          </button>
+          <a href="account.php" class="mobile-shortcut-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>My Dashboard</span>
+          </a>
+        </div>
+      </div>
+    </aside>
+  </div>

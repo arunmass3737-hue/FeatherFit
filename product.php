@@ -1,8 +1,12 @@
 <?php
 require_once __DIR__ . '/data/products.php';
 
-$productId = $_GET['id'] ?? 'p_anime_01';
+$productId = $_GET['id'] ?? 'ff-anime-01';
 $product = getFeatherProductById($productId);
+if (!$product) {
+    $all = getFeatherProducts();
+    $product = $all[0] ?? null;
+}
 
 if (!$product) {
     header("Location: index.php");
@@ -10,280 +14,322 @@ if (!$product) {
 }
 
 $pageTitle = htmlspecialchars($product['name']) . " | Feather Fits Luxury Streetwear";
-$pageDescription = "Buy " . htmlspecialchars($product['name']) . " online at Feather Fits. 100% Bio-Washed Combed Cotton 240 GSM with High-Density Graphic Screenprint.";
+$pageDescription = htmlspecialchars($product['description'] ?? "Premium heavy-weight 240 GSM combed cotton streetwear from Feather Fits.");
+$currentDept = $product['department'] ?? 'men';
+$currentPage = 'product';
 
+$primaryImg = getProductPrimaryImage($product);
+$images = !empty($product['images']) ? $product['images'] : [$primaryImg];
+$basePrice = getProductBasePrice($product);
+$origPrice = getProductOriginalPrice($product);
+$discountPercent = $origPrice > $basePrice ? round((($origPrice - $basePrice) / $origPrice) * 100) : 0;
+$colors = $product['colors'] ?? [['name' => 'Midnight Black', 'hex' => '#121214']];
+$sizes = $product['sizes'] ?? ['S', 'M', 'L', 'XL', 'XXL'];
+
+// Related products
 $allProducts = getFeatherProducts();
-$relatedProducts = array_filter($allProducts, function($p) use ($product) {
-    return $p['id'] !== $product['id'] && ($p['department'] ?? '') === ($product['department'] ?? 'men');
-});
-if (empty($relatedProducts)) {
-    $relatedProducts = array_slice($allProducts, 0, 4);
+$related = [];
+foreach ($allProducts as $p) {
+    if ($p['id'] !== $product['id'] && ($p['department'] ?? '') === $product['department']) {
+        $related[] = $p;
+        if (count($related) >= 4) break;
+    }
+}
+if (count($related) < 4) {
+    foreach ($allProducts as $p) {
+        if ($p['id'] !== $product['id'] && !in_array($p, $related)) {
+            $related[] = $p;
+            if (count($related) >= 4) break;
+        }
+    }
 }
 
-include __DIR__ . '/includes/header.php';
-include __DIR__ . '/includes/navbar.php';
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-    
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-xs text-gray-400 mb-8" data-aos="fade-up">
-        <a href="index.php" class="hover:text-white transition">Home</a>
-        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-600"></i>
-        <a href="index.php?department=<?= urlencode($product['department'] ?? 'men') ?>" class="hover:text-white transition capitalize">
-            <?= htmlspecialchars($product['department'] ?? 'men') ?>
-        </a>
-        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-600"></i>
-        <span class="text-purple-300 truncate max-w-xs font-semibold"><?= htmlspecialchars($product['name']) ?></span>
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumbs-container" aria-label="Breadcrumb">
+    <div class="breadcrumbs-wrap">
+      <a href="index.php">Home</a>
+      <span>&rsaquo;</span>
+      <a href="index.php?department=<?php echo urlencode($currentDept); ?>#catalog-section" id="pdp-category-link">
+        <?php echo htmlspecialchars($product['categoryName'] ?? ucfirst($currentDept) . "'s Fits"); ?>
+      </a>
+      <span>&rsaquo;</span>
+      <span class="active-crumb" id="pdp-title-crumb"><?php echo htmlspecialchars($product['name']); ?></span>
     </div>
+  </nav>
 
-    <!-- Product Grid: Gallery + Details -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
-        
-        <!-- Left: Product Swiper Image Gallery -->
-        <div data-aos="fade-right">
-            <div class="sticky top-28 space-y-4">
-                <div class="swiper productGallerySwiper rounded-3xl overflow-hidden aspect-[4/5] bg-black border border-white/10 shadow-2xl">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <img src="<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="w-full h-full object-cover" id="main-product-img" />
-                        </div>
-                        <?php if (!empty($product['hoverImage'])): ?>
-                        <div class="swiper-slide">
-                            <img src="<?= htmlspecialchars($product['hoverImage']) ?>" alt="<?= htmlspecialchars($product['name']) ?> Back View" class="w-full h-full object-cover" />
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="swiper-pagination"></div>
-                    <div class="swiper-button-next"></div>
-                    <div class="swiper-button-prev"></div>
-                </div>
-
-                <!-- Features Under Gallery -->
-                <div class="grid grid-cols-3 gap-3 pt-2 text-center text-xs text-gray-400">
-                    <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center gap-1.5">
-                        <i data-lucide="feather" class="w-5 h-5 text-purple-400"></i>
-                        <span class="font-bold text-gray-300">240 GSM</span>
-                        <span>Heavy Cotton</span>
-                    </div>
-                    <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center gap-1.5">
-                        <i data-lucide="refresh-cw" class="w-5 h-5 text-purple-400"></i>
-                        <span class="font-bold text-gray-300">7 Days</span>
-                        <span>Free Return</span>
-                    </div>
-                    <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center gap-1.5">
-                        <i data-lucide="shield-check" class="w-5 h-5 text-purple-400"></i>
-                        <span class="font-bold text-gray-300">PCI-DSS</span>
-                        <span>Safe Payment</span>
-                    </div>
-                </div>
-            </div>
+  <!-- Main Product Detail Section -->
+  <main class="pdp-main-section">
+    <div class="pdp-layout" id="pdp-container">
+      
+      <!-- Left Column: Gallery Media -->
+      <div class="pdp-gallery-column">
+        <div class="pdp-main-image-wrap">
+          <img id="pdp-main-image" src="<?php echo htmlspecialchars($primaryImg); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="pdp-main-img" />
+          <?php if (!empty($product['badge'])): ?>
+            <span class="pdp-badge"><?php echo htmlspecialchars($product['badge']); ?></span>
+          <?php endif; ?>
         </div>
 
-        <!-- Right: Purchasing Controls -->
-        <div class="space-y-6" data-aos="fade-left">
-            <div>
-                <span class="inline-block px-3 py-1 bg-purple-600/20 border border-purple-500/30 text-purple-300 text-xs font-bold uppercase tracking-widest rounded-full mb-3">
-                    <?= htmlspecialchars($product['brand'] ?? 'FEATHER FITS ORIGINAL') ?>
-                </span>
-                <h1 class="text-2xl sm:text-4xl font-extrabold font-cinzel text-white leading-tight">
-                    <?= htmlspecialchars($product['name']) ?>
-                </h1>
-                
-                <!-- Rating and Reviews -->
-                <div class="flex items-center gap-3 mt-3">
-                    <div class="flex items-center gap-1 text-amber-400 font-bold text-sm">
-                        <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
-                        <span><?= $product['rating'] ?? '4.9' ?></span>
-                    </div>
-                    <span class="text-gray-500">•</span>
-                    <span class="text-xs text-gray-400 font-medium">128 verified ratings</span>
-                    <span class="text-gray-500">•</span>
-                    <span class="text-xs text-emerald-400 font-bold flex items-center gap-1">
-                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> In Stock & Ready to Ship
-                    </span>
-                </div>
-            </div>
-
-            <!-- Price Breakdown -->
-            <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                <div>
-                    <div class="flex items-baseline gap-3">
-                        <span class="text-3xl sm:text-4xl font-black text-white" id="p-price-display">₹<?= number_format($product['price']) ?></span>
-                        <?php if (!empty($product['originalPrice'])): ?>
-                        <span class="text-base text-gray-500 line-through">₹<?= number_format($product['originalPrice']) ?></span>
-                        <?php endif; ?>
-                        <?php if (!empty($product['discount'])): ?>
-                        <span class="px-2 py-0.5 bg-emerald-950 text-emerald-400 text-xs font-bold rounded-full border border-emerald-800/40">
-                            <?= htmlspecialchars($product['discount']) ?>
-                        </span>
-                        <?php endif; ?>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1">Inclusive of all taxes • Free express doorstep delivery</p>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs font-bold text-purple-400 bg-purple-950/60 border border-purple-800/40 px-3 py-1.5 rounded-full">
-                        🔥 High Demand Drop
-                    </span>
-                </div>
-            </div>
-
-            <!-- Select Size -->
-            <div>
-                <div class="flex items-center justify-between mb-3">
-                    <label class="text-xs uppercase tracking-wider text-gray-300 font-bold">Select Apparel Size</label>
-                    <button type="button" onclick="openSizeGuideModal()" class="text-xs text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1">
-                        <i data-lucide="ruler" class="w-3.5 h-3.5"></i>
-                        <span>Size Chart</span>
-                    </button>
-                </div>
-                <div class="grid grid-cols-5 gap-3" id="size-selector-group">
-                    <?php foreach (['S', 'M', 'L', 'XL', 'XXL'] as $size): ?>
-                    <button type="button" class="size-btn py-3 rounded-xl border text-xs font-bold uppercase transition <?= ($size === 'L') ? 'border-purple-500 bg-purple-600/20 text-white shadow-glow-sm' : 'border-white/10 bg-white/5 text-gray-300 hover:border-white/30' ?>" onclick="selectSize('<?= $size ?>', this)">
-                        <?= $size ?>
-                    </button>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-
-            <!-- Actions: Add to Bag & Buy Now -->
-            <div class="space-y-3 pt-2">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button type="button" onclick="addToCartCurrent()" class="py-4 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 transition duration-200">
-                        <i data-lucide="shopping-bag" class="w-4 h-4 text-purple-400"></i>
-                        <span>Add To Bag</span>
-                    </button>
-                    <button type="button" onclick="buyNowCurrent()" class="py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider rounded-2xl shadow-glow-purple flex items-center justify-center gap-2 transition duration-200">
-                        <i data-lucide="zap" class="w-4 h-4"></i>
-                        <span>Express Checkout</span>
-                    </button>
-                </div>
-                <p class="text-[11px] text-center text-gray-500 flex items-center justify-center gap-1.5">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-                    <span>Guaranteed genuine streetwear • Doorstep Cash or UPI QR on handover</span>
-                </p>
-            </div>
-
-            <!-- Description & Specs Accordion -->
-            <div class="pt-6 border-t border-white/10 space-y-4">
-                <div>
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-white mb-2">Design & Craftsmanship</h3>
-                    <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
-                        <?= htmlspecialchars($product['description'] ?? "Engineered from ultra-heavy 240 GSM 100% bio-washed combed cotton. Features seamless tubular body construction, double-needle stitched ribbed collar, and durable fade-resistant screen printing.") ?>
-                    </p>
-                </div>
-                <div class="grid grid-cols-2 gap-3 pt-2 text-xs text-gray-300">
-                    <div class="p-3 bg-white/[0.02] border border-white/5 rounded-xl">
-                        <span class="text-gray-500 block text-[10px] uppercase font-bold">Fit Profile</span>
-                        <span class="font-semibold text-white">Boxy Streetwear Oversized</span>
-                    </div>
-                    <div class="p-3 bg-white/[0.02] border border-white/5 rounded-xl">
-                        <span class="text-gray-500 block text-[10px] uppercase font-bold">Fabric Composition</span>
-                        <span class="font-semibold text-white">100% Combed Bio Cotton</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Related Products Swiper Slider -->
-    <div class="mt-24 pt-16 border-t border-white/10" data-aos="fade-up">
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h3 class="text-xl sm:text-3xl font-black font-cinzel text-white">You May Also Vibe With</h3>
-                <p class="text-xs text-gray-400 mt-1">Curated complementary street fits</p>
-            </div>
-            <a href="index.php?department=<?= urlencode($product['department'] ?? 'men') ?>" class="text-xs text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1">
-                <span>View Full Lineup</span>
-                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            <?php foreach (array_slice($relatedProducts, 0, 4) as $rel): ?>
-            <div class="glass-card rounded-2xl overflow-hidden group flex flex-col justify-between">
-                <a href="product.php?id=<?= urlencode($rel['id']) ?>" class="block relative aspect-[4/5] bg-black overflow-hidden">
-                    <img src="<?= htmlspecialchars($rel['image']) ?>" alt="<?= htmlspecialchars($rel['name']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                </a>
-                <div class="p-4">
-                    <h4 class="text-xs font-bold text-white truncate"><?= htmlspecialchars($rel['name']) ?></h4>
-                    <div class="mt-2 flex items-center justify-between">
-                        <span class="text-sm font-bold text-white">₹<?= number_format($rel['price']) ?></span>
-                        <a href="product.php?id=<?= urlencode($rel['id']) ?>" class="text-xs text-purple-400 font-semibold flex items-center gap-1">
-                            <span>Inspect</span>
-                            <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <?php if (count($images) > 1): ?>
+          <div class="pdp-thumbnails-strip" id="pdp-thumbnails">
+            <?php foreach ($images as $idx => $img): ?>
+              <button type="button" class="pdp-thumb-btn <?php echo $idx === 0 ? 'active' : ''; ?>" onclick="if(window.PdpController){window.PdpController.switchGalleryImage('<?php echo htmlspecialchars($img); ?>', this);} else { document.getElementById('pdp-main-image').src='<?php echo htmlspecialchars($img); ?>'; }">
+                <img src="<?php echo htmlspecialchars($img); ?>" alt="View angle <?php echo $idx + 1; ?>" loading="lazy" />
+              </button>
             <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      </div>
+
+      <!-- Right Column: Product Info & Actions -->
+      <div class="pdp-details-column">
+        <span class="pdp-brand-tag">FEATHER FITS &bull; <?php echo strtoupper($product['categoryName'] ?? 'LUXURY STREETWEAR'); ?></span>
+        <h1 class="pdp-title" id="pdp-product-title"><?php echo htmlspecialchars($product['name']); ?></h1>
+
+        <!-- Rating & Reviews Header -->
+        <div class="pdp-rating-row">
+          <div class="star-rating">
+            <span style="color: #F59E0B;">★★★★★</span>
+            <span class="rating-val"><?php echo number_format($product['rating'] ?? 4.9, 1); ?></span>
+          </div>
+          <span class="reviews-count">(<?php echo intval($product['reviewsCount'] ?? 128); ?> Verified Customer Reviews)</span>
+          <span class="divider">&bull;</span>
+          <span class="pdp-in-stock-tag">✓ In Stock &amp; Ready to Ship</span>
         </div>
+
+        <!-- Pricing Card -->
+        <div class="pdp-price-box">
+          <div class="pdp-price-primary">
+            <span class="price-current" id="pdp-current-price"><?php echo formatPrice($basePrice); ?></span>
+            <?php if ($origPrice > $basePrice): ?>
+              <span class="price-original" id="pdp-original-price"><?php echo formatPrice($origPrice); ?></span>
+              <span class="price-discount-tag" id="pdp-discount-tag"><?php echo $discountPercent; ?>% OFF</span>
+            <?php endif; ?>
+          </div>
+          <div class="price-tax-note">Inclusive of all taxes &bull; Pre-shrunk 240 GSM Luxury Combed Cotton</div>
+        </div>
+
+        <!-- Color Selector -->
+        <div class="pdp-option-section">
+          <div class="option-header">
+            <label>Color: <strong id="pdp-selected-color-name"><?php echo htmlspecialchars($colors[0]['name'] ?? 'Classic'); ?></strong></label>
+          </div>
+          <div class="color-swatches-group" id="pdp-color-swatches">
+            <?php foreach ($colors as $cIdx => $c): ?>
+              <button type="button" class="color-swatch-btn <?php echo $cIdx === 0 ? 'active' : ''; ?>" style="background-color: <?php echo htmlspecialchars($c['hex']); ?>;" title="<?php echo htmlspecialchars($c['name']); ?>" onclick="if(window.PdpController){window.PdpController.selectColor('<?php echo htmlspecialchars($c['name']); ?>', this);}"></button>
+            <?php endforeach; ?>
+          </div>
+        </div>
+
+        <!-- Size Selector -->
+        <div class="pdp-option-section">
+          <div class="option-header">
+            <label>Select Size:</label>
+            <button type="button" class="btn-text-size-guide" onclick="if(window.FeatherApp){window.FeatherApp.openSizeGuideModal('inches');}">
+              📏 Size &amp; Fit Guide
+            </button>
+          </div>
+          <div class="size-buttons-group" id="pdp-size-buttons">
+            <?php foreach ($sizes as $sIdx => $s): ?>
+              <button type="button" class="size-pill-btn <?php echo $s === 'L' || ($sIdx === 0 && !in_array('L', $sizes)) ? 'active' : ''; ?>" onclick="if(window.PdpController){window.PdpController.selectSize('<?php echo htmlspecialchars($s); ?>', this);}">
+                <?php echo htmlspecialchars($s); ?>
+              </button>
+            <?php endforeach; ?>
+          </div>
+        </div>
+
+        <!-- Quantity & Add to Cart -->
+        <div class="pdp-actions-row">
+          <div class="pdp-quantity-stepper">
+            <button type="button" class="qty-btn" onclick="if(window.PdpController){window.PdpController.decrementQty();} else { var el=document.getElementById('pdp-qty-val'); var v=parseInt(el.innerText)-1; if(v>=1) el.innerText=v; }">-</button>
+            <span id="pdp-qty-val" class="qty-display">1</span>
+            <button type="button" class="qty-btn" onclick="if(window.PdpController){window.PdpController.incrementQty();} else { var el=document.getElementById('pdp-qty-val'); var v=parseInt(el.innerText)+1; if(v<=10) el.innerText=v; }">+</button>
+          </div>
+
+          <button type="button" class="btn-add-to-cart" id="pdp-add-cart-btn" onclick="if(window.PdpController){window.PdpController.addToCart();} else if(window.FeatherApp){window.FeatherApp.addToCart('<?php echo htmlspecialchars($product['id']); ?>');}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span>Add to Shopping Bag</span>
+          </button>
+
+          <button type="button" class="btn-buy-now" onclick="if(window.PdpController){window.PdpController.buyNow();} else { window.location.href='checkout.php'; }">
+            Buy Now ⚡
+          </button>
+        </div>
+
+        <!-- Trust Badges Strip -->
+        <div class="pdp-trust-highlights">
+          <div class="trust-highlight-item">
+            <span class="icon">🚚</span>
+            <div>
+              <strong>Free Express Shipping</strong>
+              <p>On orders above ₹999 across all India PIN codes</p>
+            </div>
+          </div>
+          <div class="trust-highlight-item">
+            <span class="icon">📦</span>
+            <div>
+              <strong>Doorstep UPI / COD Available</strong>
+              <p>Pay cash or scan courier QR on delivery</p>
+            </div>
+          </div>
+          <div class="trust-highlight-item">
+            <span class="icon">🔄</span>
+            <div>
+              <strong>30-Day Easy Exchange</strong>
+              <p>Hassle-free size replacement at your doorstep</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description Text -->
+        <div class="pdp-description-wrap">
+          <h3>Design &amp; Silhouette</h3>
+          <p><?php echo nl2br(htmlspecialchars($product['description'] ?? '')); ?></p>
+        </div>
+      </div>
+
     </div>
-</main>
 
-<script>
-    let selectedSize = 'L';
+    <!-- Product Tabs: Specifications, Care, Delivery -->
+    <section class="pdp-specs-section">
+      <div class="pdp-tabs-header">
+        <button class="pdp-tab-btn active" onclick="switchPdpTab('specs', this)">Fabric &amp; Specifications</button>
+        <button class="pdp-tab-btn" onclick="switchPdpTab('care', this)">Wash &amp; Care Guide</button>
+        <button class="pdp-tab-btn" onclick="switchPdpTab('shipping', this)">Delivery &amp; 30-Day Returns</button>
+      </div>
 
-    function selectSize(size, btn) {
-        selectedSize = size;
-        document.querySelectorAll('.size-btn').forEach(b => {
-            b.classList.remove('border-purple-500', 'bg-purple-600/20', 'text-white', 'shadow-glow-sm');
-            b.classList.add('border-white/10', 'bg-white/5', 'text-gray-300');
-        });
-        btn.classList.add('border-purple-500', 'bg-purple-600/20', 'text-white', 'shadow-glow-sm');
-        btn.classList.remove('border-white/10', 'bg-white/5', 'text-gray-300');
+      <div class="pdp-tab-content active" id="tab-specs">
+        <div class="specs-grid">
+          <div class="spec-card">
+            <h4>100% Combed Heavy Cotton</h4>
+            <p>Engineered with 240 GSM dense cotton fibers offering luxury structural drape and zero transparency.</p>
+          </div>
+          <div class="spec-card">
+            <h4>Silkscreen High-Definition Print</h4>
+            <p>High-density eco-friendly inks that resist fading, cracking, and peeling through 50+ wash cycles.</p>
+          </div>
+          <div class="spec-card">
+            <h4>Reinforced Double-Stitching</h4>
+            <p>Twin-needle stitched hem and ribbed 1.25" crewneck collar designed to retain shape permanently.</p>
+          </div>
+          <div class="spec-card">
+            <h4>Pre-Shrunk &amp; Colorfast</h4>
+            <p>Thermal pre-washing prevents any surprise shrinkage or color bleeding after first wash.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pdp-tab-content" id="tab-care" style="display: none;">
+        <div class="care-instructions-box">
+          <ul>
+            <li>💧 Machine wash cold (max 30°C / 86°F) inside-out with like colors.</li>
+            <li>🌿 Use mild, bleach-free detergent to protect organic combed fibers.</li>
+            <li>💨 Tumble dry low or hang dry in the shade to maintain print vibrancy.</li>
+            <li>⚡ Warm iron inside-out if needed. <strong>Do not iron directly over graphic prints.</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pdp-tab-content" id="tab-shipping" style="display: none;">
+        <div class="shipping-info-box">
+          <p><strong>Free Standard Delivery:</strong> On all domestic orders over ₹999. Dispatched within 24-48 hours via Blue Dart / Delhivery Express.</p>
+          <p style="margin-top: 0.75rem;"><strong>30-Day Risk-Free Return Guarantee:</strong> If the fit isn't 100% confidence-inspiring, return or exchange unwashed items with tags within 30 days for an instant replacement.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Verified Customer Reviews Section -->
+    <section class="pdp-reviews-section" id="pdp-reviews-section">
+      <div class="reviews-header">
+        <div>
+          <h3>Verified Buyer Reviews</h3>
+          <div class="card-rating" style="font-size: 1.1rem; margin-top: 0.25rem;">
+            <span style="color: #F59E0B;">★★★★★</span>
+            <strong id="pdp-reviews-avg-rating" style="color: var(--color-primary); font-size: 1.1rem;">4.9 out of 5</strong>
+            <span id="pdp-reviews-count-badge" class="reviews" style="color: var(--color-text-muted);">(Based on <?php echo intval($product['reviewsCount'] ?? 128); ?> verified buyers)</span>
+          </div>
+        </div>
+        <button id="toggle-write-review-btn" class="btn-primary" onclick="window.PdpController.toggleWriteReviewForm()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          <span>Write a Review</span>
+        </button>
+      </div>
+
+      <!-- Reviews Feed Container -->
+      <div class="reviews-grid" id="pdp-reviews-grid">
+        <!-- Rendered by window.PdpController.renderReviews() -->
+      </div>
+    </section>
+
+    <!-- Related Products -->
+    <section class="pdp-related-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">You Might Also Love</h2>
+          <p class="section-subtitle">Complementary designs from our flagship streetwear collection</p>
+        </div>
+      </div>
+      <div class="products-grid" id="related-products-grid">
+        <?php foreach ($related as $rel): 
+            $relImg = getProductPrimaryImage($rel);
+            $relPrice = getProductBasePrice($rel);
+            $relOrig = getProductOriginalPrice($rel);
+            $relDiscount = $relOrig > $relPrice ? round((($relOrig - $relPrice) / $relOrig) * 100) : 0;
+        ?>
+          <article class="product-card" data-id="<?php echo htmlspecialchars($rel['id']); ?>">
+            <a href="product.php?id=<?php echo htmlspecialchars($rel['id']); ?>" class="product-card-link">
+              <div class="product-image-wrap">
+                <img src="<?php echo htmlspecialchars($relImg); ?>" alt="<?php echo htmlspecialchars($rel['name']); ?>" class="product-primary-img" loading="lazy" />
+                <?php if (!empty($rel['badge'])): ?>
+                  <span class="product-badge"><?php echo htmlspecialchars($rel['badge']); ?></span>
+                <?php endif; ?>
+              </div>
+              <div class="product-info">
+                <span class="product-brand"><?php echo htmlspecialchars($rel['categoryName'] ?? 'FEATHER FIT'); ?></span>
+                <h3 class="product-title"><?php echo htmlspecialchars($rel['name']); ?></h3>
+                <div class="product-price-row">
+                  <span class="price-current"><?php echo formatPrice($relPrice); ?></span>
+                  <?php if ($relOrig > $relPrice): ?>
+                    <span class="price-original"><?php echo formatPrice($relOrig); ?></span>
+                    <span class="discount-pill"><?php echo $relDiscount; ?>% OFF</span>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </a>
+          </article>
+        <?php endforeach; ?>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function switchPdpTab(tabName, el) {
+      document.querySelectorAll('.pdp-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.pdp-tab-content').forEach(c => c.style.display = 'none');
+      el.classList.add('active');
+      const target = document.getElementById('tab-' + tabName);
+      if (target) target.style.display = 'block';
     }
+  </script>
 
-    function addToCartCurrent() {
-        let cart = [];
-        try {
-            cart = JSON.parse(localStorage.getItem('feather_cart') || localStorage.getItem('cart') || '[]');
-        } catch(e){}
+<?php
+require_once __DIR__ . '/includes/footer.php';
+require_once __DIR__ . '/includes/modals.php';
+?>
 
-        const item = {
-            id: '<?= $product['id'] ?>',
-            name: '<?= addslashes($product['name']) ?>',
-            price: <?= (int)$product['price'] ?>,
-            image: '<?= $product['image'] ?>',
-            size: selectedSize,
-            quantity: 1
-        };
-
-        const existing = cart.find(it => it.id === item.id && it.size === selectedSize);
-        if (existing) {
-            existing.quantity = (existing.quantity || 1) + 1;
-        } else {
-            cart.push(item);
-        }
-
-        localStorage.setItem('feather_cart', JSON.stringify(cart));
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateDrawerBadges();
-        showToast(`✓ Added "${item.name}" (Size ${selectedSize}) to Bag!`, 'success');
-        openCartDrawer();
-    }
-
-    function buyNowCurrent() {
-        addToCartCurrent();
-        setTimeout(() => {
-            window.location.href = 'checkout.php';
-        }, 300);
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        new Swiper('.productGallerySwiper', {
-            loop: true,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-        });
-    });
-</script>
-
-<?php include __DIR__ . '/includes/footer.php'; ?>
+  <!-- Scripts -->
+  <script src="data/products.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pdp.js"></script>
+</body>
+</html>

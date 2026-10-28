@@ -1,395 +1,589 @@
 <?php
+require_once __DIR__ . '/data/products.php';
+
 $pageTitle = "Secure Checkout | Feather Fits Premium Streetwear";
-$pageDescription = "Complete your luxury streetwear order with instant UPI, Credit/Debit card tokenization, or Doorstep COD.";
-include __DIR__ . '/includes/header.php';
-include __DIR__ . '/includes/navbar.php';
+$pageDescription = "Complete your purchase securely on Feather Fits. Express UPI, Credit/Debit cards, and Doorstep COD payment options.";
+$currentPage = 'checkout';
+$currentDept = 'all';
+
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-    
-    <!-- Top Security Notice -->
-    <div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/10" data-aos="fade-down">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                <i data-lucide="shield-check" class="w-5 h-5"></i>
-            </div>
-            <div>
-                <h3 class="text-sm font-bold text-white">Bank-Grade 256-Bit SSL Encrypted Checkout</h3>
-                <p class="text-xs text-gray-400">PCI-DSS SAQ A Certified • Data tokenized directly via secure gateways</p>
-            </div>
-        </div>
-        <a href="index.php" class="text-xs text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1">
-            <span>← Return to Store</span>
-        </a>
-    </div>
+    <style>
+        .checkout-page-container {
+            max-width: 1200px;
+            margin: 40px auto 60px;
+            padding: 0 24px;
+        }
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        @media (max-width: 960px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .checkout-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(14px);
+            margin-bottom: 24px;
+        }
+        .checkout-card h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            color: #fff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .checkout-card h2 span.step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #fff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 800;
+            border-radius: 50%;
+        }
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 600px) {
+            .form-row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #a0a0b8;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .form-control-custom {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 0.92rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .form-control-custom:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+        .payment-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 650px) {
+            .payment-tabs {
+                grid-template-columns: 1fr;
+            }
+        }
+        .payment-tab-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: #d1d1e0;
+        }
+        .payment-tab-btn:hover {
+            border-color: rgba(168, 85, 247, 0.4);
+            background: rgba(168, 85, 247, 0.05);
+        }
+        .payment-tab-btn.active {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.12);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+        }
+        .payment-tab-btn .tab-icon {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .payment-tab-btn .tab-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            display: block;
+        }
+        .payment-tab-btn .tab-sub {
+            font-size: 0.72rem;
+            color: #8f8fa0;
+            display: block;
+            margin-top: 2px;
+        }
+        .payment-panel {
+            display: none;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 20px;
+        }
+        .payment-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .order-summary-sidebar {
+            position: sticky;
+            top: 100px;
+        }
+        .summary-item-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .summary-item-img {
+            width: 52px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #1a1a24;
+        }
+        .summary-item-info {
+            flex: 1;
+        }
+        .summary-item-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .summary-item-meta {
+            font-size: 0.75rem;
+            color: #8e8ea6;
+        }
+        .summary-item-price {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #f1f1f5;
+        }
+        .price-breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            color: #a0a0b8;
+            margin-bottom: 10px;
+        }
+        .price-breakdown-row.total-row {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #fff;
+            padding-top: 14px;
+            margin-top: 14px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+        .btn-place-order {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.35);
+            transition: all 0.25s ease;
+            margin-top: 20px;
+        }
+        .btn-place-order:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(168, 85, 247, 0.5);
+        }
+        .trust-badges-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 18px;
+            font-size: 0.78rem;
+            color: #7b7b92;
+        }
+    </style>
 
-    <!-- Main Checkout Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
-        <!-- Left: Form Steps (Col 1 to 7) -->
-        <div class="lg:col-span-7 space-y-8" data-aos="fade-right">
-            
-            <!-- Step 1: Customer & Shipping Address -->
-            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10">
-                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
-                    <span class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold flex items-center justify-center">1</span>
-                    <h2 class="text-lg font-bold font-cinzel text-white">Delivery Address & Contact</h2>
-                </div>
-
-                <form id="checkout-shipping-form" onsubmit="event.preventDefault();" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">First Name *</label>
-                            <input type="text" id="chk-firstname" required placeholder="Arjun" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Last Name *</label>
-                            <input type="text" id="chk-lastname" required placeholder="Kumar" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Mobile Phone Number *</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-xs font-bold text-gray-400 pointer-events-none">🇮🇳 +91</span>
-                                <input type="tel" id="chk-phone" required placeholder="98765 43210" maxlength="10" class="w-full bg-black/40 border border-white/10 rounded-xl pl-16 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+    <main class="checkout-page-container">
+        <div class="checkout-grid">
+            <!-- Left Side: Forms -->
+            <div class="checkout-form-column">
+                <!-- Step 1: Shipping Details -->
+                <div class="checkout-card">
+                    <h2><span class="step-number">1</span> Shipping & Contact Details</h2>
+                    <form id="checkout-main-form" onsubmit="event.preventDefault();">
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="c-firstname">First Name *</label>
+                                <input type="text" id="c-firstname" class="form-control-custom" placeholder="e.g. Arjun" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="c-lastname">Last Name *</label>
+                                <input type="text" id="c-lastname" class="form-control-custom" placeholder="e.g. Kumar" required>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Email Address (for invoice) *</label>
-                            <input type="email" id="chk-email" required placeholder="arjun@example.com" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="c-phone">Mobile Phone (for delivery OTP) *</label>
+                                <input type="tel" id="c-phone" class="form-control-custom" placeholder="+91 98765 43210" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="c-email">Email Address (for invoice) *</label>
+                                <input type="email" id="c-email" class="form-control-custom" placeholder="arjun@example.com" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="c-address">Street Address / House No. *</label>
+                            <input type="text" id="c-address" class="form-control-custom" placeholder="Flat No., Building Name, Street Name" required>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="c-city">City *</label>
+                                <input type="text" id="c-city" class="form-control-custom" placeholder="Chennai" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="c-pincode">PIN / Postal Code *</label>
+                                <input type="text" id="c-pincode" class="form-control-custom" placeholder="600001" maxlength="6" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: Payment Method Tabs -->
+                <div class="checkout-card">
+                    <h2><span class="step-number">2</span> Payment Method</h2>
+                    
+                    <div class="payment-tabs">
+                        <div class="payment-tab-btn active" onclick="selectPaymentTab('upi', this)">
+                            <span class="tab-icon">⚡</span>
+                            <span class="tab-title">Instant UPI</span>
+                            <span class="tab-sub">GPay, PhonePe, Paytm</span>
+                        </div>
+                        <div class="payment-tab-btn" onclick="selectPaymentTab('card', this)">
+                            <span class="tab-icon">💳</span>
+                            <span class="tab-title">Card / Netbanking</span>
+                            <span class="tab-sub">Visa, Mastercard, RuPay</span>
+                        </div>
+                        <div class="payment-tab-btn" onclick="selectPaymentTab('cod', this)">
+                            <span class="tab-icon">📦</span>
+                            <span class="tab-title">Doorstep Pay / COD</span>
+                            <span class="tab-sub">Cash or UPI QR on Delivery</span>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Street Address / Flat / Building *</label>
-                        <input type="text" id="chk-address" required placeholder="Flat 4B, Emerald Heights, MG Road" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+                    <!-- Panel 1: UPI -->
+                    <div id="panel-upi" class="payment-panel active">
+                        <div class="form-group">
+                            <label for="c-vpa">Enter Your Virtual Payment Address (UPI ID)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="c-vpa" class="form-control-custom" placeholder="username@okhdfcbank / mobile@ybl">
+                                <button type="button" class="btn-outline-sm px-4 rounded-lg bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 font-semibold text-xs" onclick="verifyVPA()">Verify</button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">Or choose to scan a dynamic QR code on the final authorization step.</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">City *</label>
-                            <input type="text" id="chk-city" required placeholder="Chennai" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+                    <!-- Panel 2: Card -->
+                    <div id="panel-card" class="payment-panel">
+                        <div class="form-group">
+                            <label for="c-cardnum">Card Number</label>
+                            <input type="text" id="c-cardnum" class="form-control-custom" placeholder="4111 •••• •••• 1111" maxlength="19">
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Postal PIN Code *</label>
-                            <input type="text" id="chk-pincode" required placeholder="600001" maxlength="6" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" />
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="c-expiry">Expiry Date</label>
+                                <input type="text" id="c-expiry" class="form-control-custom" placeholder="MM / YY" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="c-cvv">CVV / Security Code</label>
+                                <input type="password" id="c-cvv" class="form-control-custom" placeholder="•••" maxlength="4">
+                            </div>
+                        </div>
+                        <p class="text-xs text-emerald-400">🔒 Tokenized directly via PCI-DSS SAQ A gateway. Card numbers never touch our servers.</p>
+                    </div>
+
+                    <!-- Panel 3: COD -->
+                    <div id="panel-cod" class="payment-panel">
+                        <div style="display: flex; gap: 14px; align-items: flex-start;">
+                            <span style="font-size: 2rem;">🤝</span>
+                            <div>
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff;">Doorstep Payment Guarantee</h4>
+                                <p style="font-size: 0.82rem; color: #a0a0b8; margin-top: 4px; line-height: 1.6;">
+                                    Pay securely at your doorstep when your package arrives! You can pay with <strong>Cash</strong> or scan our delivery executive's <strong>Official UPI QR code</strong>.
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
 
-            <!-- Step 2: Payment Method Tabs (No Confusing Mix) -->
-            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10">
-                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
-                    <span class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold flex items-center justify-center">2</span>
-                    <h2 class="text-lg font-bold font-cinzel text-white">Select Payment Mode</h2>
-                </div>
+            <!-- Right Side: Order Summary -->
+            <div class="checkout-summary-column">
+                <div class="checkout-card order-summary-sidebar">
+                    <h2>Order Summary</h2>
+                    
+                    <!-- Items List -->
+                    <div id="summary-items-list">
+                        <!-- Populated dynamically via JS -->
+                    </div>
 
-                <div class="grid grid-cols-3 gap-3 mb-6">
-                    <button type="button" class="pay-tab-btn active p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 border-purple-500 bg-purple-600/15 shadow-glow-sm" onclick="selectCheckoutPayment('upi', this)">
-                        <i data-lucide="zap" class="w-6 h-6 text-purple-400"></i>
-                        <span class="text-xs font-bold text-white block">Instant UPI</span>
-                        <span class="text-[10px] text-gray-400 block">GPay, PhonePe</span>
-                    </button>
+                    <!-- Coupon Code Input -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <label style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #a0a0b8; font-weight: 600; display: block; margin-bottom: 6px;">Discount Coupon</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="checkout-coupon-code" class="form-control-custom" style="font-size: 0.85rem;" placeholder="FEATHER20">
+                            <button type="button" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #c084fc; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; cursor: pointer;" onclick="applyCheckoutCoupon()">Apply</button>
+                        </div>
+                        <div id="coupon-feedback" style="font-size: 0.78rem; margin-top: 6px; display: none;"></div>
+                    </div>
 
-                    <button type="button" class="pay-tab-btn p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 border-white/10 bg-white/[0.02] hover:border-white/20" onclick="selectCheckoutPayment('card', this)">
-                        <i data-lucide="credit-card" class="w-6 h-6 text-gray-400"></i>
-                        <span class="text-xs font-bold text-gray-200 block">Cards / Bank</span>
-                        <span class="text-[10px] text-gray-400 block">Visa, RuPay</span>
-                    </button>
+                    <!-- Price Calculations -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <div class="price-breakdown-row">
+                            <span>Subtotal</span>
+                            <span id="summary-subtotal">₹0</span>
+                        </div>
+                        <div class="price-breakdown-row">
+                            <span>Standard Express Shipping</span>
+                            <span id="summary-shipping" style="color: #34d399; font-weight: 700;">FREE</span>
+                        </div>
+                        <div class="price-breakdown-row" id="summary-discount-row" style="display: none;">
+                            <span>Discount</span>
+                            <span id="summary-discount" style="color: #c084fc;">-₹0</span>
+                        </div>
+                        <div class="price-breakdown-row total-row">
+                            <span>Total Payable</span>
+                            <span id="summary-total">₹0</span>
+                        </div>
 
-                    <button type="button" class="pay-tab-btn p-4 rounded-2xl border text-center transition flex flex-col items-center gap-2 border-white/10 bg-white/[0.02] hover:border-white/20" onclick="selectCheckoutPayment('cod', this)">
-                        <i data-lucide="package-check" class="w-6 h-6 text-gray-400"></i>
-                        <span class="text-xs font-bold text-gray-200 block">Doorstep Pay</span>
-                        <span class="text-[10px] text-gray-400 block">Cash or QR</span>
-                    </button>
-                </div>
-
-                <!-- UPI Panel -->
-                <div id="panel-pay-upi" class="pay-panel space-y-3">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Enter UPI ID (VPA)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="chk-vpa" placeholder="username@okhdfcbank" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500" />
-                        <button type="button" onclick="verifyVpa()" class="px-5 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-xs font-bold uppercase text-purple-300 transition">
-                            Verify
+                        <button type="button" class="btn-place-order" id="btn-submit-order" onclick="processCheckoutOrder()">
+                            Confirm & Place Order
                         </button>
+
+                        <div class="trust-badges-bar">
+                            <span>🛡️ PCI-DSS Certified</span>
+                            <span>•</span>
+                            <span>🚚 100% Insured Delivery</span>
+                            <span>•</span>
+                            <span>🔄 30-Day Easy Return</span>
+                        </div>
                     </div>
-                    <p class="text-[11px] text-gray-500">Collect request will be triggered on your UPI app during order placement.</p>
-                </div>
-
-                <!-- Card Panel -->
-                <div id="panel-pay-card" class="pay-panel hidden space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Card Number</label>
-                        <input type="text" placeholder="4111 •••• •••• 1111" maxlength="19" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500" />
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="text" placeholder="MM / YY" maxlength="5" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500" />
-                        <input type="password" placeholder="CVV" maxlength="4" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500" />
-                    </div>
-                    <p class="text-[11px] text-emerald-400 flex items-center gap-1.5">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                        Card numbers are tokenized directly via PCI-DSS compliant vaults.
-                    </p>
-                </div>
-
-                <!-- COD Panel -->
-                <div id="panel-pay-cod" class="pay-panel hidden p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
-                    <h4 class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
-                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-                        <span>Doorstep Payment Guarantee</span>
-                    </h4>
-                    <p class="text-xs text-gray-300 leading-relaxed">
-                        Pay comfortably at your doorstep when Blue Dart or Delhivery brings your parcel. You can pay with **Cash** or **Scan the delivery executive's official UPI QR code**.
-                    </p>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Right: Order Summary Sidebar (Col 8 to 12) -->
-        <div class="lg:col-span-5" data-aos="fade-left">
-            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 sticky top-28 space-y-6">
-                <div class="flex items-center justify-between pb-4 border-b border-white/10">
-                    <h3 class="text-lg font-bold font-cinzel text-white">Order Summary</h3>
-                    <span id="chk-item-count" class="text-xs px-2.5 py-1 bg-white/5 rounded-full text-purple-300 font-bold border border-white/10">0 Items</span>
-                </div>
-
-                <!-- Items Container -->
-                <div id="chk-items-list" class="space-y-3 max-h-72 overflow-y-auto pr-1">
-                    <!-- Populated dynamically via JS -->
-                </div>
-
-                <!-- Discount Promo Input -->
-                <div class="pt-4 border-t border-white/10">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Discount Coupon</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="chk-coupon" placeholder="FEATHER20" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white uppercase tracking-wider placeholder-gray-600 focus:outline-none focus:border-purple-500" />
-                        <button type="button" onclick="applyCheckoutCoupon()" class="px-5 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-xs font-bold uppercase text-purple-300 transition">
-                            Apply
-                        </button>
-                    </div>
-                    <div id="chk-coupon-feedback" class="text-[11px] mt-1.5 hidden"></div>
-                </div>
-
-                <!-- Price Calculations -->
-                <div class="pt-4 border-t border-white/10 space-y-2.5 text-xs">
-                    <div class="flex justify-between text-gray-400">
-                        <span>Items Subtotal</span>
-                        <span id="chk-subtotal" class="font-bold text-white">₹0</span>
-                    </div>
-                    <div class="flex justify-between text-gray-400">
-                        <span>Standard Express Shipping</span>
-                        <span class="font-bold text-emerald-400">FREE</span>
-                    </div>
-                    <div id="chk-discount-row" class="hidden justify-between text-purple-400 font-bold">
-                        <span>VIP Coupon Discount</span>
-                        <span id="chk-discount">-₹0</span>
-                    </div>
-                    <div class="pt-3 border-t border-dashed border-white/10 flex justify-between items-baseline text-base font-black text-white">
-                        <span>Total Amount Payable</span>
-                        <span id="chk-total" class="text-2xl text-purple-300 font-extrabold">₹0</span>
-                    </div>
-                </div>
-
-                <!-- Place Order Button -->
-                <button type="button" id="chk-submit-btn" onclick="executeCheckoutOrder()" class="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-2xl text-xs font-bold uppercase tracking-wider shadow-glow-purple hover:scale-[1.01] transition duration-200 flex items-center justify-center gap-2">
-                    <span>Authorize & Confirm Order</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </button>
-
-                <div class="text-center text-[11px] text-gray-500">
-                    <p>Free exchanges within 7 days of delivery. 100% money back guarantee.</p>
                 </div>
             </div>
         </div>
+    </main>
 
-    </div>
-</main>
+    <script>
+        let selectedMethod = 'upi';
+        let discountPercent = 0;
 
-<script>
-    let activePayment = 'upi';
-    let discountRate = 0;
+        function selectPaymentTab(method, el) {
+            selectedMethod = method;
+            document.querySelectorAll('.payment-tab-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
 
-    function selectCheckoutPayment(mode, btn) {
-        activePayment = mode;
-        document.querySelectorAll('.pay-tab-btn').forEach(b => {
-            b.classList.remove('active', 'border-purple-500', 'bg-purple-600/15', 'shadow-glow-sm');
-            b.classList.add('border-white/10', 'bg-white/[0.02]');
-            const icon = b.querySelector('i');
-            if (icon) icon.classList.remove('text-purple-400');
-        });
-        btn.classList.add('active', 'border-purple-500', 'bg-purple-600/15', 'shadow-glow-sm');
-        btn.classList.remove('border-white/10', 'bg-white/[0.02]');
-        const icon = btn.querySelector('i');
-        if (icon) icon.classList.add('text-purple-400');
+            document.querySelectorAll('.payment-panel').forEach(p => p.classList.remove('active'));
+            const target = document.getElementById('panel-' + method);
+            if (target) target.classList.add('active');
 
-        document.querySelectorAll('.pay-panel').forEach(p => p.classList.add('hidden'));
-        const panel = document.getElementById('panel-pay-' + mode);
-        if (panel) panel.classList.remove('hidden');
-
-        const submitBtn = document.getElementById('chk-submit-btn');
-        if (mode === 'cod') {
-            submitBtn.innerHTML = `<span>Confirm Order (Pay on Delivery)</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-        } else if (mode === 'upi') {
-            submitBtn.innerHTML = `<span>Pay via UPI & Confirm</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-        } else {
-            submitBtn.innerHTML = `<span>Authorize Card & Confirm</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-        }
-        if (window.lucide) lucide.createIcons();
-    }
-
-    function verifyVpa() {
-        const vpa = document.getElementById('chk-vpa').value.trim();
-        if (!vpa || !vpa.includes('@')) {
-            showToast('Please enter a valid UPI address (e.g. name@okhdfcbank)', 'error');
-            return;
-        }
-        showToast('✓ UPI ID verified! You will receive a collect request when placing the order.', 'success');
-    }
-
-    function loadCheckoutCart() {
-        const list = document.getElementById('chk-items-list');
-        const countBadge = document.getElementById('chk-item-count');
-        if (!list) return;
-
-        let cart = [];
-        try {
-            cart = JSON.parse(localStorage.getItem('feather_cart') || localStorage.getItem('cart') || '[]');
-        } catch(e){}
-
-        if (countBadge) countBadge.innerText = cart.length + ' Items';
-
-        if (cart.length === 0) {
-            list.innerHTML = `
-                <div class="text-center py-10 text-gray-500 text-xs">
-                    <p>Your shopping bag is empty.</p>
-                    <a href="index.php" class="text-purple-400 underline mt-2 inline-block">Return to shop drops</a>
-                </div>
-            `;
-            calculateTotals(0);
-            return;
+            const submitBtn = document.getElementById('btn-submit-order');
+            if (method === 'cod') {
+                submitBtn.innerText = 'Confirm Order (Pay on Delivery)';
+            } else if (method === 'upi') {
+                submitBtn.innerText = 'Pay via UPI & Place Order';
+            } else {
+                submitBtn.innerText = 'Authorize Card & Place Order';
+            }
         }
 
-        let subtotal = 0;
-        let html = '';
-        cart.forEach(item => {
-            const price = Number(item.price || 999);
-            const qty = Number(item.quantity || 1);
-            subtotal += price * qty;
-            html += `
-                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                    <img src="${item.image || 'assets/hero-bg.webp'}" class="w-12 h-14 object-cover rounded-lg bg-black" />
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-xs font-bold text-white truncate">${item.name || 'Apparel Item'}</h4>
-                        <span class="text-[10px] text-gray-400">Size: ${item.size || 'M'} | Qty: ${qty}</span>
+        function verifyVPA() {
+            const vpa = document.getElementById('c-vpa').value.trim();
+            if (!vpa || !vpa.includes('@')) {
+                alert('Please enter a valid UPI ID (e.g., yourname@okhdfcbank)');
+                return;
+            }
+            alert('✓ UPI ID ' + vpa + ' verified successfully! You will receive a collect request when placing the order.');
+        }
+
+        function loadCheckoutItems() {
+            const container = document.getElementById('summary-items-list');
+            let cart = [];
+            try {
+                cart = JSON.parse(localStorage.getItem('feather_cart') || localStorage.getItem('cart') || '[]');
+            } catch (e) {
+                cart = [];
+            }
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 24px 0; color: #888;">
+                        <p style="margin-bottom: 12px;">Your shopping bag is empty.</p>
+                        <a href="index.php" class="btn-primary" style="padding: 8px 16px; font-size: 0.8rem; display: inline-block;">Browse Fresh Street Drops</a>
                     </div>
-                    <span class="text-xs font-bold text-white">₹${(price * qty).toLocaleString('en-IN')}</span>
-                </div>
-            `;
-        });
-        list.innerHTML = html;
-        calculateTotals(subtotal);
-    }
+                `;
+                document.getElementById('summary-subtotal').innerText = '₹0';
+                document.getElementById('summary-total').innerText = '₹0';
+                return;
+            }
 
-    function calculateTotals(subtotal) {
-        const discountAmt = Math.round(subtotal * (discountRate / 100));
-        const total = Math.max(0, subtotal - discountAmt);
+            let subtotal = 0;
+            let html = '';
+            cart.forEach(item => {
+                const itemTotal = (item.price || 999) * (item.quantity || 1);
+                subtotal += itemTotal;
+                html += `
+                    <div class="summary-item-row">
+                        <img src="${item.image || 'assets/images/plain-tee.jpg'}" alt="${item.name || 'Product'}" class="summary-item-img">
+                        <div class="summary-item-info">
+                            <div class="summary-item-name">${item.name || 'Streetwear Essential'}</div>
+                            <div class="summary-item-meta">Size: ${item.size || 'M'} | Qty: ${item.quantity || 1}</div>
+                        </div>
+                        <div class="summary-item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                    </div>
+                `;
+            });
 
-        document.getElementById('chk-subtotal').innerText = '₹' + subtotal.toLocaleString('en-IN');
-        const discRow = document.getElementById('chk-discount-row');
-        if (discountRate > 0) {
-            discRow.classList.remove('hidden');
-            discRow.classList.add('flex');
-            document.getElementById('chk-discount').innerText = '-₹' + discountAmt.toLocaleString('en-IN') + ` (${discountRate}% OFF)`;
-        } else {
-            discRow.classList.add('hidden');
-            discRow.classList.remove('flex');
-        }
-        document.getElementById('chk-total').innerText = '₹' + total.toLocaleString('en-IN');
-    }
-
-    function applyCheckoutCoupon() {
-        const input = document.getElementById('chk-coupon');
-        const feedback = document.getElementById('chk-coupon-feedback');
-        const code = (input.value || '').trim().toUpperCase();
-
-        let cart = [];
-        try {
-            cart = JSON.parse(localStorage.getItem('feather_cart') || localStorage.getItem('cart') || '[]');
-        } catch(e){}
-        const subtotal = cart.reduce((acc, it) => acc + ((it.price || 999) * (it.quantity || 1)), 0);
-
-        feedback.classList.remove('hidden');
-        if (code === 'FEATHER20' || code === 'FIRST20') {
-            discountRate = 20;
-            feedback.className = 'text-[11px] mt-1.5 text-emerald-400 font-bold';
-            feedback.innerText = '✓ Promo applied: 20% discount granted!';
-        } else if (code === 'VIP10') {
-            discountRate = 10;
-            feedback.className = 'text-[11px] mt-1.5 text-emerald-400 font-bold';
-            feedback.innerText = '✓ Promo applied: 10% discount granted!';
-        } else {
-            discountRate = 0;
-            feedback.className = 'text-[11px] mt-1.5 text-red-400 font-bold';
-            feedback.innerText = 'Invalid promo code. Try FEATHER20';
-        }
-        calculateTotals(subtotal);
-    }
-
-    function executeCheckoutOrder() {
-        const firstName = document.getElementById('chk-firstname').value.trim();
-        const phone = document.getElementById('chk-phone').value.trim();
-        const address = document.getElementById('chk-address').value.trim();
-        const city = document.getElementById('chk-city').value.trim();
-        const pincode = document.getElementById('chk-pincode').value.trim();
-
-        if (!firstName || !phone || !address || !city || !pincode) {
-            showToast('Please fill all mandatory shipping address fields.', 'error');
-            return;
+            container.innerHTML = html;
+            updateTotals(subtotal);
         }
 
-        let cart = [];
-        try {
-            cart = JSON.parse(localStorage.getItem('feather_cart') || localStorage.getItem('cart') || '[]');
-        } catch(e){}
+        function updateTotals(subtotal) {
+            const discountAmt = Math.round(subtotal * (discountPercent / 100));
+            const total = Math.max(0, subtotal - discountAmt);
 
-        if (cart.length === 0) {
-            showToast('Your bag is empty. Please add products first.', 'error');
-            return;
+            document.getElementById('summary-subtotal').innerText = '₹' + subtotal.toLocaleString('en-IN');
+            if (discountPercent > 0) {
+                document.getElementById('summary-discount-row').style.display = 'flex';
+                document.getElementById('summary-discount').innerText = '-₹' + discountAmt.toLocaleString('en-IN') + ` (${discountPercent}% OFF)`;
+            } else {
+                document.getElementById('summary-discount-row').style.display = 'none';
+            }
+            document.getElementById('summary-total').innerText = '₹' + total.toLocaleString('en-IN');
         }
 
-        const orderId = 'FF-' + Math.floor(100000 + Math.random() * 900000);
-        const total = document.getElementById('chk-total').innerText;
+        function applyCheckoutCoupon() {
+            const code = document.getElementById('checkout-coupon-code').value.trim().toUpperCase();
+            const feedback = document.getElementById('coupon-feedback');
+            feedback.style.display = 'block';
 
-        const newOrder = {
-            id: orderId,
-            date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-            items: cart,
-            total: total,
-            status: 'Processing',
-            paymentMethod: activePayment === 'cod' ? 'Cash / UPI on Delivery' : (activePayment === 'upi' ? 'Instant UPI' : 'Credit / Debit Card'),
-            shippingAddress: `${firstName}, ${address}, ${city} - ${pincode}`,
-            phone: phone
-        };
+            let cart = [];
+            try {
+                cart = JSON.parse(localStorage.getItem('feather_cart') || localStorage.getItem('cart') || '[]');
+            } catch (e) {}
+            const subtotal = cart.reduce((acc, it) => acc + ((it.price || 999) * (it.quantity || 1)), 0);
 
-        try {
-            const orders = JSON.parse(localStorage.getItem('feather_orders') || '[]');
-            orders.unshift(newOrder);
-            localStorage.setItem('feather_orders', JSON.stringify(orders));
-            localStorage.removeItem('feather_cart');
-            localStorage.removeItem('cart');
-        } catch(e){}
+            if (code === 'FEATHER20' || code === 'FIRST20') {
+                discountPercent = 20;
+                feedback.style.color = '#34d399';
+                feedback.innerText = '✓ Promo applied: 20% discount granted!';
+            } else if (code === 'VIP10') {
+                discountPercent = 10;
+                feedback.style.color = '#34d399';
+                feedback.innerText = '✓ Promo applied: 10% discount granted!';
+            } else {
+                discountPercent = 0;
+                feedback.style.color = '#f87171';
+                feedback.innerText = 'Invalid promo code. Try FEATHER20';
+            }
+            updateTotals(subtotal);
+        }
 
-        showToast(`🎉 Order ${orderId} confirmed successfully!`, 'success');
-        setTimeout(() => {
+        function processCheckoutOrder() {
+            const firstname = document.getElementById('c-firstname').value.trim();
+            const phone = document.getElementById('c-phone').value.trim();
+            const address = document.getElementById('c-address').value.trim();
+            const city = document.getElementById('c-city').value.trim();
+            const pincode = document.getElementById('c-pincode').value.trim();
+
+            if (!firstname || !phone || !address || !city || !pincode) {
+                alert('Please complete all mandatory delivery fields (Name, Phone, Address, City, PIN Code).');
+                return;
+            }
+
+            let cart = [];
+            try {
+                cart = JSON.parse(localStorage.getItem('feather_cart') || localStorage.getItem('cart') || '[]');
+            } catch (e) {}
+
+            if (cart.length === 0) {
+                alert('Your shopping bag is empty. Please add items to checkout.');
+                return;
+            }
+
+            const orderId = 'FF-' + Math.floor(100000 + Math.random() * 900000);
+            const total = document.getElementById('summary-total').innerText;
+
+            const newOrder = {
+                id: orderId,
+                date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+                items: cart,
+                total: total,
+                status: 'Processing',
+                paymentMethod: selectedMethod === 'cod' ? 'Cash / UPI on Delivery' : (selectedMethod === 'upi' ? 'Instant UPI' : 'Credit / Debit Card'),
+                shippingAddress: `${firstname}, ${address}, ${city} - ${pincode}`,
+                phone: phone
+            };
+
+            try {
+                const existingOrders = JSON.parse(localStorage.getItem('feather_orders') || '[]');
+                existingOrders.unshift(newOrder);
+                localStorage.setItem('feather_orders', JSON.stringify(existingOrders));
+                localStorage.removeItem('feather_cart');
+                localStorage.removeItem('cart');
+            } catch (e) {
+                console.error('Order saving error', e);
+            }
+
+            alert(`🎉 Order Placed Successfully!\n\nOrder ID: ${orderId}\nPayment Mode: ${newOrder.paymentMethod}\nTotal: ${total}\n\nA confirmation SMS has been dispatched to ${phone}.`);
             window.location.href = `account.php?tab=tracking&order=${orderId}`;
-        }, 600);
-    }
+        }
 
-    document.addEventListener('DOMContentLoaded', loadCheckoutCart);
-</script>
+        window.addEventListener('DOMContentLoaded', loadCheckoutItems);
+    </script>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php
+require_once __DIR__ . '/includes/footer.php';
+require_once __DIR__ . '/includes/modals.php';
+?>
+
+  <!-- Scripts -->
+  <script src="data/products.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

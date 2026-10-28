@@ -276,7 +276,7 @@
           <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📦</div>
           <h3 style="color: var(--color-primary); font-size: 1.2rem; margin-bottom: 0.4rem;">No Orders Yet</h3>
           <p style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Browse our collection and place your first order.</p>
-          <a href="index.html#catalog-section" class="btn-primary" style="display: inline-flex; height: 42px; padding: 0 1.5rem;">Explore Drops →</a>
+          <a href="index.php#catalog-section" class="btn-primary" style="display: inline-flex; height: 42px; padding: 0 1.5rem;">Explore Drops →</a>
         </div>
       `;
     }
@@ -285,7 +285,7 @@
       <div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
           <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--color-primary); margin: 0;">Order History & Tracking</h3>
-          <a href="index.html#catalog-section" class="btn-order-action primary">+ Shop More Drops</a>
+          <a href="index.php#catalog-section" class="btn-order-action primary">+ Shop More Drops</a>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">

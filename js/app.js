@@ -224,9 +224,9 @@
       metaDesc.setAttribute("content", deptDescriptions[deptId]);
     }
 
-    // If currently on product.html or another page without catalog grid, redirect to index.html with query parameter
+    // If currently on product.php or another page without catalog grid, redirect to index.php with query parameter
     if (!document.getElementById("products-grid")) {
-      window.location.href = `index.html?department=${deptId}#catalog-section`;
+      window.location.href = `index.php?department=${deptId}#catalog-section`;
       return;
     }
 
@@ -273,9 +273,9 @@
     state.currentSubcategory = subcatId || "all";
     state.currentCategory = subcatId || "all";
 
-    // If not on catalog page, redirect to index.html
+    // If not on catalog page, redirect to index.php
     if (!document.getElementById("products-grid")) {
-      window.location.href = `index.html?department=${state.currentDepartment}&subcategory=${state.currentSubcategory}#catalog-section`;
+      window.location.href = `index.php?department=${state.currentDepartment}&subcategory=${state.currentSubcategory}#catalog-section`;
       return;
     }
 
@@ -396,7 +396,7 @@
         return `
           <article class="carousel-card" data-product-id="${product.id}">
             <div class="carousel-card-img-wrap">
-              <a href="product.html?id=${product.id}" class="carousel-card-img-link" aria-label="${product.name}">
+              <a href="product.php?id=${product.id}" class="carousel-card-img-link" aria-label="${product.name}">
                 <img src="${product.images[0]}" alt="${product.name}" class="carousel-card-img" loading="lazy" />
               </a>
               ${product.badge ? `<span class="carousel-badge">${product.badge}</span>` : `<span class="carousel-badge new-tag">⚡ NEW</span>`}
@@ -412,7 +412,7 @@
             <div class="carousel-card-body">
               <span class="carousel-card-category">${product.categoryName}</span>
               <h3 class="carousel-card-title">
-                <a href="product.html?id=${product.id}">${product.name}</a>
+                <a href="product.php?id=${product.id}">${product.name}</a>
               </h3>
 
               <div class="carousel-card-footer">
@@ -422,7 +422,7 @@
                   ${discount ? `<span class="carousel-discount-tag">${discount}% OFF</span>` : ""}
                 </div>
 
-                <a href="product.html?id=${product.id}" class="carousel-quick-btn" title="View Fit Details">
+                <a href="product.php?id=${product.id}" class="carousel-quick-btn" title="View Fit Details">
                   <span>View</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="9 18 15 12 9 6"></polyline>
@@ -692,7 +692,7 @@
 
         return `
           <article class="product-card" data-product-id="${product.id}">
-            <a href="product.html?id=${product.id}" class="card-img-wrap">
+            <a href="product.php?id=${product.id}" class="card-img-wrap">
               <img src="${product.images[0]}" alt="${product.name}" class="card-img" loading="lazy" />
               ${product.badge ? `<span class="card-badge">${product.badge}</span>` : ""}
               <button class="card-wishlist-btn ${isWishlisted ? "active" : ""}" 
@@ -707,7 +707,7 @@
             <div class="card-body">
               <span class="card-category">${product.categoryName}</span>
               <h3 class="card-title">
-                <a href="product.html?id=${product.id}">${product.name}</a>
+                <a href="product.php?id=${product.id}">${product.name}</a>
               </h3>
 
               <div class="card-footer">
@@ -716,7 +716,7 @@
                   ${product.originalPrice ? `<span class="card-original-price">₹${product.originalPrice.toLocaleString('en-IN')}</span>` : ""}
                 </div>
 
-                <a href="product.html?id=${product.id}" class="card-quick-add">
+                <a href="product.php?id=${product.id}" class="card-quick-add">
                   <span>View Details</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6"></polyline>
@@ -1217,19 +1217,19 @@
       .map((item) => {
         return `
           <div class="drawer-item">
-            <a href="product.html?id=${item.id}" class="item-thumb" onclick="window.FeatherApp.closeWishlistDrawer()" style="cursor:pointer">
+            <a href="product.php?id=${item.id}" class="item-thumb" onclick="window.FeatherApp.closeWishlistDrawer()" style="cursor:pointer">
               <img src="${item.images[0]}" alt="${item.name}" />
             </a>
             <div class="item-details">
               <h4 class="item-name">
-                <a href="product.html?id=${item.id}" onclick="window.FeatherApp.closeWishlistDrawer()">${item.name}</a>
+                <a href="product.php?id=${item.id}" onclick="window.FeatherApp.closeWishlistDrawer()">${item.name}</a>
               </h4>
               <span class="item-variant-label">${item.categoryName}</span>
               
               <div class="item-price-row">
                 <span class="item-price">₹${item.basePrice.toLocaleString('en-IN')}</span>
                 
-                <a href="product.html?id=${item.id}" class="card-quick-add" onclick="window.FeatherApp.closeWishlistDrawer()">
+                <a href="product.php?id=${item.id}" class="card-quick-add" onclick="window.FeatherApp.closeWishlistDrawer()">
                   <span>Select & Buy</span>
                 </a>
 
@@ -1739,7 +1739,7 @@
   // USER ACCOUNT DASHBOARD & PROFILE SYSTEM
   // -------------------------------------------------------------
   function openAccountModal(tab = "tracking", orderNumber = null) {
-    const targetUrl = `account.html?tab=${tab || 'tracking'}${orderNumber ? '&order=' + encodeURIComponent(orderNumber) : ''}`;
+    const targetUrl = `account.php?tab=${tab || 'tracking'}${orderNumber ? '&order=' + encodeURIComponent(orderNumber) : ''}`;
     window.location.href = targetUrl;
   }
 
