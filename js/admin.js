@@ -2,10 +2,14 @@
  * FEATHER FITS — ULTRA LUXURY ADMIN DASHBOARD ENGINE
  * Architecture:
  * - Real-time KPI Metric computations
- * - Products Inventory CRUD (Add, Edit stock, Delete, Search & Filter)
- * - Orders Management & Live Status Dispatch (Pending, Processing, Shipped, Delivered)
+ * - Products Inventory Complete CRUD:
+ *     - Create: Add New Apparel Drop Modal
+ *     - Read: Catalog Table with Search & Department Filters
+ *     - Update: Comprehensive Edit Product Modal (Name, Dept, Category, Price, Stock, Image)
+ *     - Delete: Instant Product Removal with LocalStorage Persistence
+ * - Orders Management & Live Dispatch (Pending, Processing, Shipped, Delivered) + Delete Order
  * - Customers Directory with Lifetime Spend & VIP Badges
- * - LocalStorage sync with storefront
+ * - Mobile Responsive Drawer & Backdrop Support
  */
 
 (function () {
@@ -116,7 +120,7 @@
     attachEventListeners();
   }
 
-  // Load products (Base + Local overrides)
+  // Load products (Base catalog + LocalStorage overrides)
   function loadProducts() {
     const local = localStorage.getItem(STORAGE_KEYS.ADMIN_PRODUCTS);
     if (local) {
@@ -128,7 +132,6 @@
       }
     }
     const base = window.FEATHER_PRODUCTS || [];
-    // clone to avoid accidental mutating
     state.products = JSON.parse(JSON.stringify(base));
   }
 
@@ -166,7 +169,6 @@
   // Calculate & Render Executive KPI Stats
   function renderKpiStats() {
     const totalRev = state.orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
-    // Base revenue baseline for realism
     const cumulativeRev = totalRev + 174500;
     const totalOrdersCount = state.orders.length + 137;
     const productsCount = state.products.length;
@@ -188,14 +190,15 @@
     if (prodBadge) prodBadge.textContent = productsCount;
     if (orderBadge) orderBadge.textContent = state.orders.length;
 
-    // Category count progress bars
+    // Category progress bars
     const menCount = state.products.filter(p => p.department === "men").length;
     const womenCount = state.products.filter(p => p.department === "women").length;
     const kidsCount = state.products.filter(p => p.department === "kids").length;
 
-    const menPct = Math.round((menCount / productsCount) * 100) || 53;
-    const womenPct = Math.round((womenCount / productsCount) * 100) || 27;
-    const kidsPct = Math.round((kidsCount / productsCount) * 100) || 20;
+    const total = productsCount || 1;
+    const menPct = Math.round((menCount / total) * 100);
+    const womenPct = Math.round((womenCount / total) * 100);
+    const kidsPct = Math.round((kidsCount / total) * 100);
 
     const fillMen = document.getElementById("cat-fill-men");
     const fillWomen = document.getElementById("cat-fill-women");
@@ -293,26 +296,27 @@
     const badgeClass = statusBadges[o.status] || "badge-purple";
     const itemCount = o.items ? o.items.reduce((s, i) => s + (i.qty || 1), 0) : 1;
     const firstItemName = o.items && o.items[0] ? o.items[0].name : "Luxury Apparel Drop";
+    const orderKey = o.id || o.orderNumber;
 
     return `
       <tr>
-        <td><strong style="color: var(--admin-purple-glow); font-family: monospace;">${o.id || o.orderNumber}</strong></td>
+        <td><strong style="color: var(--admin-purple-primary); font-family: monospace;">${orderKey}</strong></td>
         <td>
-          <div style="font-weight: 700; color: var(--admin-white);">${o.customer?.name || (o.shippingAddress?.firstName ? `${o.shippingAddress.firstName} ${o.shippingAddress.lastName}` : "Valued Member")}</div>
+          <div style="font-weight: 700; color: var(--admin-black);">${o.customer?.name || (o.shippingAddress?.firstName ? `${o.shippingAddress.firstName} ${o.shippingAddress.lastName}` : "Valued Member")}</div>
           <span style="font-size: 0.75rem; color: var(--admin-text-faint);">${o.customer?.city || o.shippingAddress?.city || "Chennai"}</span>
         </td>
         <td>
-          <div style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem;" title="${firstItemName}">
+          <div style="max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem;" title="${firstItemName}">
             ${firstItemName}
           </div>
           <span style="font-size: 0.75rem; color: var(--admin-text-faint);">${itemCount} item(s)</span>
         </td>
-        <td><strong style="color: var(--admin-white);">₹${Number(o.total).toLocaleString("en-IN")}</strong></td>
+        <td><strong style="color: var(--admin-black);">₹${Number(o.total).toLocaleString("en-IN")}</strong></td>
         <td>
           <span class="badge ${badgeClass}">${o.status}</span>
         </td>
         <td>
-          <select class="status-select" onchange="window.FeatherAdmin.updateOrderStatus('${o.id || o.orderNumber}', this.value)">
+          <select class="status-select" onchange="window.FeatherAdmin.updateOrderStatus('${orderKey}', this.value)">
             <option value="Pending" ${o.status === "Pending" ? "selected" : ""}>Pending</option>
             <option value="Processing" ${o.status === "Processing" ? "selected" : ""}>Processing</option>
             <option value="Shipped" ${o.status === "Shipped" ? "selected" : ""}>Shipped</option>
@@ -322,10 +326,16 @@
         </td>
         <td>
           <div class="table-actions">
-            <button type="button" class="btn-icon-action" title="View Order Details" onclick="window.FeatherAdmin.viewOrderDetails('${o.id || o.orderNumber}')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button type="button" class="btn-icon-action" title="View Order Details" onclick="window.FeatherAdmin.viewOrderDetails('${orderKey}')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+            <button type="button" class="btn-icon-action danger" title="Delete Order" onclick="window.FeatherAdmin.deleteOrder('${orderKey}')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
             </button>
           </div>
@@ -383,8 +393,8 @@
           <td>
             <span class="badge badge-purple">${deptBadge}</span>
           </td>
-          <td><span style="font-size: 0.85rem; color: var(--admin-text-muted);">${p.categoryName}</span></td>
-          <td><strong style="color: var(--admin-white);">₹${p.basePrice.toLocaleString("en-IN")}</strong></td>
+          <td><span style="font-size: 0.85rem; color: var(--admin-text-muted); font-weight: 600;">${p.categoryName}</span></td>
+          <td><strong style="color: var(--admin-black); font-size: 0.95rem;">₹${p.basePrice.toLocaleString("en-IN")}</strong></td>
           <td>
             ${p.originalPrice ? `<span style="text-decoration: line-through; color: var(--admin-text-faint); font-size: 0.82rem;">₹${p.originalPrice.toLocaleString("en-IN")}</span>` : "—"}
           </td>
@@ -393,6 +403,15 @@
           </td>
           <td>
             <div class="table-actions">
+              <!-- Edit Product Button -->
+              <button type="button" class="btn-icon-action edit-btn" title="Edit Product Details" onclick="window.FeatherAdmin.openEditProductModal('${p.id}')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+
+              <!-- Preview on Storefront -->
               <a href="product.html?id=${p.id}" target="_blank" class="btn-icon-action" title="Preview on Store">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -400,12 +419,8 @@
                   <line x1="10" y1="14" x2="21" y2="3"></line>
                 </svg>
               </a>
-              <button type="button" class="btn-icon-action" title="Edit Price / Details" onclick="window.FeatherAdmin.quickEditProduct('${p.id}')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-              </button>
+
+              <!-- Delete Product Button -->
               <button type="button" class="btn-icon-action danger" title="Delete Product" onclick="window.FeatherAdmin.deleteProduct('${p.id}')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
@@ -427,13 +442,13 @@
     tbody.innerHTML = state.customers.map(c => `
       <tr>
         <td>
-          <div style="font-weight: 700; color: var(--admin-white);">${c.name}</div>
+          <div style="font-weight: 700; color: var(--admin-black);">${c.name}</div>
           <span style="font-size: 0.75rem; color: var(--admin-text-faint);">${c.email}</span>
         </td>
         <td>${c.phone}</td>
         <td>${c.city}</td>
-        <td><strong style="color: var(--admin-purple-glow);">${c.orders} Orders</strong></td>
-        <td><strong style="color: var(--admin-white);">₹${c.spent.toLocaleString("en-IN")}</strong></td>
+        <td><strong style="color: var(--admin-purple-primary);">${c.orders} Orders</strong></td>
+        <td><strong style="color: var(--admin-black);">₹${c.spent.toLocaleString("en-IN")}</strong></td>
         <td>
           <span class="badge ${c.tier === "VIP Elite" ? "badge-purple" : "badge-info"}">${c.tier}</span>
         </td>
@@ -449,6 +464,70 @@
     order.status = newStatus;
     saveOrders();
     showToast(`Order #${orderId} marked as ${newStatus}!`);
+  }
+
+  // Delete Order
+  function deleteOrder(orderId) {
+    if (confirm(`Are you sure you want to delete order #${orderId}?`)) {
+      state.orders = state.orders.filter(o => (o.id !== orderId && o.orderNumber !== orderId));
+      saveOrders();
+      showToast(`Order #${orderId} deleted successfully!`, "warning");
+    }
+  }
+
+  // Open Edit Product Modal
+  function openEditProductModal(productId) {
+    const p = state.products.find(x => x.id === productId);
+    if (!p) return;
+
+    const idInput = document.getElementById("edit-prod-id");
+    const nameInput = document.getElementById("edit-prod-name");
+    const deptInput = document.getElementById("edit-prod-dept");
+    const catInput = document.getElementById("edit-prod-category");
+    const priceInput = document.getElementById("edit-prod-price");
+    const origPriceInput = document.getElementById("edit-prod-orig-price");
+    const badgeInput = document.getElementById("edit-prod-badge");
+    const imgInput = document.getElementById("edit-prod-img");
+
+    if (idInput) idInput.value = p.id;
+    if (nameInput) nameInput.value = p.name;
+    if (deptInput) deptInput.value = p.department || "men";
+    if (catInput) catInput.value = p.category || "men-tshirts";
+    if (priceInput) priceInput.value = p.basePrice;
+    if (origPriceInput) origPriceInput.value = p.originalPrice || "";
+    if (badgeInput) badgeInput.value = p.badge || "";
+    if (imgInput && p.images && p.images[0]) imgInput.value = p.images[0];
+
+    openModal("edit-product-modal");
+  }
+
+  // Handle Edit Product Form Submit
+  function handleEditProductSubmit(e) {
+    e.preventDefault();
+    const id = document.getElementById("edit-prod-id").value;
+    const name = document.getElementById("edit-prod-name").value.trim();
+    const dept = document.getElementById("edit-prod-dept").value;
+    const catSelect = document.getElementById("edit-prod-category");
+    const price = Number(document.getElementById("edit-prod-price").value);
+    const origPrice = Number(document.getElementById("edit-prod-orig-price").value) || null;
+    const badge = document.getElementById("edit-prod-badge").value.trim();
+    const image = document.getElementById("edit-prod-img").value;
+
+    const prod = state.products.find(x => x.id === id);
+    if (!prod) return;
+
+    prod.name = name;
+    prod.department = dept;
+    prod.category = catSelect.value;
+    prod.categoryName = catSelect.options[catSelect.selectedIndex].text;
+    prod.basePrice = price;
+    prod.originalPrice = origPrice;
+    prod.badge = badge;
+    if (image) prod.images = [image];
+
+    saveProducts();
+    closeModal("edit-product-modal");
+    showToast(`Updated "${name}" details successfully!`);
   }
 
   // Add New Product
@@ -498,33 +577,15 @@
     e.target.reset();
   }
 
-  // Quick edit product price
-  function quickEditProduct(productId) {
-    const prod = state.products.find(p => p.id === productId);
-    if (!prod) return;
-
-    const newPriceStr = prompt(`Update price for "${prod.name}":`, prod.basePrice);
-    if (newPriceStr === null) return;
-    const newPrice = Number(newPriceStr);
-    if (isNaN(newPrice) || newPrice <= 0) {
-      showToast("Invalid price entered.", "warning");
-      return;
-    }
-
-    prod.basePrice = newPrice;
-    saveProducts();
-    showToast(`Updated price for "${prod.name}" to ₹${newPrice}!`);
-  }
-
   // Delete product
   function deleteProduct(productId) {
     const prod = state.products.find(p => p.id === productId);
     if (!prod) return;
 
-    if (confirm(`Are you sure you want to remove "${prod.name}" from the store catalog?`)) {
+    if (confirm(`Are you sure you want to delete "${prod.name}" from the store catalog? This action cannot be undone.`)) {
       state.products = state.products.filter(p => p.id !== productId);
       saveProducts();
-      showToast(`Removed "${prod.name}" from catalog.`, "warning");
+      showToast(`Deleted "${prod.name}" from catalog.`, "warning");
     }
   }
 
@@ -542,10 +603,10 @@
     const itemsHtml = order.items ? order.items.map(i => `
       <div style="display: flex; justify-content: space-between; padding: 0.65rem 0; border-bottom: 1px solid var(--admin-border);">
         <div>
-          <div style="font-weight: 700; color: var(--admin-white);">${i.name}</div>
+          <div style="font-weight: 700; color: var(--admin-black);">${i.name}</div>
           <span style="font-size: 0.78rem; color: var(--admin-text-faint);">Size: ${i.size || 'L'} &bull; Qty: ${i.qty || 1}</span>
         </div>
-        <div style="font-weight: 800; color: var(--admin-purple-glow);">₹${((i.price || 1299) * (i.qty || 1)).toLocaleString("en-IN")}</div>
+        <div style="font-weight: 800; color: var(--admin-purple-primary);">₹${((i.price || 1299) * (i.qty || 1)).toLocaleString("en-IN")}</div>
       </div>
     `).join("") : "<p>No item details</p>";
 
@@ -553,7 +614,7 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
         <div style="background: var(--admin-surface-light); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--admin-border);">
           <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--admin-text-faint); font-weight: 700;">Customer Info</span>
-          <h4 style="color: var(--admin-white); margin-top: 0.25rem;">${order.customer?.name || order.shippingAddress?.firstName || "Valued Customer"}</h4>
+          <h4 style="color: var(--admin-black); margin-top: 0.25rem;">${order.customer?.name || order.shippingAddress?.firstName || "Valued Customer"}</h4>
           <p style="font-size: 0.82rem; color: var(--admin-text-muted);">${order.customer?.email || "customer@featherfits.com"}</p>
           <p style="font-size: 0.82rem; color: var(--admin-text-muted);">${order.customer?.phone || "+91 98765 43210"}</p>
         </div>
@@ -561,18 +622,18 @@
           <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--admin-text-faint); font-weight: 700;">Shipping Status</span>
           <div style="margin-top: 0.25rem;"><span class="badge badge-purple">${order.status}</span></div>
           <p style="font-size: 0.82rem; color: var(--admin-text-muted); margin-top: 0.35rem;">Carrier: ${order.carrier || "Blue Dart"}</p>
-          <p style="font-size: 0.82rem; color: var(--admin-text-muted);">Tracking: <span style="font-family: monospace; color: var(--admin-purple-glow);">${order.trackingNumber || "BD-9402849182"}</span></p>
+          <p style="font-size: 0.82rem; color: var(--admin-text-muted);">Tracking: <span style="font-family: monospace; color: var(--admin-purple-primary);">${order.trackingNumber || "BD-9402849182"}</span></p>
         </div>
       </div>
 
-      <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--admin-white); margin-bottom: 0.5rem;">Ordered Fits</h4>
+      <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--admin-black); margin-bottom: 0.5rem;">Ordered Fits</h4>
       <div style="margin-bottom: 1.25rem;">
         ${itemsHtml}
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; border-top: 2px dashed var(--admin-border);">
-        <span style="font-weight: 800; color: var(--admin-white); font-size: 1.1rem;">Total Amount Paid</span>
-        <span style="font-weight: 800; color: var(--admin-white); font-size: 1.3rem;">₹${Number(order.total).toLocaleString("en-IN")}</span>
+        <span style="font-weight: 800; color: var(--admin-black); font-size: 1.1rem;">Total Amount Paid</span>
+        <span style="font-weight: 800; color: var(--admin-purple-primary); font-size: 1.3rem;">₹${Number(order.total).toLocaleString("en-IN")}</span>
       </div>
     `;
 
@@ -583,13 +644,11 @@
   function setSection(sectionId) {
     state.activeSection = sectionId;
 
-    // Update nav links
     document.querySelectorAll(".admin-nav-link[data-section]").forEach(link => {
       const match = link.getAttribute("data-section") === sectionId;
       link.classList.toggle("active", match);
     });
 
-    // Update section view
     document.querySelectorAll(".admin-section").forEach(sec => {
       sec.classList.remove("active");
     });
@@ -597,8 +656,7 @@
     if (target) target.classList.add("active");
 
     // Close mobile sidebar if open
-    const sidebar = document.getElementById("admin-sidebar");
-    if (sidebar) sidebar.classList.remove("mobile-open");
+    closeMobileSidebar();
   }
 
   // Filter products by department
@@ -639,7 +697,7 @@
     const toast = document.createElement("div");
     toast.className = `admin-toast`;
     toast.innerHTML = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${type === 'warning' ? '#F59E0B' : '#A855F7'}" stroke-width="2.5">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${type === 'warning' ? '#DC2626' : '#7C3AED'}" stroke-width="2.5">
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
       </svg>
@@ -668,7 +726,18 @@
 
   function toggleMobileSidebar() {
     const sidebar = document.getElementById("admin-sidebar");
-    if (sidebar) sidebar.classList.toggle("mobile-open");
+    const backdrop = document.getElementById("sidebar-backdrop");
+    if (!sidebar) return;
+
+    const isOpen = sidebar.classList.toggle("mobile-open");
+    if (backdrop) backdrop.classList.toggle("active", isOpen);
+  }
+
+  function closeMobileSidebar() {
+    const sidebar = document.getElementById("admin-sidebar");
+    const backdrop = document.getElementById("sidebar-backdrop");
+    if (sidebar) sidebar.classList.remove("mobile-open");
+    if (backdrop) backdrop.classList.remove("active");
   }
 
   // Event Listeners
@@ -676,6 +745,11 @@
     const addProductForm = document.getElementById("add-product-form");
     if (addProductForm) {
       addProductForm.addEventListener("submit", handleAddProductSubmit);
+    }
+
+    const editProductForm = document.getElementById("edit-product-form");
+    if (editProductForm) {
+      editProductForm.addEventListener("submit", handleEditProductSubmit);
     }
 
     const searchInput = document.getElementById("admin-search-input");
@@ -700,12 +774,14 @@
     setOrderStatusFilter,
     handleGlobalSearch,
     updateOrderStatus,
-    quickEditProduct,
+    deleteOrder,
+    openEditProductModal,
     deleteProduct,
     viewOrderDetails,
     openModal,
     closeModal,
     toggleMobileSidebar,
+    closeMobileSidebar,
     showToast
   };
 
