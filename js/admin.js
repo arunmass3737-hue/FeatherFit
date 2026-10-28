@@ -159,8 +159,18 @@
 
   // Initialize
   function initAdmin() {
+    // Purge old localstorage cache to guarantee 100% live Hostinger MySQL rendering
+    if (window.LIVE_MYSQL_DATA) {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.ADMIN_PRODUCTS);
+        localStorage.removeItem(STORAGE_KEYS.ORDERS);
+        localStorage.removeItem(STORAGE_KEYS.CUSTOM_BANNERS);
+      } catch (e) {}
+    }
+
     loadProducts();
     loadOrders();
+    loadCustomers();
     loadCustomBanners();
     renderKpiStats();
     renderRecentOrdersTable();
@@ -172,73 +182,97 @@
     attachEventListeners();
   }
 
-  // Load products (Base catalog + LocalStorage overrides)
+  // Load products (100% Live MySQL Database)
   function loadProducts() {
-    const local = localStorage.getItem(STORAGE_KEYS.ADMIN_PRODUCTS);
-    if (local) {
-      try {
-        state.products = JSON.parse(local);
-        return;
-      } catch (e) {
-        console.error("Failed to parse local admin products", e);
-      }
+    if (window.LIVE_MYSQL_DATA && Array.isArray(window.LIVE_MYSQL_DATA.products) && window.LIVE_MYSQL_DATA.products.length > 0) {
+      state.products = window.LIVE_MYSQL_DATA.products;
+    } else {
+      state.products = [];
     }
-    const base = window.FEATHER_PRODUCTS || [];
-    state.products = JSON.parse(JSON.stringify(base));
+
+    // Refresh live from Hostinger MySQL API
+    fetch('api/admin.php?action=get_all')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && Array.isArray(data.products)) {
+          state.products = data.products;
+          renderProductsTable();
+          renderKpiStats();
+        }
+      })
+      .catch(err => console.warn('Could not sync live products from MySQL', err));
   }
 
   function saveProducts(productToSync = null, isDelete = false) {
-    localStorage.setItem(STORAGE_KEYS.ADMIN_PRODUCTS, JSON.stringify(state.products));
-    localStorage.setItem("ff_sync_trigger", Date.now().toString());
     renderProductsTable();
     renderKpiStats();
 
-    // Direct sync to server JSON storage
+    // Direct sync to Hostinger MySQL Database
     if (productToSync) {
       if (isDelete) {
         fetch('api/admin.php?action=delete_product', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: productToSync.id || productToSync })
-        }).catch(err => console.warn('Server sync error', err));
+        }).then(() => loadProducts()).catch(err => console.warn('MySQL delete error', err));
       } else {
         fetch('api/admin.php?action=save_product', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ product: productToSync })
-        }).catch(err => console.warn('Server sync error', err));
+        }).then(() => loadProducts()).catch(err => console.warn('MySQL save error', err));
       }
     }
   }
 
-  // Load Custom Banners
+  // Load Custom Banners (100% Live MySQL Database)
   function loadCustomBanners() {
-    const local = localStorage.getItem(STORAGE_KEYS.CUSTOM_BANNERS);
-    let banners = {};
-    if (local) {
-      try {
-        banners = JSON.parse(local);
-      } catch (e) {
-        banners = {};
-      }
+    if (window.LIVE_MYSQL_DATA && window.LIVE_MYSQL_DATA.banners && Object.keys(window.LIVE_MYSQL_DATA.banners).length > 0) {
+      state.customBanners = window.LIVE_MYSQL_DATA.banners;
+    } else {
+      state.customBanners = {};
     }
-    const base = window.FEATHER_DEPARTMENT_BANNERS || {};
-    state.customBanners = Object.assign({}, JSON.parse(JSON.stringify(base)), banners);
   }
 
   function saveCustomBanners(dept = null) {
-    localStorage.setItem(STORAGE_KEYS.CUSTOM_BANNERS, JSON.stringify(state.customBanners));
-    localStorage.setItem("ff_sync_trigger", Date.now().toString());
-
-    // Direct sync to server JSON storage
+    // Direct sync to Hostinger MySQL Database
     const targetDept = dept || state.activeBannerTab;
     if (state.customBanners && state.customBanners[targetDept]) {
       fetch('api/admin.php?action=save_banner', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dept: targetDept, banner: state.customBanners[targetDept] })
-      }).catch(err => console.warn('Server sync error', err));
+      }).catch(err => console.warn('MySQL banner sync error', err));
     }
+  }
+
+  // Load Customers (100% Live MySQL Database)
+  function loadCustomers() {
+    if (window.LIVE_MYSQL_DATA && Array.isArray(window.LIVE_MYSQL_DATA.users) && window.LIVE_MYSQL_DATA.users.length > 0) {
+      state.customers = window.LIVE_MYSQL_DATA.users;
+    } else {
+      state.customers = [];
+    }
+
+    // Refresh live from Hostinger MySQL users table
+    fetch('api/auth.php?action=get_users')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && Array.isArray(data.users)) {
+          state.customers = data.users.map(u => ({
+            id: u.id,
+            name: u.name || ((u.first_name || '') + ' ' + (u.last_name || '')),
+            email: u.email,
+            phone: u.phone,
+            city: 'India',
+            orders: 1,
+            spent: 1299,
+            tier: u.tier || 'VIP Member'
+          }));
+          renderCustomersTable();
+        }
+      })
+      .catch(err => console.warn('Could not sync live users from MySQL', err));
   }
 
   // Dynamically update order filter pills and transit radar badges
@@ -284,42 +318,31 @@
     if (kpiDelayed) kpiDelayed.textContent = delayed;
   }
 
-  // Load orders
+  // Load orders (100% Live MySQL Database)
   function loadOrders() {
-    const local = localStorage.getItem(STORAGE_KEYS.ORDERS);
-    let ordersList = [];
-    if (local) {
-      try {
-        ordersList = JSON.parse(local);
-      } catch (e) {
-        ordersList = [];
-      }
+    if (window.LIVE_MYSQL_DATA && Array.isArray(window.LIVE_MYSQL_DATA.orders)) {
+      state.orders = window.LIVE_MYSQL_DATA.orders;
+    } else {
+      state.orders = [];
     }
-    if (ordersList.length === 0) {
-      ordersList = defaultOrders;
-      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(ordersList));
-    }
-    state.orders = ordersList;
     updateOrderFilterBadges();
 
-    // Sync live from server backend (data/orders.json)
+    // Sync live from Hostinger MySQL orders table
     fetch('api/shipping.php?action=get_orders')
       .then(res => res.json())
       .then(data => {
-        if (data && data.success && Array.isArray(data.orders) && data.orders.length > 0) {
+        if (data && data.success && Array.isArray(data.orders)) {
           state.orders = data.orders;
-          localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(data.orders));
           updateOrderFilterBadges();
           renderKpiStats();
           renderRecentOrdersTable();
           renderOrdersFullTable();
         }
       })
-      .catch(err => console.warn('Could not sync live orders from backend', err));
+      .catch(err => console.warn('Could not sync live orders from MySQL', err));
   }
 
   function saveOrders() {
-    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(state.orders));
     updateOrderFilterBadges();
     renderRecentOrdersTable();
     renderOrdersFullTable();

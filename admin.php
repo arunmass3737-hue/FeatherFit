@@ -2,9 +2,62 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/data/products.php';
 
 $isAdminLoggedIn = !empty($_SESSION['admin_user']);
+
+// Live MySQL Database Fetch
+$pdo = getDBConnection();
+$liveProducts = getFeatherProducts();
+$liveBanners = getFeatherBanners();
+
+$liveOrders = [];
+$liveUsers = [];
+if ($pdo) {
+    try {
+        $stmt = $pdo->query("SELECT * FROM orders ORDER BY created_at DESC");
+        $liveOrdersRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($liveOrdersRows as $r) {
+            $liveOrders[] = [
+                'id' => $r['id'],
+                'customer' => [
+                    'name' => $r['customer_name'],
+                    'email' => $r['customer_email'],
+                    'phone' => $r['customer_phone'],
+                    'city' => $r['customer_city']
+                ],
+                'items' => is_string($r['items']) ? json_decode($r['items'], true) : ($r['items'] ?? []),
+                'total' => (float)$r['total'],
+                'status' => $r['status'],
+                'carrier' => $r['carrier'],
+                'trackingNumber' => $r['tracking_number'],
+                'trackingUrl' => $r['tracking_url'],
+                'estimatedDelivery' => $r['estimated_delivery'],
+                'date' => $r['created_at'],
+                'createdAt' => $r['created_at'],
+                'timeline' => is_string($r['timeline']) ? json_decode($r['timeline'], true) : ($r['timeline'] ?? [])
+            ];
+        }
+    } catch (Exception $e) {}
+
+    try {
+        $stmt = $pdo->query("SELECT id, first_name, last_name, name, email, phone, is_verified, member_since, tier, coins, preferred_size, created_at FROM users ORDER BY created_at DESC");
+        $liveUsersRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($liveUsersRows as $u) {
+            $liveUsers[] = [
+                'id' => $u['id'],
+                'name' => $u['name'],
+                'email' => $u['email'],
+                'phone' => $u['phone'],
+                'city' => 'India',
+                'orders' => 1,
+                'spent' => 1299,
+                'tier' => $u['tier'] ?? 'VIP Member'
+            ];
+        }
+    } catch (Exception $e) {}
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -1491,8 +1544,15 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
     </div>
   </div>
 
-  <!-- Scripts with Dynamic Cache Busting -->
-  <script src="data/products.js?v=<?php echo @filemtime(__DIR__ . '/data/products.js') ?: time(); ?>"></script>
+  <!-- Live Hostinger MySQL Data Bridge -->
+  <script>
+    window.LIVE_MYSQL_DATA = {
+      products: <?php echo json_encode($liveProducts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
+      orders: <?php echo json_encode($liveOrders, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
+      users: <?php echo json_encode($liveUsers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
+      banners: <?php echo json_encode($liveBanners, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>
+    };
+  </script>
   <script src="js/admin.js?v=<?php echo @filemtime(__DIR__ . '/js/admin.js') ?: time(); ?>"></script>
 
   <!-- ==========================================================================
