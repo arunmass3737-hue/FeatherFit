@@ -1,10 +1,12 @@
 <?php
 /**
  * FEATHER FITS — AUTHENTICATION & OTP SERVICE
+ * 100% Hostinger MySQL Database Driven (Zero JSON File Storage)
  * Handles:
- * - New User Registration with mandatory Email, 10-digit Phone, and OTP verification
+ * - New User Registration with Email, Phone, and OTP verification (Stored in MySQL users & otps)
  * - User Login (Email / Phone + Password OR Instant OTP Login)
- * - Admin Authentication & Session Security for Admin Dashboard
+ * - Admin Registration & Authentication (Stored in MySQL admins)
+ * - User Profiles & Sessions
  */
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -17,29 +19,14 @@ $action = $_GET['action'] ?? $_POST['action'] ?? '';
 $inputJSON = file_get_contents('php://input');
 $inputData = json_decode($inputJSON, true) ?? $_POST;
 
-$usersPath = dirname(__DIR__) . '/data/users.json';
-$adminsPath = dirname(__DIR__) . '/data/admins.json';
-$otpsPath = dirname(__DIR__) . '/data/otps.json';
-
 require_once dirname(__DIR__) . '/config/db.php';
 
-function readJSON($path, $fallback = []) {
-    if (file_exists($path)) {
-        $content = file_get_contents($path);
-        $data = json_decode($content, true);
-        if (is_array($data)) return $data;
-    }
-    return $fallback;
-}
-
-function writeJSON($path, $data) {
-    return file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-}
-
 function cleanPhone($phone) {
-    $digits = preg_replace('/[^0-9]/', '', $phone);
+    $digits = preg_replace('/[^0-9]/', '', (string)$phone);
     return strlen($digits) >= 10 ? substr($digits, -10) : $digits;
 }
+
+$pdo = getDBConnection();
 
 switch ($action) {
 
@@ -62,38 +49,40 @@ switch ($action) {
             exit;
         }
 
-        $users = readJSON($usersPath, []);
-
-        if ($type === 'register') {
-            foreach ($users as $u) {
-                if (strtolower($u['email'] ?? '') === $email) {
-                    echo json_encode(['success' => false, 'error' => 'This email is already registered. Please sign in instead.']);
-                    exit;
-                }
-                if (cleanPhone($u['phone'] ?? '') === $phone) {
-                    echo json_encode(['success' => false, 'error' => 'This mobile number is already registered. Please sign in instead.']);
-                    exit;
+        if ($pdo) {
+            if ($type === 'register') {
+                $checkStmt = $pdo->prepare("SELECT id, email, phone FROM users WHERE LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
+                $checkStmt->execute([$email, $phone, '+91 ' . $phone]);
+                $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+                if ($existing) {
+                    if (strtolower($existing['email']) === $email) {
+                        echo json_encode(['success' => false, 'error' => 'This email is already registered. Please sign in instead.']);
+                        exit;
+                    } else {
+                        echo json_encode(['success' => false, 'error' => 'This mobile number is already registered. Please sign in instead.']);
+                        exit;
+                    }
                 }
             }
         }
 
         // Generate secure 6-digit numeric OTP
         $otp = (string) mt_rand(100000, 999999);
-        $expiry = time() + (10 * 60); // 10 minutes expiry
+        $target = $email . '_' . $phone;
 
-        $otps = readJSON($otpsPath, []);
-        $key = $email . '_' . $phone;
-        $otps[$key] = [
-            'otp' => $otp,
-            'email' => $email,
-            'phone' => $phone,
-            'expiresAt' => $expiry,
-            'createdAt' => date('c')
-        ];
-        writeJSON($otpsPath, $otps);
+        // Store OTP in MySQL otps table (Expires in 10 minutes)
+        if ($pdo) {
+            try {
+                $delStmt = $pdo->prepare("DELETE FROM otps WHERE target = ?");
+                $delStmt->execute([$target]);
 
-        // In production this connects to SMS Gateway (Twilio/Fast2SMS) & SendGrid/SMTP Mailer
-        // For instant test & verification, we return demoOtp in response
+                $otpStmt = $pdo->prepare("INSERT INTO otps (target, otp_code, expires_at, is_used) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 0)");
+                $otpStmt->execute([$target, $otp]);
+            } catch (Exception $e) {
+                error_log("MySQL send_otp error: " . $e->getMessage());
+            }
+        }
+
         echo json_encode([
             'success' => true,
             'message' => "Verification code sent to $email and +91 $phone",
@@ -103,7 +92,7 @@ switch ($action) {
         break;
 
     // =========================================================================
-    // 2. VERIFY OTP & COMPLETE NEW REGISTRATION
+    // 2. VERIFY OTP & COMPLETE NEW REGISTRATION (STORE IN MYSQL USERS)
     // =========================================================================
     case 'verify_otp_and_register':
         $name = trim($inputData['name'] ?? '');
@@ -134,32 +123,39 @@ switch ($action) {
             exit;
         }
 
-        // Check OTP
-        $otps = readJSON($otpsPath, []);
-        $key = $email . '_' . $phone;
-        $otpRecord = $otps[$key] ?? null;
+        $target = $email . '_' . $phone;
 
-        if (!$otpRecord || $otpRecord['otp'] !== $userOtp) {
-            echo json_encode(['success' => false, 'error' => 'Invalid OTP code. Please re-check or request a new code.']);
-            exit;
+        // Verify OTP directly in MySQL otps table
+        if ($pdo) {
+            $otpQuery = $pdo->prepare("SELECT id, otp_code, expires_at, is_used FROM otps WHERE target = ? AND otp_code = ? ORDER BY id DESC LIMIT 1");
+            $otpQuery->execute([$target, $userOtp]);
+            $otpRecord = $otpQuery->fetch(PDO::FETCH_ASSOC);
+
+            if (!$otpRecord) {
+                echo json_encode(['success' => false, 'error' => 'Invalid OTP code. Please re-check or request a new code.']);
+                exit;
+            }
+            if ($otpRecord['is_used'] == 1) {
+                echo json_encode(['success' => false, 'error' => 'This OTP has already been used. Please request a new OTP.']);
+                exit;
+            }
+            if (strtotime($otpRecord['expires_at']) < time()) {
+                echo json_encode(['success' => false, 'error' => 'OTP has expired. Please request a new OTP.']);
+                exit;
+            }
+
+            // Mark OTP as used
+            $markUsed = $pdo->prepare("UPDATE otps SET is_used = 1 WHERE id = ?");
+            $markUsed->execute([$otpRecord['id']]);
         }
 
-        if (time() > ($otpRecord['expiresAt'] ?? 0)) {
-            echo json_encode(['success' => false, 'error' => 'OTP has expired. Please request a new OTP.']);
-            exit;
-        }
-
-        // Clean used OTP
-        unset($otps[$key]);
-        writeJSON($otpsPath, $otps);
-
-        $users = readJSON($usersPath, []);
         $nameParts = explode(' ', $name, 2);
         $firstName = $nameParts[0];
         $lastName = $nameParts[1] ?? '';
+        $userId = 'usr_' . $phone . '_' . time();
 
         $newUser = [
-            'id' => 'usr_' . $phone . '_' . time(),
+            'id' => $userId,
             'firstName' => $firstName,
             'lastName' => $lastName,
             'name' => $name,
@@ -169,24 +165,20 @@ switch ($action) {
             'isVerified' => true,
             'memberSince' => date('Y'),
             'tier' => 'VIP Member',
-            'coins' => 0,
+            'coins' => 100,
             'preferredSize' => 'L',
             'addresses' => []
         ];
 
-        $users[] = $newUser;
-        writeJSON($usersPath, $users);
-
-        // Sync to MySQL users table
-        $pdo = getDBConnection();
+        // Store user directly in MySQL users table
         if ($pdo) {
             try {
                 $sql = "INSERT INTO users (id, first_name, last_name, name, email, phone, password, is_verified, member_since, tier, coins, preferred_size, addresses)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, 'VIP Member', 0, 'L', '[]')
+                        VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, 'VIP Member', 100, 'L', '[]')
                         ON DUPLICATE KEY UPDATE name=VALUES(name), password=VALUES(password)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
-                    $newUser['id'],
+                    $userId,
                     $firstName,
                     $lastName,
                     $name,
@@ -197,11 +189,13 @@ switch ($action) {
                 ]);
             } catch (Exception $e) {
                 error_log("MySQL register user error: " . $e->getMessage());
+                echo json_encode(['success' => false, 'error' => 'Database error while saving user: ' . $e->getMessage()]);
+                exit;
             }
         }
 
         $safeUser = $newUser;
-        unset($safeUser['passwordHash']);
+        unset($safeUser['password']);
         $_SESSION['feather_user'] = $safeUser;
 
         echo json_encode([
@@ -212,7 +206,7 @@ switch ($action) {
         break;
 
     // =========================================================================
-    // 3. USER LOGIN (EMAIL / PHONE + PASSWORD OR OTP)
+    // 3. USER LOGIN (READ FROM MYSQL USERS)
     // =========================================================================
     case 'user_login':
         $identifier = trim(strtolower($inputData['identifier'] ?? ''));
@@ -224,12 +218,10 @@ switch ($action) {
             exit;
         }
 
-        $users = readJSON($usersPath, []);
-        $foundUser = null;
         $cleanIdentifierPhone = cleanPhone($identifier);
+        $foundUser = null;
 
-        // Check MySQL users table first
-        $pdo = getDBConnection();
+        // Query MySQL users table directly
         if ($pdo) {
             try {
                 $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(email) = ? OR phone = ? OR phone = ? LIMIT 1");
@@ -258,37 +250,28 @@ switch ($action) {
         }
 
         if (!$foundUser) {
-            foreach ($users as $u) {
-                $uEmail = strtolower($u['email'] ?? '');
-                $uPhone = cleanPhone($u['phone'] ?? '');
-
-                if ($uEmail === $identifier || ($cleanIdentifierPhone && $uPhone === $cleanIdentifierPhone)) {
-                    $foundUser = $u;
-                    break;
-                }
-            }
-        }
-
-        if (!$foundUser) {
             echo json_encode(['success' => false, 'error' => 'No account found with this email or mobile number. Please register.']);
             exit;
         }
 
         // Login via OTP
         if (!empty($otp)) {
-            $otps = readJSON($otpsPath, []);
-            $key = strtolower($foundUser['email']) . '_' . cleanPhone($foundUser['phone']);
-            $otpRecord = $otps[$key] ?? null;
+            if ($pdo) {
+                $target = strtolower($foundUser['email']) . '_' . cleanPhone($foundUser['phone']);
+                $otpQuery = $pdo->prepare("SELECT id, expires_at, is_used FROM otps WHERE target = ? AND otp_code = ? ORDER BY id DESC LIMIT 1");
+                $otpQuery->execute([$target, $otp]);
+                $otpRow = $otpQuery->fetch(PDO::FETCH_ASSOC);
 
-            if (!$otpRecord || $otpRecord['otp'] !== $otp) {
-                echo json_encode(['success' => false, 'error' => 'Incorrect OTP code.']);
-                exit;
+                if (!$otpRow || $otpRow['is_used'] == 1 || strtotime($otpRow['expires_at']) < time()) {
+                    echo json_encode(['success' => false, 'error' => 'Incorrect or expired OTP code.']);
+                    exit;
+                }
+                $markUsed = $pdo->prepare("UPDATE otps SET is_used = 1 WHERE id = ?");
+                $markUsed->execute([$otpRow['id']]);
             }
-            unset($otps[$key]);
-            writeJSON($otpsPath, $otps);
         } else {
-            // Login via Password (Plain text check with fallback)
-            $storedPass = $foundUser['password'] ?? $foundUser['passwordHash'] ?? '';
+            // Login via Password
+            $storedPass = $foundUser['password'] ?? '';
             $isCorrect = ($password === $storedPass) || (strlen($storedPass) > 20 && password_verify($password, $storedPass));
 
             if (empty($password) || !$isCorrect) {
@@ -298,7 +281,7 @@ switch ($action) {
         }
 
         $safeUser = $foundUser;
-        unset($safeUser['passwordHash']);
+        unset($safeUser['password']);
         $_SESSION['feather_user'] = $safeUser;
 
         echo json_encode([
@@ -317,7 +300,7 @@ switch ($action) {
         break;
 
     // =========================================================================
-    // 5. ADMIN LOGIN (FOR ADMIN DASHBOARD)
+    // 5. ADMIN LOGIN (STORED & READ FROM MYSQL ADMINS)
     // =========================================================================
     case 'admin_login':
         $usernameOrEmail = trim(strtolower($inputData['username'] ?? ''));
@@ -328,34 +311,19 @@ switch ($action) {
             exit;
         }
 
-        $admins = readJSON($adminsPath, []);
         $foundAdmin = null;
 
-        // Check MySQL admins table first
-        $pdo = getDBConnection();
         if ($pdo) {
             try {
                 $stmt = $pdo->prepare("SELECT * FROM admins WHERE LOWER(username) = ? OR LOWER(email) = ? LIMIT 1");
                 $stmt->execute([$usernameOrEmail, $usernameOrEmail]);
-                $dbAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
-                if ($dbAdmin) {
-                    $foundAdmin = $dbAdmin;
-                }
+                $foundAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
             } catch (Exception $e) {
                 error_log("MySQL admin_login error: " . $e->getMessage());
             }
         }
 
-        if (!$foundAdmin) {
-            foreach ($admins as $adm) {
-                if (strtolower($adm['username'] ?? '') === $usernameOrEmail || strtolower($adm['email'] ?? '') === $usernameOrEmail) {
-                    $foundAdmin = $adm;
-                    break;
-                }
-            }
-        }
-
-        $storedAdminPass = $foundAdmin['password'] ?? $foundAdmin['passwordHash'] ?? '';
+        $storedAdminPass = $foundAdmin['password'] ?? '';
         $isAdminPassCorrect = ($password === $storedAdminPass) || (strlen($storedAdminPass) > 20 && password_verify($password, $storedAdminPass));
 
         if (!$foundAdmin || !$isAdminPassCorrect) {
@@ -364,7 +332,7 @@ switch ($action) {
         }
 
         $safeAdmin = $foundAdmin;
-        unset($safeAdmin['passwordHash']);
+        unset($safeAdmin['password']);
         $_SESSION['admin_user'] = $safeAdmin;
 
         echo json_encode([
@@ -383,11 +351,7 @@ switch ($action) {
         break;
 
     // =========================================================================
-    // 7. GET ACTIVE SESSION STATE
-    // =========================================================================
-
-    // =========================================================================
-    // 7. CREATE OR REGISTER NEW ADMINISTRATOR (WITH AUTO-LOGIN)
+    // 7. CREATE OR REGISTER NEW ADMINISTRATOR (STORE IN MYSQL ADMINS)
     // =========================================================================
     case 'admin_register':
     case 'create_admin':
@@ -408,8 +372,6 @@ switch ($action) {
             exit;
         }
 
-        // Check MySQL admins table first
-        $pdo = getDBConnection();
         if ($pdo) {
             try {
                 $checkStmt = $pdo->prepare("SELECT id, username, email FROM admins WHERE LOWER(username) = ? OR LOWER(email) = ? LIMIT 1");
@@ -425,86 +387,128 @@ switch ($action) {
                         exit;
                     }
                 }
-            } catch (Exception $e) {}
-        }
 
-        $admins = readJSON($adminsPath, []);
-        foreach ($admins as $adm) {
-            if (strtolower($adm['username'] ?? '') === $username) {
-                echo json_encode(['success' => false, 'error' => "Admin username '$username' is already taken."]);
-                exit;
-            }
-            if (strtolower($adm['email'] ?? '') === $email) {
-                echo json_encode(['success' => false, 'error' => "Admin email '$email' is already registered."]);
-                exit;
-            }
-        }
-
-        $newAdmin = [
-            'id' => 'adm_' . time(),
-            'username' => $username,
-            'email' => $email,
-            'name' => $name,
-            'role' => $role,
-            'password' => $password, // Plain text password as requested!
-            'createdAt' => date('c')
-        ];
-
-        $admins[] = $newAdmin;
-        writeJSON($adminsPath, $admins);
-
-        // Sync to MySQL admins table
-        if ($pdo) {
-            try {
+                $adminId = 'adm_' . time();
                 $sql = "INSERT INTO admins (id, username, email, name, role, password) VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
-                    $newAdmin['id'],
+                    $adminId,
                     $username,
                     $email,
                     $name,
                     $role,
                     $password
                 ]);
+
+                $safeAdmin = [
+                    'id' => $adminId,
+                    'username' => $username,
+                    'email' => $email,
+                    'name' => $name,
+                    'role' => $role
+                ];
+
+                if ($autoLogin) {
+                    $_SESSION['admin_user'] = $safeAdmin;
+                }
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => "Administrator '$name' (@$username) registered successfully in MySQL!",
+                    'admin' => $safeAdmin,
+                    'autoLoggedIn' => $autoLogin
+                ]);
+                exit;
+
             } catch (Exception $e) {
-                error_log("MySQL create_admin error: " . $e->getMessage());
+                echo json_encode(['success' => false, 'error' => 'MySQL admin_register error: ' . $e->getMessage()]);
+                exit;
             }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Database connection failed. Unable to register administrator.']);
+            exit;
         }
-
-        $safeAdmin = $newAdmin;
-        unset($safeAdmin['password']);
-
-        if ($autoLogin) {
-            $_SESSION['admin_user'] = $safeAdmin;
-        }
-
-        echo json_encode([
-            'success' => true,
-            'message' => "Administrator '$name' (@$username) registered successfully!",
-            'admin' => $safeAdmin,
-            'autoLoggedIn' => $autoLogin
-        ]);
         break;
 
-
-
     // =========================================================================
-    // 8. LIST ALL ADMINISTRATORS
+    // 8. LIST ALL ADMINISTRATORS (READ DIRECTLY FROM MYSQL ADMINS)
     // =========================================================================
     case 'get_admins':
-        $admins = readJSON($adminsPath, []);
-        $safeList = array_map(function($a) {
-            return [
-                'id' => $a['id'],
-                'username' => $a['username'],
-                'email' => $a['email'],
-                'name' => $a['name'],
-                'role' => $a['role'] ?? 'Admin',
-                'password' => $a['password'] ?? '********',
-                'createdAt' => $a['createdAt'] ?? ''
-            ];
-        }, $admins);
+        $safeList = [];
+        if ($pdo) {
+            try {
+                $stmt = $pdo->query("SELECT id, username, email, name, role, password, created_at FROM admins ORDER BY created_at ASC");
+                $safeList = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (Exception $e) {
+                error_log("MySQL get_admins error: " . $e->getMessage());
+            }
+        }
         echo json_encode(['success' => true, 'admins' => $safeList]);
+        break;
+
+    // =========================================================================
+    // 9. LIST ALL REGISTERED USERS (READ DIRECTLY FROM MYSQL USERS)
+    // =========================================================================
+    case 'get_users':
+        $usersList = [];
+        if ($pdo) {
+            try {
+                $stmt = $pdo->query("SELECT id, first_name, last_name, name, email, phone, is_verified, member_since, tier, coins, preferred_size, addresses, created_at FROM users ORDER BY created_at DESC");
+                $usersList = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (Exception $e) {
+                error_log("MySQL get_users error: " . $e->getMessage());
+            }
+        }
+        echo json_encode(['success' => true, 'users' => $usersList]);
+        break;
+
+    // =========================================================================
+    // 10. UPDATE USER PROFILE (STORE DIRECTLY IN MYSQL USERS)
+    // =========================================================================
+    case 'update_profile':
+        $userId = trim($inputData['userId'] ?? ($inputData['id'] ?? ''));
+        $name = trim($inputData['name'] ?? '');
+        $prefSize = trim($inputData['preferredSize'] ?? 'L');
+        $addresses = $inputData['addresses'] ?? null;
+
+        if (empty($userId) || empty($name)) {
+            echo json_encode(['success' => false, 'error' => 'User ID and Name are required.']);
+            exit;
+        }
+
+        $nameParts = explode(' ', $name, 2);
+        $firstName = $nameParts[0];
+        $lastName = $nameParts[1] ?? '';
+
+        if ($pdo) {
+            try {
+                $sql = "UPDATE users SET name = ?, first_name = ?, last_name = ?, preferred_size = ?" . ($addresses !== null ? ", addresses = ?" : "") . " WHERE id = ?";
+                $params = [$name, $firstName, $lastName, $prefSize];
+                if ($addresses !== null) {
+                    $params[] = json_encode($addresses);
+                }
+                $params[] = $userId;
+
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($params);
+
+                if (!empty($_SESSION['feather_user']) && $_SESSION['feather_user']['id'] === $userId) {
+                    $_SESSION['feather_user']['name'] = $name;
+                    $_SESSION['feather_user']['firstName'] = $firstName;
+                    $_SESSION['feather_user']['lastName'] = $lastName;
+                    $_SESSION['feather_user']['preferredSize'] = $prefSize;
+                    if ($addresses !== null) {
+                        $_SESSION['feather_user']['addresses'] = $addresses;
+                    }
+                }
+
+                echo json_encode(['success' => true, 'message' => 'Profile updated successfully in MySQL!']);
+                exit;
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'error' => 'MySQL update_profile error: ' . $e->getMessage()]);
+                exit;
+            }
+        }
         break;
 
     case 'get_session':

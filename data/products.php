@@ -107,20 +107,29 @@ function getFeatherBanners() {
             if (!empty($rows)) {
                 $result = [];
                 foreach ($rows as $r) {
-                    $dept = $r['dept'] ?: 'all';
+                    $dept = $r['department'] ?? $r['dept'] ?? 'all';
+                    $primCta = is_string($r['primary_cta'] ?? null) ? json_decode($r['primary_cta'], true) : ($r['primary_cta'] ?? null);
+                    if (!$primCta || !is_array($primCta)) {
+                        $primCta = [
+                            'label' => $r['primary_cta_label'] ?? 'Shop Now',
+                            'dept' => $r['primary_cta_dept'] ?? 'men'
+                        ];
+                    }
+                    $secCta = is_string($r['secondary_cta'] ?? null) ? json_decode($r['secondary_cta'], true) : ($r['secondary_cta'] ?? null);
+                    if (!$secCta || !is_array($secCta)) {
+                        $secCta = [
+                            'label' => $r['secondary_cta_label'] ?? 'Explore',
+                            'dept' => $r['secondary_cta_dept'] ?? 'women'
+                        ];
+                    }
+
                     $result[$dept] = [
                         'badge' => $r['badge'] ?? '',
                         'title' => $r['title'] ?? '',
                         'subtitle' => $r['subtitle'] ?? '',
                         'image' => $r['image'] ?? 'assets/images/hero-banner.jpg',
-                        'primaryCta' => [
-                            'label' => $r['primary_cta_label'] ?? 'Shop Now',
-                            'dept' => $r['primary_cta_dept'] ?? 'men'
-                        ],
-                        'secondaryCta' => [
-                            'label' => $r['secondary_cta_label'] ?? 'Explore',
-                            'dept' => $r['secondary_cta_dept'] ?? 'women'
-                        ]
+                        'primaryCta' => $primCta,
+                        'secondaryCta' => $secCta
                     ];
                 }
                 $banners = $result;

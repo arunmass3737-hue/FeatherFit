@@ -560,6 +560,27 @@ require_once __DIR__ . '/includes/header.php';
                 phone: phone
             };
 
+            // Store directly in Hostinger MySQL Database
+            const numericTotal = parseFloat(total.replace(/[^0-9.]/g, '')) || 0;
+            fetch('api/shipping.php?action=create_order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: orderId,
+                    customer: {
+                        name: firstname,
+                        email: email,
+                        phone: phone,
+                        city: city
+                    },
+                    items: cart,
+                    subtotal: numericTotal,
+                    tax: 0,
+                    shippingFee: 0,
+                    total: numericTotal
+                })
+            }).catch(e => console.error('MySQL order sync error', e));
+
             try {
                 const existingOrders = JSON.parse(localStorage.getItem('feather_orders') || '[]');
                 existingOrders.unshift(newOrder);
