@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feather Fits — Redirecting...</title>
+  <script>
+    (function () {
+      var search = window.location.search || "";
+      var hash = window.location.hash || "";
+      window.location.replace("product.php" + search + hash);
+    })();
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=product.php" />
+  </noscript>
+  <style>
+    body {
+      background: #2D0B34;
+      color: #fff;
+      font-family: 'Outfit', sans-serif, system-ui;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    a {
+      color: #F26D6D;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <p>Loading apparel fit...</p>
+    <p><small>If you are not redirected automatically, <a href="product.php">click here to view product</a>.</small></p>
+  </div>
+</body>
+</html>

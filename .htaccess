@@ -11,15 +11,19 @@ AddDefaultCharset UTF-8
 # 3. Prevent directory listing (browsing files like folder tree)
 Options -Indexes
 
-# 4. Security: Block direct browser access to database dumps, data json, and credentials
+# 4. Security & URL Rewriting
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Protect sensitive directories from public web downloads
-  RewriteRule ^(data|config|database)/ - [F,L,NC]
+  # Protect sensitive directories and database configs from public web downloads
+  RewriteRule ^(config|database)/ - [F,L,NC]
   
-  # Protect sensitive file extensions (.sql, .json files in root)
+  # Protect all sensitive JSON databases, SQL schemas, env files, and logs
+  RewriteRule ^data/.*\.json$ - [F,L,NC]
   RewriteRule \.(sql|env|json|log)$ - [F,L,NC]
+
+  # Seamlessly redirect legacy .html requests to .php preserving Query Strings (e.g. product.html?id=ff-movie-01 -> product.php?id=ff-movie-01)
+  RewriteRule ^([a-zA-Z0-9_-]+)\.html$ $1.php [R=301,L,QSA,NC]
 </IfModule>
 
 # 5. Security Headers
