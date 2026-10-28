@@ -387,18 +387,45 @@ switch ($action) {
     // =========================================================================
 
     // =========================================================================
-    // 7. CREATE NEW ADMINISTRATOR (ADMIN ONLY)
+    // 7. CREATE OR REGISTER NEW ADMINISTRATOR (WITH AUTO-LOGIN)
     // =========================================================================
+    case 'admin_register':
     case 'create_admin':
         $username = trim(strtolower($inputData['username'] ?? ''));
         $email = trim(strtolower($inputData['email'] ?? ''));
         $name = trim($inputData['name'] ?? '');
-        $role = trim($inputData['role'] ?? 'Manager');
+        $role = trim($inputData['role'] ?? 'Super Admin');
         $password = $inputData['password'] ?? '';
+        $autoLogin = !empty($inputData['auto_login']) || ($action === 'admin_register');
 
         if (empty($username) || empty($password) || empty($email) || empty($name)) {
             echo json_encode(['success' => false, 'error' => 'Username, Email, Full Name, and Password are all required.']);
             exit;
+        }
+
+        if (strlen($password) < 4) {
+            echo json_encode(['success' => false, 'error' => 'Password must be at least 4 characters long.']);
+            exit;
+        }
+
+        // Check MySQL admins table first
+        $pdo = getDBConnection();
+        if ($pdo) {
+            try {
+                $checkStmt = $pdo->prepare("SELECT id, username, email FROM admins WHERE LOWER(username) = ? OR LOWER(email) = ? LIMIT 1");
+                $checkStmt->execute([$username, $email]);
+                $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+                if ($existing) {
+                    if (strtolower($existing['username']) === $username) {
+                        echo json_encode(['success' => false, 'error' => "Admin username '$username' is already taken."]);
+                        exit;
+                    }
+                    if (strtolower($existing['email']) === $email) {
+                        echo json_encode(['success' => false, 'error' => "Admin email '$email' is already registered."]);
+                        exit;
+                    }
+                }
+            } catch (Exception $e) {}
         }
 
         $admins = readJSON($adminsPath, []);
@@ -427,7 +454,6 @@ switch ($action) {
         writeJSON($adminsPath, $admins);
 
         // Sync to MySQL admins table
-        $pdo = getDBConnection();
         if ($pdo) {
             try {
                 $sql = "INSERT INTO admins (id, username, email, name, role, password) VALUES (?, ?, ?, ?, ?, ?)";
@@ -445,18 +471,22 @@ switch ($action) {
             }
         }
 
+        $safeAdmin = $newAdmin;
+        unset($safeAdmin['password']);
+
+        if ($autoLogin) {
+            $_SESSION['admin_user'] = $safeAdmin;
+        }
+
         echo json_encode([
             'success' => true,
-            'message' => "New administrator '$name' (@$username) created successfully!",
-            'admin' => [
-                'id' => $newAdmin['id'],
-                'username' => $username,
-                'email' => $email,
-                'name' => $name,
-                'role' => $role
-            ]
+            'message' => "Administrator '$name' (@$username) registered successfully!",
+            'admin' => $safeAdmin,
+            'autoLoggedIn' => $autoLogin
         ]);
         break;
+
+
 
     // =========================================================================
     // 8. LIST ALL ADMINISTRATORS

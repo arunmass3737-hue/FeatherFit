@@ -33,73 +33,221 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
   <!-- ========================================================================
        ADMIN LOGIN RESTRICTED SCREEN
        ======================================================================== -->
+  <!-- ========================================================================
+       ULTRA LUXURY ADMIN EXECUTIVE PORTAL (LOGIN & REGISTRATION)
+       ======================================================================== -->
   <div class="admin-login-screen">
     <div class="admin-login-card">
       <div class="admin-login-logo">
         <div class="admin-logo-mark">⚡</div>
         <h2>FEATHER FITS</h2>
-        <span>ADMIN COMMAND CENTER</span>
+        <span>EXECUTIVE COMMAND CENTER</span>
       </div>
       
-      <p class="admin-login-subtitle">
-        Restricted Executive Management Portal.<br />Enter your super admin credentials to proceed.
+      <p class="admin-login-subtitle" id="portal-subtitle-text">
+        Restricted Management Hub. Sign in or register an executive account.
       </p>
 
-      <div id="admin-login-alert" class="admin-login-alert" style="display: none;"></div>
-
-      <form id="admin-login-form" onsubmit="window.handleAdminLoginSubmit(event)">
-        <div class="form-group" style="margin-bottom: 1rem;">
-          <label for="admin-login-user">Username or Email</label>
-          <input 
-            type="text" 
-            id="admin-login-user" 
-            class="form-control" 
-            placeholder="Enter username or email" 
-            required 
-            autocomplete="username"
-          />
-        </div>
-
-        <div class="form-group" style="margin-bottom: 1.5rem;">
-          <label for="admin-login-pass">Password</label>
-          <div style="position: relative;">
-            <input 
-              type="password" 
-              id="admin-login-pass" 
-              class="form-control" 
-              placeholder="Enter admin password" 
-              required 
-              autocomplete="current-password"
-              style="padding-right: 44px;"
-            />
-            <button type="button" class="btn-eye-toggle" onclick="window.togglePassVisibility('admin-login-pass', this)" aria-label="Toggle Password Visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: #724E79; display: flex; align-items: center; justify-content: center; padding: 4px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" id="admin-login-btn" class="btn-cta-crimson" style="width: 100%; height: 48px; font-size: 0.95rem; justify-content: center; gap: 0.6rem;">
-          <span class="lottie-icon" data-lottie-icon="storefront" data-lottie-primary="#FFFFFF" data-lottie-secondary="#FFFFFF" style="width: 18px; height: 18px;"></span>
-          <span>Authorize & Enter Dashboard</span>
+      <!-- Segmented Auth Switcher (Sign In vs Register) -->
+      <div class="admin-auth-tabs">
+        <button type="button" class="admin-auth-tab active" id="btn-tab-login" onclick="window.switchAdminTab('login')">
+          <span>🔐 Sign In</span>
         </button>
+        <button type="button" class="admin-auth-tab" id="btn-tab-register" onclick="window.switchAdminTab('register')">
+          <span>✨ Register New Admin</span>
+        </button>
+      </div>
 
-        <div style="text-align: center; margin-top: 1.5rem;">
-          <a href="index.php" style="color: var(--color-coral); font-size: 0.85rem; font-weight: 700; text-decoration: none;">&larr; Return to Customer Storefront</a>
+      <!-- Feedback Alert Box -->
+      <div id="admin-portal-alert" class="admin-login-alert" style="display: none;"></div>
+
+      <!-- ====================================================================
+           TAB 1: SIGN IN PANEL
+           ==================================================================== -->
+      <div class="admin-auth-panel active" id="panel-admin-login">
+        <form id="admin-login-form" onsubmit="window.handleAdminLoginSubmit(event)">
+          <div class="form-group" style="margin-bottom: 1.15rem;">
+            <label for="admin-login-user" style="font-weight: 700; font-size: 0.85rem; color: #200729; margin-bottom: 0.35rem; display: block;">Username or Email *</label>
+            <input 
+              type="text" 
+              id="admin-login-user" 
+              class="form-control" 
+              placeholder="e.g. admin or admin@featherfits.com" 
+              required 
+              autocomplete="username"
+              style="height: 46px; border-radius: 10px; font-size: 0.92rem;"
+            />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <label for="admin-login-pass" style="font-weight: 700; font-size: 0.85rem; color: #200729;">Password *</label>
+              <span style="font-size: 0.72rem; color: #724E79; font-weight: 600;">Plain Text Supported</span>
+            </div>
+            <div style="position: relative;">
+              <input 
+                type="password" 
+                id="admin-login-pass" 
+                class="form-control" 
+                placeholder="Enter your admin password" 
+                required 
+                autocomplete="current-password"
+                style="height: 46px; border-radius: 10px; padding-right: 46px; font-size: 0.92rem;"
+              />
+              <button type="button" class="btn-eye-toggle" onclick="window.togglePassVisibility('admin-login-pass', this)" aria-label="Toggle Password Visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: #724E79; display: flex; align-items: center; justify-content: center; padding: 6px;">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="admin-login-btn" class="btn-admin-cta">
+            <span>Authorize & Enter Dashboard &rarr;</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- ====================================================================
+           TAB 2: REGISTER NEW ADMIN PANEL
+           ==================================================================== -->
+      <div class="admin-auth-panel" id="panel-admin-register">
+        <form id="admin-register-form" onsubmit="window.handleAdminRegisterSubmit(event)">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="reg-adm-name" style="font-weight: 700; font-size: 0.85rem; color: #200729; margin-bottom: 0.35rem; display: block;">Full Legal Name *</label>
+            <input 
+              type="text" 
+              id="reg-adm-name" 
+              class="form-control" 
+              placeholder="e.g. Arun Kumar" 
+              required 
+              style="height: 44px; border-radius: 10px; font-size: 0.9rem;"
+            />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="reg-adm-email" style="font-weight: 700; font-size: 0.85rem; color: #200729; margin-bottom: 0.35rem; display: block;">Official Work Email *</label>
+            <input 
+              type="email" 
+              id="reg-adm-email" 
+              class="form-control" 
+              placeholder="e.g. arun@featherfits.com" 
+              required 
+              style="height: 44px; border-radius: 10px; font-size: 0.9rem;"
+            />
+          </div>
+
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="reg-adm-user" style="font-weight: 700; font-size: 0.85rem; color: #200729; margin-bottom: 0.35rem; display: block;">Username *</label>
+              <input 
+                type="text" 
+                id="reg-adm-user" 
+                class="form-control" 
+                placeholder="e.g. arun_admin" 
+                required 
+                style="height: 44px; border-radius: 10px; font-size: 0.9rem;"
+              />
+            </div>
+            <div class="form-group">
+              <label for="reg-adm-role" style="font-weight: 700; font-size: 0.85rem; color: #200729; margin-bottom: 0.35rem; display: block;">Executive Role *</label>
+              <select id="reg-adm-role" class="form-control" style="height: 44px; border-radius: 10px; font-size: 0.85rem; font-weight: 600;">
+                <option value="Super Admin">👑 Super Admin</option>
+                <option value="Operations Lead">📦 Fulfillment Lead</option>
+                <option value="Catalog Manager">👔 Catalog Manager</option>
+                <option value="Finance Lead">📊 Analytics Director</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <label for="reg-adm-pass" style="font-weight: 700; font-size: 0.85rem; color: #200729;">Admin Password (Plain Text) *</label>
+              <span style="font-size: 0.72rem; color: #724E79; font-weight: 600;">Min 4 chars</span>
+            </div>
+            <div style="position: relative;">
+              <input 
+                type="password" 
+                id="reg-adm-pass" 
+                class="form-control" 
+                placeholder="Set admin password" 
+                minlength="4" 
+                required 
+                style="height: 44px; border-radius: 10px; padding-right: 46px; font-size: 0.9rem;"
+              />
+              <button type="button" class="btn-eye-toggle" onclick="window.togglePassVisibility('reg-adm-pass', this)" aria-label="Toggle Password Visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: #724E79; display: flex; align-items: center; justify-content: center; padding: 6px;">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="admin-reg-btn" class="btn-admin-cta">
+            <span>✨ Create Account & Enter Dashboard &rarr;</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Portal Trust & Safety Footer -->
+      <div class="admin-portal-footer">
+        <div class="admin-security-pill">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>Hostinger MySQL Cloud Connected &bull; 256-Bit SSL Encrypted</span>
         </div>
-      </form>
+        <a href="index.php" style="color: #E0245E; font-size: 0.85rem; font-weight: 700; text-decoration: none; margin-top: 0.35rem;">
+          &larr; Return to Customer Storefront
+        </a>
+      </div>
     </div>
   </div>
 
   <script>
+    // Universal Password Eye Toggle
+    window.togglePassVisibility = function(inputId, btnEl) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const isPass = input.type === "password";
+      input.type = isPass ? "text" : "password";
+      if (btnEl) {
+        btnEl.innerHTML = isPass
+          ? '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+          : '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      }
+    };
+
+    // Tab Switcher (Login vs Register)
+    window.switchAdminTab = function(tab) {
+      const alertEl = document.getElementById('admin-portal-alert');
+      if (alertEl) alertEl.style.display = 'none';
+
+      const btnLogin = document.getElementById('btn-tab-login');
+      const btnRegister = document.getElementById('btn-tab-register');
+      const panelLogin = document.getElementById('panel-admin-login');
+      const panelRegister = document.getElementById('panel-admin-register');
+      const subtitle = document.getElementById('portal-subtitle-text');
+
+      if (tab === 'login') {
+        btnLogin.classList.add('active');
+        btnRegister.classList.remove('active');
+        panelLogin.classList.add('active');
+        panelRegister.classList.remove('active');
+        if (subtitle) subtitle.textContent = 'Restricted Management Hub. Sign in with your admin credentials.';
+      } else {
+        btnRegister.classList.add('active');
+        btnLogin.classList.remove('active');
+        panelRegister.classList.add('active');
+        panelLogin.classList.remove('active');
+        if (subtitle) subtitle.textContent = 'Register a new administrator to manage products, orders & catalog.';
+      }
+    };
+
+    // Admin Sign In Handler
     window.handleAdminLoginSubmit = function(e) {
       e.preventDefault();
       const user = document.getElementById('admin-login-user').value.trim();
       const pass = document.getElementById('admin-login-pass').value;
-      const alertEl = document.getElementById('admin-login-alert');
+      const alertEl = document.getElementById('admin-portal-alert');
       const btn = document.getElementById('admin-login-btn');
 
       btn.disabled = true;
-      btn.innerHTML = '<span>Verifying Credentials...</span>';
+      btn.innerHTML = '<span>Verifying MySQL Credentials...</span>';
 
       fetch('api/auth.php?action=admin_login', {
         method: 'POST',
@@ -109,19 +257,67 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          window.location.reload();
+          alertEl.className = 'admin-login-alert success';
+          alertEl.textContent = '✓ Access Authorized! Entering Command Center...';
+          alertEl.style.display = 'flex';
+          setTimeout(() => window.location.reload(), 400);
         } else {
+          alertEl.className = 'admin-login-alert';
           alertEl.textContent = data.error || 'Invalid credentials. Access denied.';
           alertEl.style.display = 'flex';
           btn.disabled = false;
-          btn.innerHTML = '<span>Authorize & Enter Dashboard</span>';
+          btn.innerHTML = '<span>Authorize & Enter Dashboard &rarr;</span>';
         }
       })
       .catch(err => {
-        alertEl.textContent = 'Connection error. Please try again.';
+        alertEl.className = 'admin-login-alert';
+        alertEl.textContent = 'Server connection error. Please try again.';
         alertEl.style.display = 'flex';
         btn.disabled = false;
-        btn.innerHTML = '<span>Authorize & Enter Dashboard</span>';
+        btn.innerHTML = '<span>Authorize & Enter Dashboard &rarr;</span>';
+      });
+    };
+
+    // Admin Register Handler (Auto-Logs in upon success!)
+    window.handleAdminRegisterSubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-adm-name').value.trim();
+      const email = document.getElementById('reg-adm-email').value.trim();
+      const username = document.getElementById('reg-adm-user').value.trim();
+      const role = document.getElementById('reg-adm-role').value;
+      const password = document.getElementById('reg-adm-pass').value;
+      const alertEl = document.getElementById('admin-portal-alert');
+      const btn = document.getElementById('admin-reg-btn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Registering in MySQL Database...</span>';
+
+      fetch('api/auth.php?action=admin_register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, username, role, password, auto_login: true })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alertEl.className = 'admin-login-alert success';
+          alertEl.textContent = '✓ ' + data.message + ' Entering Dashboard...';
+          alertEl.style.display = 'flex';
+          setTimeout(() => window.location.reload(), 600);
+        } else {
+          alertEl.className = 'admin-login-alert';
+          alertEl.textContent = data.error || 'Registration failed. Please try again.';
+          alertEl.style.display = 'flex';
+          btn.disabled = false;
+          btn.innerHTML = '<span>✨ Create Account & Enter Dashboard &rarr;</span>';
+        }
+      })
+      .catch(() => {
+        alertEl.className = 'admin-login-alert';
+        alertEl.textContent = 'Network error while registering. Please try again.';
+        alertEl.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerHTML = '<span>✨ Create Account & Enter Dashboard &rarr;</span>';
       });
     };
   </script>
