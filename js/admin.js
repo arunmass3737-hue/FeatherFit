@@ -1129,6 +1129,12 @@
 
   // Expose Global Admin API
   window.FeatherAdmin = {
+    logout: function() {
+      if (confirm('Are you sure you want to end your Super Admin session?')) {
+        fetch('api/auth.php?action=admin_logout')
+          .then(() => window.location.reload());
+      }
+    },
     setSection,
     setProductDeptFilter,
     setOrderStatusFilter,

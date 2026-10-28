@@ -1,0 +1,11 @@
+[
+  {
+    "id": "admin_01",
+    "username": "admin",
+    "email": "admin@featherfits.com",
+    "name": "Arun Kumar",
+    "role": "Super Admin",
+    "passwordHash": "$2y$10$hphcTuNecyh3cjh90ClewOgzgPbos.m0vvsrIVcC6dYJ.iIwG4icS",
+    "createdAt": "2026-10-28T09:00:00Z"
+  }
+]

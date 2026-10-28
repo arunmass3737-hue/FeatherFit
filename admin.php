@@ -1,5 +1,10 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/data/products.php';
+
+$isAdminLoggedIn = !empty($_SESSION['admin_user']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +27,107 @@ require_once __DIR__ . '/data/products.php';
   <script src="js/lottie.min.js"></script>
   <script src="js/lottie-icons.js"></script>
 </head>
-<body class="admin-body">
+<body class="admin-body <?php echo !$isAdminLoggedIn ? 'is-logged-out' : ''; ?>">
+
+<?php if (!$isAdminLoggedIn): ?>
+  <!-- ========================================================================
+       ADMIN LOGIN RESTRICTED SCREEN
+       ======================================================================== -->
+  <div class="admin-login-screen">
+    <div class="admin-login-card">
+      <div class="admin-login-logo">
+        <div class="admin-logo-mark">⚡</div>
+        <h2>FEATHER FITS</h2>
+        <span>ADMIN COMMAND CENTER</span>
+      </div>
+      
+      <p class="admin-login-subtitle">
+        Restricted Executive Management Portal.<br />Enter your super admin credentials to proceed.
+      </p>
+
+      <div id="admin-login-alert" class="admin-login-alert" style="display: none;"></div>
+
+      <form id="admin-login-form" onsubmit="window.handleAdminLoginSubmit(event)">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="admin-login-user">Username or Email</label>
+          <input 
+            type="text" 
+            id="admin-login-user" 
+            class="form-control" 
+            placeholder="admin or admin@featherfits.com" 
+            value="admin" 
+            required 
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label for="admin-login-pass">Password</label>
+          <input 
+            type="password" 
+            id="admin-login-pass" 
+            class="form-control" 
+            placeholder="••••••••" 
+            value="admin123" 
+            required 
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" id="admin-login-btn" class="btn-cta-crimson" style="width: 100%; height: 48px; font-size: 0.95rem; justify-content: center; gap: 0.6rem;">
+          <span class="lottie-icon" data-lottie-icon="storefront" data-lottie-primary="#FFFFFF" data-lottie-secondary="#FFFFFF" style="width: 18px; height: 18px;"></span>
+          <span>Authorize & Enter Dashboard</span>
+        </button>
+
+        <div class="admin-login-hint">
+          <span>⚡ Default Super Admin:</span>
+          <code>admin / admin123</code>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+          <a href="index.php" style="color: var(--color-coral); font-size: 0.85rem; font-weight: 700; text-decoration: none;">&larr; Return to Customer Storefront</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    window.handleAdminLoginSubmit = function(e) {
+      e.preventDefault();
+      const user = document.getElementById('admin-login-user').value.trim();
+      const pass = document.getElementById('admin-login-pass').value;
+      const alertEl = document.getElementById('admin-login-alert');
+      const btn = document.getElementById('admin-login-btn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Verifying Credentials...</span>';
+
+      fetch('api/auth.php?action=admin_login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          window.location.reload();
+        } else {
+          alertEl.textContent = data.error || 'Invalid credentials. Access denied.';
+          alertEl.style.display = 'flex';
+          btn.disabled = false;
+          btn.innerHTML = '<span>Authorize & Enter Dashboard</span>';
+        }
+      })
+      .catch(err => {
+        alertEl.textContent = 'Connection error. Please try again.';
+        alertEl.style.display = 'flex';
+        btn.disabled = false;
+        btn.innerHTML = '<span>Authorize & Enter Dashboard</span>';
+      });
+    };
+  </script>
+
+<?php else: ?>
 
   <!-- Mobile Backdrop Overlay -->
   <div class="admin-sidebar-backdrop" id="sidebar-backdrop" onclick="window.FeatherAdmin.toggleMobileSidebar()"></div>
@@ -131,12 +236,21 @@ require_once __DIR__ . '/data/products.php';
 
     <!-- Sidebar Profile Footer -->
     <div class="admin-sidebar-footer">
-      <div class="admin-profile-snippet">
-        <div class="admin-avatar">AK</div>
-        <div class="admin-user-details">
-          <div class="admin-user-name">Arun Kumar</div>
-          <div class="admin-user-role">Super Admin</div>
+      <div class="admin-profile-snippet" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="admin-avatar"><?php echo strtoupper(substr($_SESSION['admin_user']['name'] ?? 'AK', 0, 2)); ?></div>
+          <div class="admin-user-details">
+            <div class="admin-user-name"><?php echo htmlspecialchars($_SESSION['admin_user']['name'] ?? 'Arun Kumar'); ?></div>
+            <div class="admin-user-role"><?php echo htmlspecialchars($_SESSION['admin_user']['role'] ?? 'Super Admin'); ?></div>
+          </div>
         </div>
+        <button type="button" class="btn-icon-action danger" onclick="window.FeatherAdmin.logout()" title="Sign Out of Admin" aria-label="Sign Out" style="width: 32px; height: 32px; border-radius: var(--radius-xs);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
       </div>
     </div>
   </aside>
@@ -803,5 +917,6 @@ require_once __DIR__ . '/data/products.php';
   <!-- Scripts -->
   <script src="data/products.js"></script>
   <script src="js/admin.js"></script>
+<?php endif; ?>
 </body>
 </html>

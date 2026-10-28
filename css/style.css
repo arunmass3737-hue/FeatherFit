@@ -5800,3 +5800,98 @@ input:checked + .toggle-slider:before {
   width: 18px;
   height: 18px;
 }
+
+/* ==========================================================================
+   FEATHER FITS — VIP AUTHENTICATION & OTP VERIFICATION PORTAL
+   ========================================================================== */
+.auth-portal-card {
+  max-width: 480px;
+  margin: 2.5rem auto 4rem auto;
+  background: #FFFFFF;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem 2rem;
+  box-shadow: 0 16px 40px rgba(59, 15, 74, 0.08);
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-nav-tabs {
+  display: flex;
+  background: #FDF7FB;
+  border-radius: var(--radius-sm);
+  padding: 0.3rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
+  gap: 0.25rem;
+}
+
+.auth-nav-tab {
+  flex: 1;
+  text-align: center;
+  padding: 0.65rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: var(--radius-xs);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-nav-tab.active {
+  background: #FFFFFF;
+  color: #3B0F4A;
+  box-shadow: 0 2px 8px rgba(59, 15, 74, 0.1);
+}
+
+.otp-input-field {
+  width: 100%;
+  height: 52px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.5rem;
+  text-align: center;
+  font-family: monospace;
+  background: #FAF0F6;
+  border: 2px solid #F0D7E7;
+  border-radius: var(--radius-md);
+  color: #3B0F4A;
+  transition: all 0.2s ease;
+}
+
+.otp-input-field:focus {
+  outline: none;
+  border-color: #B5258F;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(181, 37, 143, 0.15);
+}
+
+.otp-demo-alert {
+  background: #FDF7FB;
+  border: 1px dashed #E0245E;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  font-size: 0.82rem;
+  color: #3B0F4A;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.otp-demo-alert strong {
+  color: #E0245E;
+  font-size: 1.05rem;
+  letter-spacing: 0.15em;
+}
+
+.field-requirement-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #E0245E;
+  background: #FDF2F4;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  margin-left: 0.4rem;
+}

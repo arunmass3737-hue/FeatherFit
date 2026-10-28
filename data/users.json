@@ -1,0 +1,29 @@
+[
+  {
+    "id": "usr_9876543210",
+    "firstName": "Arun",
+    "lastName": "Kumar",
+    "name": "Arun Kumar",
+    "email": "arun.kumar@featherfits.com",
+    "phone": "9876543210",
+    "passwordHash": "$2y$10$ReWAYp83QghjRUMZuHx8mO1Ya34MDexnmTZBXnU.TP1.w3uLWQ8Oa",
+    "isVerified": true,
+    "memberSince": "2024",
+    "tier": "VIP Member",
+    "coins": 450,
+    "preferredSize": "L",
+    "addresses": [
+      {
+        "id": "addr_1",
+        "tag": "Home",
+        "isDefault": true,
+        "name": "Arun Kumar",
+        "phone": "+91 98765 43210",
+        "line1": "42, Gandhi Road, T. Nagar",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "postalCode": "600017"
+      }
+    ]
+  }
+]

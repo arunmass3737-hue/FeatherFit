@@ -1590,3 +1590,112 @@ button[onclick*="add-product-modal"]:hover {
   width: 18px;
   height: 18px;
 }
+
+/* ==========================================================================
+   ADMIN LOGIN PORTAL (DEEP PLUM #3B0F4A & CRIMSON PINK #E0245E)
+   ========================================================================== */
+.admin-login-screen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-deep-plum);
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(224, 36, 94, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(181, 37, 143, 0.15) 0%, transparent 50%);
+  padding: 1.5rem;
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 440px;
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-login-logo {
+  text-align: center;
+  margin-bottom: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-login-logo .admin-logo-mark {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, var(--color-crimson), var(--color-coral));
+  color: #FFFFFF;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(224, 36, 94, 0.4);
+}
+
+.admin-login-logo h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--color-deep-plum);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.2rem;
+}
+
+.admin-login-logo span {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-crimson);
+}
+
+.admin-login-subtitle {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.45;
+}
+
+.admin-login-alert {
+  background: #FDF2F4;
+  border: 1px solid #F87171;
+  color: #DC2626;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-login-hint {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-blush);
+  border: 1px dashed rgba(181, 37, 143, 0.35);
+  font-size: 0.8rem;
+  color: var(--color-deep-plum);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-login-hint code {
+  font-family: monospace;
+  font-weight: 700;
+  background: #FFFFFF;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  color: var(--color-crimson);
+}
