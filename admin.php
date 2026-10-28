@@ -171,7 +171,7 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
           </svg>
         </span>
         <span>Banners & CMS</span>
-        <span class="admin-nav-badge" style="background: rgba(242, 109, 109, 0.2); color: #F26D6D; font-weight: 800;">LIVE</span>
+        <span class="admin-nav-badge badge-live">LIVE</span>
       </a>
 
       <a class="admin-nav-link" data-section="products" onclick="window.FeatherAdmin.setSection('products')">

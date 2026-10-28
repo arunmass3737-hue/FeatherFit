@@ -1699,3 +1699,64 @@ button[onclick*="add-product-modal"]:hover {
   border-radius: 4px;
   color: var(--color-crimson);
 }
+
+/* ==========================================================================
+   SIDEBAR ICONS & BADGES COLOR CORRECTION (CRISP WHITE & CORAL)
+   ========================================================================== */
+.admin-sidebar .lottie-icon,
+.admin-sidebar .admin-nav-link .lottie-icon,
+.admin-sidebar .btn-storefront-link .lottie-icon {
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.9 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.admin-sidebar .admin-nav-link:hover .lottie-icon,
+.admin-sidebar .admin-nav-link.active .lottie-icon,
+.admin-sidebar .btn-storefront-link:hover .lottie-icon {
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
+  opacity: 1 !important;
+}
+
+.admin-sidebar .fallback-svg,
+.admin-sidebar .admin-nav-link svg,
+.admin-sidebar .btn-storefront-link svg {
+  stroke: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+
+/* Sidebar Count Badges ("15", "4") - High Contrast */
+.admin-nav-badge {
+  margin-left: auto;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  letter-spacing: 0.02em;
+}
+
+.admin-nav-badge.badge-live {
+  background: rgba(242, 109, 109, 0.28) !important;
+  color: #FFC0C0 !important;
+  border: 1px solid rgba(242, 109, 109, 0.55) !important;
+}
+
+/* When link is ACTIVE (Magenta background): Crisp White badges */
+.admin-nav-link.active .admin-nav-badge {
+  background: #FFFFFF !important;
+  color: #B5258F !important;
+  border-color: #FFFFFF !important;
+  font-weight: 900 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+.admin-nav-link.active .admin-nav-badge.badge-live {
+  background: #FFFFFF !important;
+  color: #E0245E !important;
+  border-color: #FFFFFF !important;
+  font-weight: 900 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
