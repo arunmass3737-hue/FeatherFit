@@ -13,7 +13,7 @@ $deptTitles = [
 ];
 
 $deptDescriptions = [
-    'all'   => "Discover Feather Fits luxury streetwear, pre-shrunk 240 GSM graphic tees, vintage cinema prints, and premium oversized fits.",
+    'all'   => "Shop premium graphic T-shirts and luxury apparel for men and women. Discover Anime, Movie, and Plain minimalist designs crafted with superior comfort.",
     'men'   => "Shop Men's oversized graphic tees, heavyweight cotton drops, anime streetwear, and minimalist wardrobe essentials.",
     'women' => "Explore Women's relaxed fits, crop silhouettes, luxury streetwear aesthetics, and exclusive anime collabs.",
     'kids'  => "Comfortable, durable 100% cotton streetwear and bold graphic tees designed for active boys & girls."
@@ -24,24 +24,11 @@ $pageDescription = $deptDescriptions[$currentDept] ?? $deptDescriptions['all'];
 
 $banner = getFeatherBannerByDept($currentDept);
 $allProducts = getFeatherProducts();
-$subcategories = getFeatherSubcategories($currentDept);
-$arrivals = getFeatherNewArrivals($currentDept);
-
-// Filter products for initial server render based on active department
-$displayedProducts = [];
-foreach ($allProducts as $p) {
-    if ($currentDept === 'all' || ($p['department'] ?? 'men') === $currentDept) {
-        $displayedProducts[] = $p;
-    }
-}
-if (empty($displayedProducts)) {
-    $displayedProducts = $allProducts;
-}
 
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-  <!-- Hero Banner Section (Dynamic Server-Rendered with JS Hook IDs) -->
+  <!-- Hero Banner Section (Dynamically controlled by Department) -->
   <section class="hero-section" id="hero-section" aria-label="Hero Spotlight">
     <div class="hero-banner-wrap">
       <img id="hero-banner-image" src="<?php echo htmlspecialchars($banner['image']); ?>" alt="Feather Fits Lookbook" class="hero-bg-img" />
@@ -58,144 +45,152 @@ require_once __DIR__ . '/includes/header.php';
         <p class="hero-subtitle" id="hero-banner-subtitle">
           <?php echo htmlspecialchars($banner['subtitle']); ?>
         </p>
-        <div class="hero-cta-group" id="hero-banner-cta-group">
-          <?php if (!empty($banner['primaryCta'])): ?>
-            <a href="index.php?department=<?php echo $banner['primaryCta']['dept'] ?? $currentDept; ?>#catalog-section" class="btn-primary" id="hero-banner-btn-primary" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('<?php echo $banner['primaryCta']['dept'] ?? $currentDept; ?>');}">
-              <span><?php echo htmlspecialchars($banner['primaryCta']['label']); ?></span>
-            </a>
-          <?php endif; ?>
-          <?php if (!empty($banner['secondaryCta'])): ?>
-            <a href="index.php?department=<?php echo $banner['secondaryCta']['dept'] ?? $currentDept; ?>#catalog-section" class="btn-secondary" id="hero-banner-btn-secondary" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('<?php echo $banner['secondaryCta']['dept'] ?? $currentDept; ?>');}">
-              <span><?php echo htmlspecialchars($banner['secondaryCta']['label']); ?></span>
-            </a>
-          <?php endif; ?>
+        
+        <div class="hero-cta-group" id="hero-banner-ctas">
+          <button class="btn-primary" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('men');}">
+            <span>Explore Men's Drops</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+          
+          <button class="btn-secondary" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('women');}">
+            <span>Explore Women's Fits</span>
+          </button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Department Posters Showcase -->
-  <section class="departments-section" id="department-posters-section" aria-label="Department Collections">
-    <div class="section-container">
-      <div class="section-header" style="margin-bottom: 1.5rem;">
+  <!-- Department Category Posters Section (Dedicated Posters for Men, Women & Kids) -->
+  <section class="department-posters-section" id="department-posters-section" aria-label="Curated Category Posters">
+    <div class="posters-container">
+      <div class="posters-header">
         <div>
-          <span class="dept-badge-pill">PREMIUM COLLECTIONS</span>
-          <h2 class="section-title" id="dept-posters-title">Shop by Category</h2>
-          <p class="section-subtitle">Engineered for pure style, durability, and luxury streetwear comfort</p>
+          <div class="posters-badge-pill" id="posters-badge-pill">
+            <span>Curated Category Posters</span>
+          </div>
+          <h2 class="posters-title" id="posters-section-title">Explore <span>Men's Categories</span></h2>
+          <p class="posters-subtitle" id="posters-section-subtitle">Click any poster below to immediately open that collection</p>
+        </div>
+        <div class="posters-dept-pills" id="posters-dept-pills">
+          <button type="button" class="posters-dept-pill-btn active" data-dept="men" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('men');}">👔 Men</button>
+          <button type="button" class="posters-dept-pill-btn" data-dept="women" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('women');}">👗 Women</button>
+          <button type="button" class="posters-dept-pill-btn" data-dept="kids" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('kids');}">🧒 Kids</button>
         </div>
       </div>
-
-      <div class="dept-posters-grid" id="department-posters-grid">
-        <!-- Men's Apparel Poster Card -->
-        <article class="dept-poster-card" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('men');}">
-          <div class="dept-poster-img-wrap">
-            <img src="assets/images/mens-apparel.jpg" alt="Men's Streetwear Collection" loading="lazy" />
-          </div>
-          <div class="dept-poster-overlay">
-            <span class="dept-poster-tag">MEN'S WARDROBE</span>
-            <h3 class="dept-poster-title">Streetwear & Anime Drops</h3>
-            <p class="dept-poster-desc">Heavyweight 240 GSM oversized tees, Japanese calligraphy prints, and rugged denim.</p>
-            <a href="index.php?department=men#catalog-section" class="dept-poster-btn">Explore Men's Fits →</a>
-          </div>
-        </article>
-
-        <!-- Women's Apparel Poster Card -->
-        <article class="dept-poster-card" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('women');}">
-          <div class="dept-poster-img-wrap">
-            <img src="assets/images/womens-apparel.jpg" alt="Women's Contemporary Fashion" loading="lazy" />
-          </div>
-          <div class="dept-poster-overlay">
-            <span class="dept-poster-tag">WOMEN'S EDITION</span>
-            <h3 class="dept-poster-title">Contemporary Street Elegance</h3>
-            <p class="dept-poster-desc">Cropped graphic tees, tailored blazers, relaxed linen overshirts, and co-ord luxury.</p>
-            <a href="index.php?department=women#catalog-section" class="dept-poster-btn">Explore Women's Fits →</a>
-          </div>
-        </article>
-
-        <!-- Kids' Apparel Poster Card -->
-        <article class="dept-poster-card" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('kids');}">
-          <div class="dept-poster-img-wrap">
-            <img src="assets/images/kids-hero-banner.jpg" alt="Kids' Urban Streetwear" loading="lazy" />
-          </div>
-          <div class="dept-poster-overlay">
-            <span class="dept-poster-tag">KIDS' SPECIAL</span>
-            <h3 class="dept-poster-title">Anime Graphics & Playwear</h3>
-            <p class="dept-poster-desc">Hypoallergenic combed cotton tees, vibrant anime screen prints, and easy utility sets.</p>
-            <a href="index.php?department=kids#catalog-section" class="dept-poster-btn">Explore Kids' Fits →</a>
-          </div>
-        </article>
+      
+      <!-- Dynamic Category Posters Grid (Rendered by app.js based on active department) -->
+      <div class="department-posters-grid" id="department-posters-grid">
+        <!-- Rendered by app.js based on active department -->
       </div>
     </div>
   </section>
 
-  <!-- Dynamic New Arrivals Multi-Carousel Section -->
-  <section class="new-arrivals-section" id="new-arrivals-section" aria-label="Fresh Street Arrivals">
-    <div class="section-container">
-      <div class="arrivals-header-wrap">
-        <div>
-          <span class="arrivals-tag-pill">🔥 JUST DROPPED</span>
-          <h2 class="arrivals-title">New Arrivals</h2>
-          <p class="arrivals-subtitle">Fresh street essentials, limited editions & newly added graphics</p>
+  <!-- New Arrivals Carousel Section (Categorized: Men, Women, Kids) -->
+  <section class="new-arrivals-carousel-section" id="new-arrivals-section" aria-label="New Arrivals Carousel">
+    <div class="new-arrivals-container">
+      
+      <!-- Section Header -->
+      <div class="new-arrivals-header">
+        <div class="new-arrivals-title-group">
+          <div class="new-arrivals-badge">
+            <span class="badge-dot"></span>
+            <span>⚡ FRESH DROPS &bull; 2026 COLLECTION</span>
+          </div>
+          <h2 class="new-arrivals-title">
+            New <span>Arrivals</span>
+          </h2>
+          <p class="new-arrivals-desc">
+            Explore the latest streetwear drops, anime prints, and relaxed fits tailored for you.
+          </p>
         </div>
 
-        <!-- Department Carousel Tabs Filter -->
-        <div class="arrivals-dept-tabs" role="tablist" aria-label="New Arrivals by Department">
-          <button type="button" class="arrivals-tab-btn <?php echo $currentDept === 'men' ? 'active' : ''; ?>" data-dept="men" onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('men');}">
-            <span>Men</span>
-          </button>
-          <button type="button" class="arrivals-tab-btn <?php echo $currentDept === 'women' ? 'active' : ''; ?>" data-dept="women" onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('women');}">
-            <span>Women</span>
-          </button>
-          <button type="button" class="arrivals-tab-btn <?php echo $currentDept === 'kids' ? 'active' : ''; ?>" data-dept="kids" onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('kids');}">
-            <span>Kids</span>
-          </button>
-        </div>
+        <!-- Carousel Navigation Controls (Tabs & Arrows) -->
+        <div class="new-arrivals-controls">
+          <!-- Department Selector Tabs (Men / Women / Kids) -->
+          <div class="new-arrivals-dept-tabs" role="tablist" aria-label="New Arrivals Categories">
+            <button type="button" 
+                    class="dept-carousel-tab active" 
+                    id="new-arr-tab-men" 
+                    role="tab" 
+                    aria-selected="true"
+                    onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('men');}">
+              <span class="tab-icon">👔</span>
+              <span class="tab-name">Men</span>
+              <span class="tab-count">9</span>
+            </button>
+            <button type="button" 
+                    class="dept-carousel-tab" 
+                    id="new-arr-tab-women" 
+                    role="tab" 
+                    aria-selected="false"
+                    onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('women');}">
+              <span class="tab-icon">👗</span>
+              <span class="tab-name">Women</span>
+              <span class="tab-count">4</span>
+            </button>
+            <button type="button" 
+                    class="dept-carousel-tab" 
+                    id="new-arr-tab-kids" 
+                    role="tab" 
+                    aria-selected="false"
+                    onclick="if(window.FeatherApp){window.FeatherApp.setNewArrivalsDept('kids');}">
+              <span class="tab-icon">🧒</span>
+              <span class="tab-name">Kids</span>
+              <span class="tab-count">4</span>
+            </button>
+          </div>
 
-        <!-- Carousel Arrow Navigation -->
-        <div class="arrivals-nav-arrows">
-          <button type="button" class="carousel-arrow-btn" id="arrivals-prev-btn" onclick="if(window.FeatherApp){window.FeatherApp.scrollNewArrivals('prev');}" aria-label="Previous Arrivals">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          </button>
-          <button type="button" class="carousel-arrow-btn" id="arrivals-next-btn" onclick="if(window.FeatherApp){window.FeatherApp.scrollNewArrivals('next');}" aria-label="Next Arrivals">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
+          <!-- Slider Arrows (Desktop & Tablet) -->
+          <div class="carousel-nav-arrows">
+            <button type="button" 
+                    class="carousel-arrow-btn prev" 
+                    id="new-arr-prev-btn" 
+                    onclick="if(window.FeatherApp){window.FeatherApp.scrollNewArrivals('prev');}" 
+                    aria-label="Previous products">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button type="button" 
+                    class="carousel-arrow-btn next" 
+                    id="new-arr-next-btn" 
+                    onclick="if(window.FeatherApp){window.FeatherApp.scrollNewArrivals('next');}" 
+                    aria-label="Next products">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Carousel Sliding Track -->
-      <div class="arrivals-carousel-viewport">
-        <div class="arrivals-carousel-track" id="new-arrivals-track">
-          <?php foreach ($arrivals as $arr): 
-              $arrImg = getProductPrimaryImage($arr);
-              $arrPrice = getProductBasePrice($arr);
-              $arrOrig = getProductOriginalPrice($arr);
-              $arrDiscount = $arrOrig > $arrPrice ? round((($arrOrig - $arrPrice) / $arrOrig) * 100) : 0;
-          ?>
-            <div class="arrival-carousel-card" data-product-id="<?php echo htmlspecialchars($arr['id']); ?>">
-              <div class="arrival-card-media">
-                <img src="<?php echo htmlspecialchars($arrImg); ?>" alt="<?php echo htmlspecialchars($arr['name']); ?>" loading="lazy" />
-                <?php if (!empty($arr['badge'])): ?>
-                  <span class="arrival-card-badge"><?php echo htmlspecialchars($arr['badge']); ?></span>
-                <?php endif; ?>
-                <button type="button" class="arrival-quick-cart" onclick="if(window.FeatherApp){window.FeatherApp.addToCart('<?php echo htmlspecialchars($arr['id']); ?>'); event.stopPropagation();}" aria-label="Add to Bag">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                </button>
-              </div>
-              <div class="arrival-card-details">
-                <span class="arrival-dept-tag"><?php echo strtoupper($arr['department'] ?? 'MEN'); ?> &bull; <?php echo htmlspecialchars($arr['categoryName'] ?? 'STREETWEAR'); ?></span>
-                <h4 class="arrival-name"><a href="product.php?id=<?php echo htmlspecialchars($arr['id']); ?>"><?php echo htmlspecialchars($arr['name']); ?></a></h4>
-                <div class="arrival-price-row">
-                  <span class="arrival-price"><?php echo formatPrice($arrPrice); ?></span>
-                  <?php if ($arrOrig > $arrPrice): ?>
-                    <span class="arrival-orig-price"><?php echo formatPrice($arrOrig); ?></span>
-                    <span class="arrival-discount"><?php echo $arrDiscount; ?>% OFF</span>
-                  <?php endif; ?>
-                </div>
-              </div>
-            </div>
-          <?php endforeach; ?>
+      <!-- Carousel Track Container -->
+      <div class="new-arrivals-carousel-wrapper">
+        <div class="new-arrivals-carousel-track" id="new-arrivals-carousel-track" tabindex="0" aria-label="New Arrivals Product List">
+          <!-- Dynamically populated by window.FeatherApp.renderNewArrivalsCarousel() -->
         </div>
       </div>
+
+      <!-- Bottom Hint & Shop All Link -->
+      <div class="new-arrivals-footer">
+        <span class="swipe-hint">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+          Scroll or swipe horizontally to view all new drops
+        </span>
+        <a href="#catalog-section" class="btn-link-all" id="new-arr-view-all-link">
+          <span>View All in Catalog</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </div>
+
     </div>
   </section>
 
@@ -206,12 +201,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="catalog-dept-breadcrumbs" id="catalog-dept-breadcrumbs">
         <a href="index.php?department=all#catalog-section" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('all'); return false;}" style="cursor: pointer;">Home</a>
         <span>/</span>
-        <span id="breadcrumb-current-dept" style="color: var(--color-primary); font-weight: 700;">
-          <?php 
-            $deptNames = ['all' => 'All Collections', 'men' => "Men's Collection", 'women' => "Women's Collection", 'kids' => "Kids' Collection"];
-            echo $deptNames[$currentDept] ?? 'All Collections';
-          ?>
-        </span>
+        <span id="breadcrumb-current-dept" style="color: var(--color-primary); font-weight: 700;">All Collections</span>
         <span id="breadcrumb-subcat-divider" style="display: none;">/</span>
         <span id="breadcrumb-current-subcat" style="color: var(--color-secondary); display: none;"></span>
       </div>
@@ -222,17 +212,13 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="section-header">
       <div>
-        <h2 class="section-title" id="catalog-section-title"><?php echo ($deptNames[$currentDept] ?? 'All') . ' Collections'; ?></h2>
+        <h2 class="section-title" id="catalog-section-title">The Curated Collections</h2>
         <p class="section-subtitle" id="catalog-section-subtitle">Select a subcategory below or filter with search</p>
       </div>
 
       <!-- Category Filter Tabs (Dynamic) -->
       <div class="category-tabs" id="category-tabs-container">
-        <?php foreach ($subcategories as $sc): ?>
-          <button type="button" class="category-tab-btn <?php echo $sc['id'] === 'all' ? 'active' : ''; ?>" onclick="if(window.FeatherApp){window.FeatherApp.setSubcategory('<?php echo $sc['id']; ?>');}">
-            <?php echo htmlspecialchars($sc['name']); ?>
-          </button>
-        <?php endforeach; ?>
+        <!-- Rendered by app.js based on active department -->
       </div>
     </div>
 
@@ -270,41 +256,80 @@ require_once __DIR__ . '/includes/header.php';
       </div>
     </div>
 
-    <!-- Product Grid: 100% SEO-Rendered in PHP & Interactively Managed by JS -->
+    <!-- Product Grid: 100% SEO-Rendered with Semantic Product Cards -->
     <div class="products-grid" id="products-grid">
-      <?php foreach ($displayedProducts as $prod): 
-          $pId = $prod['id'];
-          $pImg = getProductPrimaryImage($prod);
-          $pPrice = getProductBasePrice($prod);
-          $pOrig = getProductOriginalPrice($prod);
-          $pDiscount = $pOrig > $pPrice ? round((($pOrig - $pPrice) / $pOrig) * 100) : 0;
-          $badge = $prod['badge'] ?? '';
-      ?>
-        <article class="product-card" data-id="<?php echo htmlspecialchars($pId); ?>">
-          <a href="product.php?id=<?php echo htmlspecialchars($pId); ?>" class="product-card-link">
-            <div class="product-image-wrap">
-              <img src="<?php echo htmlspecialchars($pImg); ?>" alt="<?php echo htmlspecialchars($prod['name']); ?>" class="product-primary-img" loading="lazy" />
-              <?php if (!empty($badge)): ?>
-                <span class="product-badge"><?php echo htmlspecialchars($badge); ?></span>
-              <?php endif; ?>
-              <button type="button" class="quick-view-btn" onclick="if(window.FeatherApp){window.FeatherApp.openProductModal('<?php echo htmlspecialchars($pId); ?>'); event.preventDefault(); event.stopPropagation();}">
-                Quick View
-              </button>
+      <!-- SEO Crawlable Pre-rendered Semantic Fallback -->
+      <article class="product-card" data-id="ff-anime-01">
+        <a href="product.php?id=ff-anime-01" class="product-card-link">
+          <div class="product-image-wrap">
+            <img src="assets/images/anime-tee-model-front.jpg" alt="Demon Slayer Tanjiro Oversized Graphic Tee" class="product-primary-img" loading="lazy" />
+            <span class="product-badge">Bestseller</span>
+          </div>
+          <div class="product-info">
+            <span class="product-brand">FEATHER ANIME DROP</span>
+            <h3 class="product-title">Demon Slayer Tanjiro Oversized Graphic Tee</h3>
+            <div class="product-price-row">
+              <span class="price-current">₹1,299</span>
+              <span class="price-original">₹1,699</span>
+              <span class="discount-pill">24% OFF</span>
             </div>
-            <div class="product-info">
-              <span class="product-brand"><?php echo htmlspecialchars($prod['categoryName'] ?? 'FEATHER STREETWEAR'); ?></span>
-              <h3 class="product-title"><?php echo htmlspecialchars($prod['name']); ?></h3>
-              <div class="product-price-row">
-                <span class="price-current"><?php echo formatPrice($pPrice); ?></span>
-                <?php if ($pOrig > $pPrice): ?>
-                  <span class="price-original"><?php echo formatPrice($pOrig); ?></span>
-                  <span class="discount-pill"><?php echo $pDiscount; ?>% OFF</span>
-                <?php endif; ?>
-              </div>
+          </div>
+        </a>
+      </article>
+
+      <article class="product-card" data-id="ff-anime-02">
+        <a href="product.php?id=ff-anime-02" class="product-card-link">
+          <div class="product-image-wrap">
+            <img src="assets/images/anime-tee.jpg" alt="Spirit Guardian Kitsune Streetwear Tee" class="product-primary-img" loading="lazy" />
+            <span class="product-badge">Trending</span>
+          </div>
+          <div class="product-info">
+            <span class="product-brand">FEATHER ANIME DROP</span>
+            <h3 class="product-title">Spirit Guardian Kitsune Streetwear Tee</h3>
+            <div class="product-price-row">
+              <span class="price-current">₹1,199</span>
+              <span class="price-original">₹1,499</span>
+              <span class="discount-pill">20% OFF</span>
             </div>
-          </a>
-        </article>
-      <?php endforeach; ?>
+          </div>
+        </a>
+      </article>
+
+      <article class="product-card" data-id="ff-plain-01">
+        <a href="product.php?id=ff-plain-01" class="product-card-link">
+          <div class="product-image-wrap">
+            <img src="assets/images/plain-tee.jpg" alt="Feather Signature Heavyweight Plain Tee" class="product-primary-img" loading="lazy" />
+            <span class="product-badge">Wardrobe Essential</span>
+          </div>
+          <div class="product-info">
+            <span class="product-brand">MINIMALIST ESSENTIALS</span>
+            <h3 class="product-title">Feather Signature Heavyweight Plain Tee</h3>
+            <div class="product-price-row">
+              <span class="price-current">₹899</span>
+              <span class="price-original">₹1,199</span>
+              <span class="discount-pill">25% OFF</span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+      <article class="product-card" data-id="ff-movie-01">
+        <a href="product.php?id=ff-movie-01" class="product-card-link">
+          <div class="product-image-wrap">
+            <img src="assets/images/movie-tee.jpg" alt="Galactic Starship 1982 Vintage Movie Tee" class="product-primary-img" loading="lazy" />
+            <span class="product-badge">Collector's Pick</span>
+          </div>
+          <div class="product-info">
+            <span class="product-brand">CINEMA ARCHIVE</span>
+            <h3 class="product-title">Galactic Starship 1982 Vintage Movie Tee</h3>
+            <div class="product-price-row">
+              <span class="price-current">₹1,399</span>
+              <span class="price-original">₹1,799</span>
+              <span class="discount-pill">22% OFF</span>
+            </div>
+          </div>
+        </a>
+      </article>
     </div>
   </main>
 

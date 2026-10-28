@@ -5,6 +5,7 @@ $pageTitle = "My Account & Member Mini Dashboard — Feather Fits";
 $pageDescription = "Feather Fits Member Mini Dashboard — Track live orders, manage saved delivery addresses, check Feather Coins wallet balance, and update smart size profile.";
 $currentPage = 'account';
 $currentDept = 'all';
+$bodyClass = 'account-page-body';
 
 require_once __DIR__ . '/includes/header.php';
 ?>

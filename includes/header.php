@@ -11,7 +11,7 @@
 $currentDept = $currentDept ?? 'all';
 $currentPage = $currentPage ?? 'home';
 $pageTitle = $pageTitle ?? 'Feather Fits — Confidence Fits You | Premium Apparel & Graphic T-Shirts';
-$pageDescription = $pageDescription ?? 'Discover Feather Fits luxury streetwear, pre-shrunk 240 GSM graphic tees, vintage cinema prints, and premium oversized fits.';
+$pageDescription = $pageDescription ?? 'Shop premium graphic T-shirts and luxury apparel for men and women. Discover Anime, Movie, and Plain minimalist designs crafted with superior comfort.';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,28 +22,26 @@ $pageDescription = $pageDescription ?? 'Discover Feather Fits luxury streetwear,
   <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>" />
   <meta name="theme-color" content="#2D0B34" />
 
-  <!-- Preconnect to Google Fonts -->
+  <!-- Favicon & Brand Icons -->
+  <link rel="icon" type="image/png" href="assets/images/feather-fits-logo.png" />
+
+  <!-- Fonts & Styles -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-
-  <!-- Stylesheets -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/carousel.css" />
 </head>
-<body>
+<body class="<?php echo htmlspecialchars($bodyClass ?? ''); ?>">
 
-  <!-- Top VIP Promo Announcement Bar -->
-  <aside class="announcement-bar" role="region" aria-label="Announcement">
-    <div class="announcement-content">
-      <span>⚡ FLASH DROP:</span>
-      <span>USE CODE <strong>FEATHER20</strong> FOR 20% OFF ALL OVERSIZED STREETWEAR &bull; FREE EXPRESS SHIPPING OVER ₹999</span>
-    </div>
+  <!-- Top Announcement Bar -->
+  <aside class="announcement-bar" role="complementary">
+    <span class="pill">Free Delivery</span>
+    <span>Complimentary Standard Shipping on all orders over ₹999 &bull; Use code <strong>FEATHER15</strong> for 15% off your first fit</span>
   </aside>
 
-  <!-- Sticky Main Header & Navigation -->
+  <!-- Sticky Site Header -->
   <header class="site-header" id="site-header">
-    <div class="header-container">
+    <div class="nav-container">
       
       <!-- Mobile Hamburger Button & Brand Logo -->
       <div style="display: flex; align-items: center; gap: 0.75rem;">
