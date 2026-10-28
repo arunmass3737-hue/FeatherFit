@@ -1,12 +1,18 @@
 /**
- * FEATHER FITS — ULTRA LUXURY ADMIN DASHBOARD ENGINE
+ * FEATHER FITS — ULTRA LUXURY ADMIN DASHBOARD & CMS ENGINE
  * Architecture:
- * - Real-time KPI Metric computations
+ * - Real-time Executive KPI Metric computations
  * - Products Inventory Complete CRUD:
- *     - Create: Add New Apparel Drop Modal
+ *     - Create: Add New Apparel Drop Modal with Image File Upload & Dropzone
  *     - Read: Catalog Table with Search & Department Filters
- *     - Update: Comprehensive Edit Product Modal (Name, Dept, Category, Price, Stock, Image)
+ *     - Update: Comprehensive Edit Product Modal (Image upload, Name, Dept, Price, Stock)
  *     - Delete: Instant Product Removal with LocalStorage Persistence
+ * - Advanced Storefront Banners & Live CMS:
+ *     - Interactive Real-time Mockup Previews
+ *     - Real File Upload (Drag & Drop or browse computer) for Hero Banners
+ *     - Live editing of Badges, Headlines, Subtitles & CTA buttons
+ *     - Top Announcement Bar Live Editor
+ *     - Syncs instantly with index.html storefront
  * - Orders Management & Live Dispatch (Pending, Processing, Shipped, Delivered) + Delete Order
  * - Customers Directory with Lifetime Spend & VIP Badges
  * - Mobile Responsive Drawer & Backdrop Support
@@ -18,7 +24,9 @@
   const STORAGE_KEYS = {
     ADMIN_PRODUCTS: "ff_admin_products_v1",
     ORDERS: "ff_orders_v1",
-    USER: "ff_user_v1"
+    USER: "ff_user_v1",
+    CUSTOM_BANNERS: "ff_custom_banners",
+    CUSTOM_ANNOUNCEMENT: "ff_custom_announcement"
   };
 
   // Seed default demonstration orders if none exist
@@ -101,22 +109,31 @@
     products: [],
     orders: [],
     customers: demoCustomers,
+    customBanners: {},
     activeSection: "overview",
+    activeBannerTab: "all",
     productDeptFilter: "all",
     orderStatusFilter: "all",
-    globalSearchQuery: ""
+    globalSearchQuery: "",
+    tempUploadedImages: {
+      add: null,
+      edit: null,
+      banner: null
+    }
   };
 
   // Initialize
   function initAdmin() {
     loadProducts();
     loadOrders();
+    loadCustomBanners();
     renderKpiStats();
     renderRecentOrdersTable();
     renderProductsTable();
     renderOrdersFullTable();
     renderCustomersTable();
     renderPerformanceChart();
+    renderBannerCustomizer();
     attachEventListeners();
   }
 
@@ -139,6 +156,25 @@
     localStorage.setItem(STORAGE_KEYS.ADMIN_PRODUCTS, JSON.stringify(state.products));
     renderProductsTable();
     renderKpiStats();
+  }
+
+  // Load Custom Banners
+  function loadCustomBanners() {
+    const local = localStorage.getItem(STORAGE_KEYS.CUSTOM_BANNERS);
+    let banners = {};
+    if (local) {
+      try {
+        banners = JSON.parse(local);
+      } catch (e) {
+        banners = {};
+      }
+    }
+    const base = window.FEATHER_DEPARTMENT_BANNERS || {};
+    state.customBanners = Object.assign({}, JSON.parse(JSON.stringify(base)), banners);
+  }
+
+  function saveCustomBanners() {
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_BANNERS, JSON.stringify(state.customBanners));
   }
 
   // Load orders
@@ -184,13 +220,11 @@
     if (prodsEl) prodsEl.textContent = `${productsCount} Fits`;
     if (aovEl) aovEl.textContent = `₹${aov.toLocaleString("en-IN")}`;
 
-    // Update badges in sidebar
     const prodBadge = document.getElementById("badge-nav-products");
     const orderBadge = document.getElementById("badge-nav-orders");
     if (prodBadge) prodBadge.textContent = productsCount;
     if (orderBadge) orderBadge.textContent = state.orders.length;
 
-    // Category progress bars
     const menCount = state.products.filter(p => p.department === "men").length;
     const womenCount = state.products.filter(p => p.department === "women").length;
     const kidsCount = state.products.filter(p => p.department === "kids").length;
@@ -403,15 +437,12 @@
           </td>
           <td>
             <div class="table-actions">
-              <!-- Edit Product Button -->
               <button type="button" class="btn-icon-action edit-btn" title="Edit Product Details" onclick="window.FeatherAdmin.openEditProductModal('${p.id}')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
               </button>
-
-              <!-- Preview on Storefront -->
               <a href="product.html?id=${p.id}" target="_blank" class="btn-icon-action" title="Preview on Store">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -419,8 +450,6 @@
                   <line x1="10" y1="14" x2="21" y2="3"></line>
                 </svg>
               </a>
-
-              <!-- Delete Product Button -->
               <button type="button" class="btn-icon-action danger" title="Delete Product" onclick="window.FeatherAdmin.deleteProduct('${p.id}')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
@@ -456,6 +485,289 @@
     `).join("");
   }
 
+  // ==========================================================================
+  // ADVANCED STOREFRONT BANNERS & LIVE CMS
+  // ==========================================================================
+  function setBannerTab(tab) {
+    state.activeBannerTab = tab;
+    document.querySelectorAll(".filter-btn[data-banner-tab]").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-banner-tab") === tab);
+    });
+    renderBannerCustomizer();
+  }
+
+  function renderBannerCustomizer() {
+    const container = document.getElementById("banner-config-container");
+    if (!container) return;
+
+    if (state.activeBannerTab === "announcement") {
+      const currentText = localStorage.getItem(STORAGE_KEYS.CUSTOM_ANNOUNCEMENT) || 
+        "Complimentary Standard Shipping on all orders over ₹999 &bull; Use code <strong>FEATHER15</strong> for 15% off";
+
+      container.innerHTML = `
+        <div class="banner-config-card" style="grid-template-columns: 1fr;">
+          <div class="banner-form-wrap">
+            <div class="banner-form-header">
+              <h3>Top Announcement Bar Customizer</h3>
+              <span class="banner-dept-tag">📢 Site-wide Header Bar</span>
+            </div>
+
+            <!-- Live Bar Preview -->
+            <div style="margin: 0.5rem 0;">
+              <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--admin-text-faint); display: block; margin-bottom: 0.4rem;">Live Preview on Store:</span>
+              <div style="background: #111827; color: #fff; padding: 0.65rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; display: flex; align-items: center; gap: 0.75rem; box-shadow: var(--admin-shadow-sm);">
+                <span style="background: var(--admin-purple-primary); padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 800;">Free Delivery</span>
+                <span id="announcement-live-preview">${currentText}</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="announcement-text-input">Announcement Message HTML *</label>
+              <textarea id="announcement-text-input" class="form-control" rows="3" oninput="document.getElementById('announcement-live-preview').innerHTML = this.value">${currentText}</textarea>
+              <span style="font-size: 0.75rem; color: var(--admin-text-faint);">HTML tags like &lt;strong&gt; and &bull; are supported.</span>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;">
+              <button type="button" class="btn-secondary-light" onclick="window.FeatherAdmin.resetAnnouncementDefault()">Reset Default</button>
+              <button type="button" class="btn-primary-purple" onclick="window.FeatherAdmin.saveAnnouncementBar()">Save Announcement</button>
+            </div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const dept = state.activeBannerTab;
+    const banner = state.customBanners[dept] || state.customBanners.all || {};
+    const deptLabels = {
+      all: "✨ Home (All Drops) Hero",
+      men: "👔 Men's Fashion Hero",
+      women: "👗 Women's Collection Hero",
+      kids: "🧒 Kids' Streetwear Hero"
+    };
+
+    container.innerHTML = `
+      <div class="banner-config-card">
+        <!-- Live Mockup Box -->
+        <div class="banner-preview-mockup" id="banner-mockup-wrap">
+          <img src="${banner.image}" id="banner-mockup-img" class="mockup-bg" alt="Hero Banner Preview" />
+          <div class="banner-preview-overlay"></div>
+          <div class="banner-preview-content">
+            <span class="banner-preview-badge" id="banner-mockup-badge">${banner.badge || 'CONFIDENCE FITS YOU'}</span>
+            <h2 class="banner-preview-title" id="banner-mockup-title">${banner.title || 'Confidence Fits You.'}</h2>
+            <p class="banner-preview-desc" id="banner-mockup-desc">${banner.subtitle || 'Browse our newest apparel drops.'}</p>
+            <div class="banner-preview-cta" id="banner-mockup-cta">
+              <span>${banner.primaryCta ? banner.primaryCta.label : 'Explore Drops'}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner Form Configuration -->
+        <div class="banner-form-wrap">
+          <div class="banner-form-header">
+            <h3>Configure ${deptLabels[dept]}</h3>
+            <span class="banner-dept-tag">Active Live Banner</span>
+          </div>
+
+          <!-- File Upload Dropzone for Banner -->
+          <div class="form-group">
+            <label>Upload New Banner Photo</label>
+            <div class="upload-dropzone">
+              <input type="file" accept="image/*" onchange="window.FeatherAdmin.handleBannerFileUpload(event)" />
+              <div class="upload-content">
+                <div class="upload-icon-circle">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                </div>
+                <div class="upload-title">Drop banner image here, or <span>choose file</span></div>
+                <div class="upload-hint">Recommended: 1920x800 or high resolution landscape photo</div>
+              </div>
+            </div>
+            <input type="hidden" id="banner-img-url" value="${banner.image || ''}" />
+          </div>
+
+          <!-- Badge text -->
+          <div class="form-group">
+            <label for="banner-badge-input">Badge Headline</label>
+            <input type="text" id="banner-badge-input" class="form-control" value="${banner.badge || ''}" oninput="window.FeatherAdmin.updateBannerPreviewField('badge', this.value)" />
+          </div>
+
+          <!-- Main Title with HTML -->
+          <div class="form-group">
+            <label for="banner-title-input">Hero Main Title (HTML supported for &lt;span&gt;)</label>
+            <input type="text" id="banner-title-input" class="form-control" value="${banner.title || ''}" oninput="window.FeatherAdmin.updateBannerPreviewField('title', this.value)" />
+          </div>
+
+          <!-- Subtitle -->
+          <div class="form-group">
+            <label for="banner-sub-input">Hero Description / Subtitle</label>
+            <textarea id="banner-sub-input" class="form-control" rows="2" oninput="window.FeatherAdmin.updateBannerPreviewField('desc', this.value)">${banner.subtitle || ''}</textarea>
+          </div>
+
+          <!-- CTA label -->
+          <div class="form-group">
+            <label for="banner-cta-input">Primary Button Label</label>
+            <input type="text" id="banner-cta-input" class="form-control" value="${banner.primaryCta ? banner.primaryCta.label : 'Explore Fits'}" oninput="window.FeatherAdmin.updateBannerPreviewField('cta', this.value)" />
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;">
+            <button type="button" class="btn-primary-purple" onclick="window.FeatherAdmin.saveActiveBanner()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              <span>Publish Banner to Store</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Real-time Banner Preview Updates as user types
+  function updateBannerPreviewField(field, val) {
+    if (field === "badge") {
+      const el = document.getElementById("banner-mockup-badge");
+      if (el) el.textContent = val;
+    } else if (field === "title") {
+      const el = document.getElementById("banner-mockup-title");
+      if (el) el.innerHTML = val;
+    } else if (field === "desc") {
+      const el = document.getElementById("banner-mockup-desc");
+      if (el) el.textContent = val;
+    } else if (field === "cta") {
+      const el = document.getElementById("banner-mockup-cta");
+      if (el) el.innerHTML = `<span>${val}</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+    }
+  }
+
+  // Handle Banner Image File Upload via FileReader
+  function handleBannerFileUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showToast("Please choose a valid image file (PNG, JPG, WebP).", "warning");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const dataUrl = e.target.result;
+      const mockupImg = document.getElementById("banner-mockup-img");
+      const hiddenInput = document.getElementById("banner-img-url");
+
+      if (mockupImg) mockupImg.src = dataUrl;
+      if (hiddenInput) hiddenInput.value = dataUrl;
+
+      showToast("Banner image loaded! Click 'Publish Banner' to save.", "success");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Save Banner Changes
+  function saveActiveBanner() {
+    const dept = state.activeBannerTab;
+    const imgUrl = document.getElementById("banner-img-url").value;
+    const badge = document.getElementById("banner-badge-input").value.trim();
+    const title = document.getElementById("banner-title-input").value.trim();
+    const subtitle = document.getElementById("banner-sub-input").value.trim();
+    const ctaLabel = document.getElementById("banner-cta-input").value.trim();
+
+    if (!state.customBanners[dept]) {
+      state.customBanners[dept] = {};
+    }
+
+    state.customBanners[dept].image = imgUrl;
+    state.customBanners[dept].badge = badge;
+    state.customBanners[dept].title = title;
+    state.customBanners[dept].subtitle = subtitle;
+    if (!state.customBanners[dept].primaryCta) state.customBanners[dept].primaryCta = {};
+    state.customBanners[dept].primaryCta.label = ctaLabel;
+
+    saveCustomBanners();
+    showToast(`${dept.toUpperCase()} Hero Banner successfully published to live store!`, "success");
+  }
+
+  function resetBannersToDefault() {
+    if (confirm("Reset all hero banners back to original catalog defaults?")) {
+      localStorage.removeItem(STORAGE_KEYS.CUSTOM_BANNERS);
+      loadCustomBanners();
+      renderBannerCustomizer();
+      showToast("Banners reset to original defaults!", "warning");
+    }
+  }
+
+  function saveAnnouncementBar() {
+    const val = document.getElementById("announcement-text-input").value.trim();
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_ANNOUNCEMENT, val);
+    showToast("Announcement bar updated across all pages!", "success");
+  }
+
+  function resetAnnouncementDefault() {
+    localStorage.removeItem(STORAGE_KEYS.CUSTOM_ANNOUNCEMENT);
+    renderBannerCustomizer();
+    showToast("Announcement bar reset to default!", "warning");
+  }
+
+  // ==========================================================================
+  // REAL PRODUCT IMAGE UPLOAD HANDLERS
+  // ==========================================================================
+  function handleProductFileUpload(event, mode) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showToast("Please choose a valid image file.", "warning");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const dataUrl = e.target.result;
+      const previewBox = document.getElementById(`${mode}-prod-preview-box`);
+      const previewImg = document.getElementById(`${mode}-prod-preview-img`);
+      const previewName = document.getElementById(`${mode}-prod-preview-name`);
+      const previewSize = document.getElementById(`${mode}-prod-preview-size`);
+      const hiddenInput = document.getElementById(`${mode}-prod-img-data`);
+
+      if (previewImg) previewImg.src = dataUrl;
+      if (previewName) previewName.textContent = file.name;
+      if (previewSize) previewSize.textContent = `${(file.size / 1024).toFixed(1)} KB (Uploaded File)`;
+      if (previewBox) previewBox.style.display = "flex";
+      if (hiddenInput) hiddenInput.value = dataUrl;
+
+      showToast("Product image uploaded and ready!", "success");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function selectPresetImage(path, mode) {
+    const previewBox = document.getElementById(`${mode}-prod-preview-box`);
+    const previewImg = document.getElementById(`${mode}-prod-preview-img`);
+    const previewName = document.getElementById(`${mode}-prod-preview-name`);
+    const previewSize = document.getElementById(`${mode}-prod-preview-size`);
+    const hiddenInput = document.getElementById(`${mode}-prod-img-data`);
+
+    if (previewImg) previewImg.src = path;
+    if (previewName) previewName.textContent = path.split("/").pop();
+    if (previewSize) previewSize.textContent = "Store Preset";
+    if (previewBox) previewBox.style.display = "flex";
+    if (hiddenInput) hiddenInput.value = path;
+  }
+
+  function clearUploadedImage(mode) {
+    const defaultPath = mode === "add" ? "assets/images/anime-tee-model-wine.jpg" : "";
+    selectPresetImage(defaultPath, mode);
+  }
+
   // Update Order Status
   function updateOrderStatus(orderId, newStatus) {
     const order = state.orders.find(o => (o.id === orderId || o.orderNumber === orderId));
@@ -487,7 +799,10 @@
     const priceInput = document.getElementById("edit-prod-price");
     const origPriceInput = document.getElementById("edit-prod-orig-price");
     const badgeInput = document.getElementById("edit-prod-badge");
-    const imgInput = document.getElementById("edit-prod-img");
+    const hiddenImg = document.getElementById("edit-prod-img-data");
+    const previewBox = document.getElementById("edit-prod-preview-box");
+    const previewImg = document.getElementById("edit-prod-preview-img");
+    const previewName = document.getElementById("edit-prod-preview-name");
 
     if (idInput) idInput.value = p.id;
     if (nameInput) nameInput.value = p.name;
@@ -496,7 +811,12 @@
     if (priceInput) priceInput.value = p.basePrice;
     if (origPriceInput) origPriceInput.value = p.originalPrice || "";
     if (badgeInput) badgeInput.value = p.badge || "";
-    if (imgInput && p.images && p.images[0]) imgInput.value = p.images[0];
+
+    const currentImg = (p.images && p.images[0]) ? p.images[0] : "assets/images/anime-tee.jpg";
+    if (hiddenImg) hiddenImg.value = currentImg;
+    if (previewImg) previewImg.src = currentImg;
+    if (previewName) previewName.textContent = p.name + " Image";
+    if (previewBox) previewBox.style.display = "flex";
 
     openModal("edit-product-modal");
   }
@@ -511,7 +831,7 @@
     const price = Number(document.getElementById("edit-prod-price").value);
     const origPrice = Number(document.getElementById("edit-prod-orig-price").value) || null;
     const badge = document.getElementById("edit-prod-badge").value.trim();
-    const image = document.getElementById("edit-prod-img").value;
+    const image = document.getElementById("edit-prod-img-data").value;
 
     const prod = state.products.find(x => x.id === id);
     if (!prod) return;
@@ -538,7 +858,7 @@
     const catInput = document.getElementById("add-prod-category");
     const priceInput = document.getElementById("add-prod-price");
     const origPriceInput = document.getElementById("add-prod-orig-price");
-    const imgInput = document.getElementById("add-prod-img");
+    const imgDataInput = document.getElementById("add-prod-img-data");
     const badgeInput = document.getElementById("add-prod-badge");
 
     const dept = deptInput.value;
@@ -552,6 +872,8 @@
     }
 
     const newId = `ff-${dept}-${Date.now().toString().slice(-4)}`;
+    const imageSrc = (imgDataInput && imgDataInput.value) ? imgDataInput.value : "assets/images/anime-tee-model-wine.jpg";
+
     const newProduct = {
       id: newId,
       name: name,
@@ -563,7 +885,7 @@
       originalPrice: origPrice,
       rating: 4.9,
       reviewCount: 12,
-      images: [imgInput.value || "assets/images/anime-tee-model-wine.jpg"],
+      images: [imageSrc],
       colors: [{ name: "Obsidian Black", hex: "#1A1A1A" }],
       sizes: ["S", "M", "L", "XL", "XXL"],
       description: "Crafted with 100% pre-shrunk combed cotton for maximum streetwear durability and comfort.",
@@ -573,8 +895,11 @@
     state.products.unshift(newProduct);
     saveProducts();
     closeModal("add-product-modal");
-    showToast(`Added "${name}" to product catalog!`);
+    showToast(`Added "${name}" to store catalog!`);
     e.target.reset();
+
+    const previewBox = document.getElementById("add-prod-preview-box");
+    if (previewBox) previewBox.style.display = "none";
   }
 
   // Delete product
@@ -655,7 +980,6 @@
     const target = document.getElementById(`section-${sectionId}`);
     if (target) target.classList.add("active");
 
-    // Close mobile sidebar if open
     closeMobileSidebar();
   }
 
@@ -710,7 +1034,7 @@
       toast.style.transform = "translateY(10px)";
       toast.style.transition = "all 0.25s ease";
       setTimeout(() => toast.remove(), 250);
-    }, 3000);
+    }, 3200);
   }
 
   // Modal helpers
@@ -757,7 +1081,6 @@
       searchInput.addEventListener("input", (e) => handleGlobalSearch(e.target.value));
     }
 
-    // Close modals on backdrop click
     document.querySelectorAll(".admin-modal-overlay").forEach(overlay => {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) {
@@ -782,7 +1105,18 @@
     closeModal,
     toggleMobileSidebar,
     closeMobileSidebar,
-    showToast
+    showToast,
+    // Advanced Image & Banner CMS methods
+    setBannerTab,
+    updateBannerPreviewField,
+    handleBannerFileUpload,
+    saveActiveBanner,
+    resetBannersToDefault,
+    saveAnnouncementBar,
+    resetAnnouncementDefault,
+    handleProductFileUpload,
+    selectPresetImage,
+    clearUploadedImage
   };
 
   // Run on DOM ready

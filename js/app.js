@@ -62,7 +62,7 @@
   };
 
   const state = {
-    products: window.FEATHER_PRODUCTS || [],
+    products: JSON.parse(localStorage.getItem("ff_admin_products_v1") || "null") || window.FEATHER_PRODUCTS || [],
     categories: window.FEATHER_CATEGORIES || [],
     currentDepartment: "all",
     currentSubcategory: "all",
@@ -277,7 +277,11 @@
   }
 
   function renderHeroBanner(deptId) {
-    const banners = window.FEATHER_DEPARTMENT_BANNERS || {};
+    let customBanners = {};
+    try {
+      customBanners = JSON.parse(localStorage.getItem("ff_custom_banners") || "{}");
+    } catch (e) {}
+    const banners = Object.assign({}, window.FEATHER_DEPARTMENT_BANNERS || {}, customBanners);
     const banner = banners[deptId] || banners.all;
     if (!banner) return;
 
@@ -2487,6 +2491,14 @@
     renderCategoryTabs();
     renderProducts();
     updateBadges();
+
+    // Sync custom announcement if configured in Admin
+    const customAnnounce = localStorage.getItem("ff_custom_announcement");
+    if (customAnnounce) {
+      document.querySelectorAll(".announcement-bar span:last-child, .announcement-content span:last-child").forEach((el) => {
+        el.innerHTML = customAnnounce;
+      });
+    }
 
     // Sync active nav pills on load
     document.querySelectorAll(".nav-link[data-dept], .mobile-nav-link[data-dept]").forEach((link) => {

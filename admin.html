@@ -50,6 +50,16 @@
         <span>Overview</span>
       </a>
 
+      <a class="admin-nav-link" data-section="banners" onclick="window.FeatherAdmin.setSection('banners')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>Banners & CMS</span>
+        <span class="admin-nav-badge" style="background: rgba(124, 58, 237, 0.1); color: var(--admin-purple-primary); font-weight: 800;">LIVE</span>
+      </a>
+
       <a class="admin-nav-link" data-section="products" onclick="window.FeatherAdmin.setSection('products')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -383,6 +393,49 @@
         </div>
       </section>
 
+
+      <!-- ====================================================================
+           SECTION: HERO BANNERS & STOREFRONT CUSTOMIZER
+           ==================================================================== -->
+      <section class="admin-section" id="section-banners">
+        <div class="section-header-row">
+          <div>
+            <h2>Storefront Banners & Live CMS</h2>
+            <p>Upload custom images and change hero banners for Home, Men, Women & Kids with real-time live preview.</p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button type="button" class="btn-secondary-light" onclick="window.FeatherAdmin.resetBannersToDefault()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Reset to Defaults</span>
+            </button>
+            <a href="index.html" target="_blank" class="btn-primary-purple">
+              <span>View Live Storefront</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Banner Department Selector -->
+        <div class="admin-table-controls">
+          <div class="filter-pill-group">
+            <button type="button" class="filter-btn active" data-banner-tab="all" onclick="window.FeatherAdmin.setBannerTab('all')">✨ Home (All Drops)</button>
+            <button type="button" class="filter-btn" data-banner-tab="men" onclick="window.FeatherAdmin.setBannerTab('men')">👔 Men's Banner</button>
+            <button type="button" class="filter-btn" data-banner-tab="women" onclick="window.FeatherAdmin.setBannerTab('women')">👗 Women's Banner</button>
+            <button type="button" class="filter-btn" data-banner-tab="kids" onclick="window.FeatherAdmin.setBannerTab('kids')">🧒 Kids' Banner</button>
+            <button type="button" class="filter-btn" data-banner-tab="announcement" onclick="window.FeatherAdmin.setBannerTab('announcement')">📢 Announcement Bar</button>
+          </div>
+        </div>
+
+        <!-- Active Banner Editor Container -->
+        <div id="banner-config-container">
+          <!-- Rendered dynamically by js/admin.js -->
+        </div>
+      </section>
+
       <!-- ====================================================================
            SECTION 3: ORDERS MANAGEMENT
            ==================================================================== -->
@@ -583,15 +636,48 @@
           </div>
 
           <div class="form-group">
-            <label for="add-prod-img">Image Asset Path</label>
-            <select id="add-prod-img" class="form-control">
-              <option value="assets/images/anime-tee-model-wine.jpg">Wine Red Graphic Tee Model</option>
-              <option value="assets/images/anime-tee-front.jpg">Anime Tee Front</option>
-              <option value="assets/images/demon-slayer-tanjiro-model.jpg">Demon Slayer Tanjiro Model</option>
-              <option value="assets/images/mens-apparel.jpg">Men's Apparel Poster</option>
-              <option value="assets/images/womens-apparel.jpg">Women's Apparel Poster</option>
-              <option value="assets/images/kids-hero-banner.jpg">Kids Hero Poster</option>
-            </select>
+            <label>Product Image Upload *</label>
+            <div class="image-upload-wrapper">
+              <div class="upload-dropzone" id="add-prod-dropzone">
+                <input type="file" id="add-prod-file" accept="image/*" onchange="window.FeatherAdmin.handleProductFileUpload(event, 'add')" />
+                <div class="upload-content">
+                  <div class="upload-icon-circle">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                  </div>
+                  <div class="upload-title">Drop your image here, or <span>browse from computer</span></div>
+                  <div class="upload-hint">Supports PNG, JPG, JPEG, WebP (Max 5MB)</div>
+                </div>
+              </div>
+
+              <!-- Live Preview Box -->
+              <div class="upload-preview-container" id="add-prod-preview-box" style="display: none;">
+                <img src="" id="add-prod-preview-img" class="upload-preview-thumbnail" alt="Product Preview" />
+                <div class="upload-preview-meta">
+                  <div class="upload-preview-filename" id="add-prod-preview-name">image.jpg</div>
+                  <div class="upload-preview-filesize" id="add-prod-preview-size">Ready for store</div>
+                </div>
+                <button type="button" class="upload-remove-btn" onclick="window.FeatherAdmin.clearUploadedImage('add')">Remove</button>
+              </div>
+
+              <input type="hidden" id="add-prod-img-data" value="assets/images/anime-tee-model-wine.jpg" />
+
+              <div style="font-size: 0.78rem; color: var(--admin-text-faint); margin-top: 0.25rem;">
+                Or select an existing store preset:
+                <select id="add-prod-img-preset" class="form-control" style="margin-top: 0.35rem; padding: 0.45rem 0.75rem;" onchange="window.FeatherAdmin.selectPresetImage(this.value, 'add')">
+                  <option value="assets/images/anime-tee-model-wine.jpg">Wine Red Graphic Tee Model</option>
+                  <option value="assets/images/anime-tee-front.jpg">Anime Tee Front</option>
+                  <option value="assets/images/demon-slayer-tanjiro-model.jpg">Demon Slayer Tanjiro Model</option>
+                  <option value="assets/images/mens-apparel.jpg">Men's Apparel Poster</option>
+                  <option value="assets/images/womens-apparel.jpg">Women's Apparel Poster</option>
+                  <option value="assets/images/kids-hero-banner.jpg">Kids Hero Poster</option>
+                  <option value="assets/images/anime-tee.jpg">Cyberpunk Anime Tee</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="form-group">
@@ -673,16 +759,48 @@
           </div>
 
           <div class="form-group">
-            <label for="edit-prod-img">Product Image</label>
-            <select id="edit-prod-img" class="form-control">
-              <option value="assets/images/anime-tee-model-wine.jpg">Wine Red Graphic Tee Model</option>
-              <option value="assets/images/anime-tee-front.jpg">Anime Tee Front</option>
-              <option value="assets/images/demon-slayer-tanjiro-model.jpg">Demon Slayer Tanjiro Model</option>
-              <option value="assets/images/mens-apparel.jpg">Men's Apparel Poster</option>
-              <option value="assets/images/womens-apparel.jpg">Women's Apparel Poster</option>
-              <option value="assets/images/kids-hero-banner.jpg">Kids Hero Poster</option>
-              <option value="assets/images/anime-tee.jpg">Cyberpunk Anime Tee</option>
-            </select>
+            <label>Update Product Image *</label>
+            <div class="image-upload-wrapper">
+              <div class="upload-dropzone" id="edit-prod-dropzone">
+                <input type="file" id="edit-prod-file" accept="image/*" onchange="window.FeatherAdmin.handleProductFileUpload(event, 'edit')" />
+                <div class="upload-content">
+                  <div class="upload-icon-circle">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                  </div>
+                  <div class="upload-title">Drop new image, or <span>browse from computer</span></div>
+                  <div class="upload-hint">Upload any image to replace current product photo</div>
+                </div>
+              </div>
+
+              <!-- Live Preview Box -->
+              <div class="upload-preview-container" id="edit-prod-preview-box">
+                <img src="" id="edit-prod-preview-img" class="upload-preview-thumbnail" alt="Product Preview" />
+                <div class="upload-preview-meta">
+                  <div class="upload-preview-filename" id="edit-prod-preview-name">current-image.jpg</div>
+                  <div class="upload-preview-filesize" id="edit-prod-preview-size">Active Store Image</div>
+                </div>
+                <button type="button" class="upload-remove-btn" onclick="window.FeatherAdmin.clearUploadedImage('edit')">Reset</button>
+              </div>
+
+              <input type="hidden" id="edit-prod-img-data" value="" />
+
+              <div style="font-size: 0.78rem; color: var(--admin-text-faint); margin-top: 0.25rem;">
+                Or select an existing store preset:
+                <select id="edit-prod-img-preset" class="form-control" style="margin-top: 0.35rem; padding: 0.45rem 0.75rem;" onchange="window.FeatherAdmin.selectPresetImage(this.value, 'edit')">
+                  <option value="assets/images/anime-tee-model-wine.jpg">Wine Red Graphic Tee Model</option>
+                  <option value="assets/images/anime-tee-front.jpg">Anime Tee Front</option>
+                  <option value="assets/images/demon-slayer-tanjiro-model.jpg">Demon Slayer Tanjiro Model</option>
+                  <option value="assets/images/mens-apparel.jpg">Men's Apparel Poster</option>
+                  <option value="assets/images/womens-apparel.jpg">Women's Apparel Poster</option>
+                  <option value="assets/images/kids-hero-banner.jpg">Kids Hero Poster</option>
+                  <option value="assets/images/anime-tee.jpg">Cyberpunk Anime Tee</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
