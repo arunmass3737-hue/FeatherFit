@@ -5268,13 +5268,32 @@ input:checked + .toggle-slider:before {
   .dashboard-kpi-grid {
     grid-template-columns: 1fr;
   }
-  .dash-nav-menu {
-    grid-template-columns: 1fr;
-  }
+/* Clean Dashboard Tab Navigation */
+.dash-tab-btn {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  border: none;
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
+.dash-tab-btn:hover {
+  color: var(--color-primary);
+  background: rgba(142, 22, 88, 0.04);
+}
 
-
-
-
+.dash-tab-btn.active {
+  color: var(--color-secondary);
+  border-bottom-color: var(--color-secondary);
+  background: rgba(142, 22, 88, 0.06);
+}
 
