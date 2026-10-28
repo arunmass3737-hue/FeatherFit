@@ -5770,3 +5770,33 @@ input:checked + .toggle-slider:before {
   background: rgba(142, 22, 88, 0.06);
 }
 
+
+/* ==========================================================================
+   LOTTIE ANIMATED ICONS
+   ========================================================================== */
+.lottie-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+.lottie-icon svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.lottie-icon-lg {
+  width: 32px;
+  height: 32px;
+}
+
+.lottie-icon-sm {
+  width: 18px;
+  height: 18px;
+}

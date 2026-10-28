@@ -19,6 +19,8 @@ require_once __DIR__ . '/data/products.php';
 
   <!-- Admin Stylesheet -->
   <link rel="stylesheet" href="css/admin.css" />
+  <script src="js/lottie.min.js"></script>
+  <script src="js/lottie-icons.js"></script>
 </head>
 <body class="admin-body">
 
@@ -44,71 +46,85 @@ require_once __DIR__ . '/data/products.php';
       <span class="admin-nav-heading">Main Modules</span>
       
       <a class="admin-nav-link active" data-section="overview" onclick="window.FeatherAdmin.setSection('overview')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="9"></rect>
-          <rect x="14" y="3" width="7" height="5"></rect>
-          <rect x="14" y="12" width="7" height="9"></rect>
-          <rect x="3" y="16" width="7" height="5"></rect>
-        </svg>
+        <span class="lottie-icon" data-lottie-icon="overview" data-lottie-primary="#FFFFFF" data-lottie-secondary="#F26D6D">
+          <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9"></rect>
+            <rect x="14" y="3" width="7" height="5"></rect>
+            <rect x="14" y="12" width="7" height="9"></rect>
+            <rect x="3" y="16" width="7" height="5"></rect>
+          </svg>
+        </span>
         <span>Overview</span>
       </a>
 
       <a class="admin-nav-link" data-section="banners" onclick="window.FeatherAdmin.setSection('banners')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <circle cx="8.5" cy="8.5" r="1.5"></circle>
-          <polyline points="21 15 16 10 5 21"></polyline>
-        </svg>
+        <span class="lottie-icon" data-lottie-icon="banners" data-lottie-primary="#FFFFFF" data-lottie-secondary="#F26D6D">
+          <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+        </span>
         <span>Banners & CMS</span>
         <span class="admin-nav-badge" style="background: rgba(242, 109, 109, 0.2); color: #F26D6D; font-weight: 800;">LIVE</span>
       </a>
 
       <a class="admin-nav-link" data-section="products" onclick="window.FeatherAdmin.setSection('products')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-          <line x1="12" y1="22.08" x2="12" y2="12"></line>
-        </svg>
+        <span class="lottie-icon" data-lottie-icon="products" data-lottie-primary="#FFFFFF" data-lottie-secondary="#F26D6D">
+          <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+        </span>
         <span>Products</span>
         <span class="admin-nav-badge" id="badge-nav-products">17</span>
       </a>
 
       <a class="admin-nav-link" data-section="orders" onclick="window.FeatherAdmin.setSection('orders')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
+        <span class="lottie-icon" data-lottie-icon="orders" data-lottie-primary="#FFFFFF" data-lottie-secondary="#F26D6D">
+          <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+        </span>
         <span>Orders</span>
         <span class="admin-nav-badge" id="badge-nav-orders">5</span>
       </a>
 
       <a class="admin-nav-link" data-section="customers" onclick="window.FeatherAdmin.setSection('customers')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
+        <span class="lottie-icon" data-lottie-icon="customers" data-lottie-primary="#FFFFFF" data-lottie-secondary="#F26D6D">
+          <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </span>
         <span>Customers</span>
       </a>
 
       <a class="admin-nav-link" data-section="analytics" onclick="window.FeatherAdmin.setSection('analytics')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="20" x2="18" y2="10"></line>
-          <line x1="12" y1="20" x2="12" y2="4"></line>
-          <line x1="6" y1="20" x2="6" y2="14"></line>
-        </svg>
+        <span class="lottie-icon" data-lottie-icon="analytics" data-lottie-primary="#FFFFFF" data-lottie-secondary="#F26D6D">
+          <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </span>
         <span>Analytics</span>
       </a>
 
       <span class="admin-nav-heading" style="margin-top: 1rem;">Live Storefront</span>
       <a href="index.php" target="_blank" class="btn-storefront-link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-          <polyline points="15 3 21 3 21 9"></polyline>
-          <line x1="10" y1="14" x2="21" y2="3"></line>
-        </svg>
+        <span class="lottie-icon" data-lottie-icon="storefront" data-lottie-primary="#FFFFFF" data-lottie-secondary="#F26D6D" style="width: 18px; height: 18px;">
+          <svg class="fallback-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </span>
         <span>Open Storefront</span>
       </a>
     </nav>
@@ -142,10 +158,12 @@ require_once __DIR__ . '/data/products.php';
         </button>
 
         <div class="admin-search-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <span class="lottie-icon" data-lottie-icon="search" data-lottie-primary="#A686AD" data-lottie-secondary="#6A1B6E" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px;">
+            <svg class="fallback-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
           <input type="text" id="admin-search-input" class="admin-search-input" placeholder="Search orders, products, customers..." />
         </div>
       </div>
@@ -156,11 +174,13 @@ require_once __DIR__ . '/data/products.php';
           <span>Store Live &bull; Port 3005</span>
         </div>
 
-        <button type="button" class="btn-primary-purple" onclick="window.FeatherAdmin.openModal('add-product-modal')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
+        <button type="button" class="btn-primary-purple btn-add-product" onclick="window.FeatherAdmin.openModal('add-product-modal')">
+          <span class="lottie-icon" data-lottie-icon="add" data-lottie-primary="#FFFFFF" data-lottie-secondary="#FFFFFF" style="width: 18px; height: 18px;">
+            <svg class="fallback-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </span>
           <span>Add Product</span>
         </button>
       </div>
@@ -190,69 +210,11 @@ require_once __DIR__ . '/data/products.php';
             <div class="kpi-top">
               <span class="kpi-title">Total Revenue</span>
               <div class="kpi-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="1" x2="12" y2="23"></line>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="kpi-value" id="kpi-total-revenue">₹1,84,920</div>
-            <div class="kpi-trend positive">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-              </svg>
-              <span>+18.4% vs last week</span>
-            </div>
-          </div>
-
-          <!-- Total Orders -->
-          <div class="admin-kpi-card">
-            <div class="kpi-top">
-              <span class="kpi-title">Total Orders</span>
-              <div class="kpi-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="kpi-value" id="kpi-total-orders">142</div>
-            <div class="kpi-trend positive">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-              </svg>
-              <span>+12.6% growth</span>
-            </div>
-          </div>
-
-          <!-- Active Products -->
-          <div class="admin-kpi-card">
-            <div class="kpi-top">
-              <span class="kpi-title">Active Products</span>
-              <div class="kpi-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="kpi-value" id="kpi-total-products">17 Fits</div>
-            <div class="kpi-trend neutral">
-              <span>Men, Women & Kids</span>
-            </div>
-          </div>
-
-          <!-- Average Order Value (AOV) -->
-          <div class="admin-kpi-card">
-            <div class="kpi-top">
-              <span class="kpi-title">Average Order Value</span>
-              <div class="kpi-icon-pill">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
+                <span class="lottie-icon lottie-icon-lg" data-lottie-icon="analytics" data-lottie-primary="#6A1B6E" data-lottie-secondary="#E0245E">
+                  <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </span>
               </div>
             </div>
             <div class="kpi-value" id="kpi-aov">₹1,302</div>

@@ -30,6 +30,8 @@ $pageDescription = $pageDescription ?? 'Shop premium graphic T-shirts and luxury
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <script src="js/lottie.min.js" defer></script>
+  <script src="js/lottie-icons.js" defer></script>
 </head>
 <body class="<?php echo htmlspecialchars($bodyClass ?? ''); ?>">
 
@@ -87,28 +89,34 @@ $pageDescription = $pageDescription ?? 'Shop premium graphic T-shirts and luxury
 
         <!-- Wishlist Icon -->
         <button type="button" class="action-btn" id="wishlist-action-btn" onclick="window.FeatherApp.openWishlistDrawer()" aria-label="View Wishlist">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
+          <span class="lottie-icon" data-lottie-icon="wishlist" data-lottie-primary="#E0245E" data-lottie-secondary="#F26D6D" style="width: 22px; height: 22px;">
+            <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </span>
           <span class="badge-count" id="wishlist-badge-count" style="display: none;">0</span>
         </button>
 
         <!-- Shopping Cart Icon -->
         <button type="button" class="action-btn" id="cart-action-btn" onclick="window.FeatherApp.openCartDrawer()" aria-label="View Cart">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
+          <span class="lottie-icon" data-lottie-icon="cart" data-lottie-primary="#2D1432" data-lottie-secondary="#E0245E" style="width: 22px; height: 22px;">
+            <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+          </span>
           <span class="badge-count" id="cart-badge-count" style="display: none;">0</span>
         </button>
 
         <!-- User Account Icon -->
         <a href="account.php" class="action-btn <?php echo $currentPage === 'account' ? 'active' : ''; ?>" id="user-action-btn" aria-label="User Account Dashboard">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
+          <span class="lottie-icon" data-lottie-icon="customers" data-lottie-primary="#2D1432" data-lottie-secondary="#6A1B6E" style="width: 22px; height: 22px;">
+            <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </span>
         </a>
       </div>
 
