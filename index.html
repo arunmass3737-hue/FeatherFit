@@ -34,7 +34,7 @@
           <span class="bar"></span>
           <span class="bar"></span>
         </button>
-        <a href="#" class="brand-logo" onclick="window.FeatherApp.setDepartment('all'); return false;" aria-label="Feather Fits Home">
+        <a href="index.html" class="brand-logo" onclick="if(window.FeatherApp){window.FeatherApp.setDepartment('all');}" aria-label="Feather Fits Home">
           <img src="assets/images/feather-fits-logo.png" alt="Feather Fits — Confidence Fits You" />
         </a>
       </div>
@@ -327,11 +327,11 @@
     <!-- Active Department & Subcategory Breadcrumb Navigator -->
     <div class="catalog-dept-nav-bar" id="catalog-dept-nav-bar">
       <div class="catalog-dept-breadcrumbs" id="catalog-dept-breadcrumbs">
-        <a onclick="window.FeatherApp.setDepartment('all')">Home</a>
+        <a href="index.html?department=all#catalog-section" onclick="window.FeatherApp.setDepartment('all'); return false;" style="cursor: pointer;">Home</a>
         <span>/</span>
         <span id="breadcrumb-current-dept" style="color: var(--color-primary); font-weight: 700;">All Collections</span>
         <span id="breadcrumb-subcat-divider" style="display: none;">/</span>
-        <span id="breadcrumb-current-subcat" style="color: var(--color-secondary); display: none;">T-Shirts & Anime</span>
+        <span id="breadcrumb-current-subcat" style="color: var(--color-secondary); display: none;"></span>
       </div>
       <button type="button" class="catalog-dept-reset-btn" id="catalog-reset-dept-btn" onclick="window.FeatherApp.setDepartment('all')">
         All Collections
@@ -386,7 +386,74 @@
 
     <!-- Product Grid -->
     <div class="products-grid" id="products-grid">
-      <!-- Rendered dynamically by app.js -->
+      <!-- SEO Crawlable Pre-rendered Semantic Fallback -->
+      <article class="product-card" data-id="p_anime_01">
+        <a href="product.html?id=p_anime_01" class="product-card-link">
+          <div class="product-image-wrap">
+            <img src="assets/images/anime-front-black.png" alt="Sukuna Domain Expansion Heavyweight Tee" class="product-primary-img" loading="lazy" />
+          </div>
+          <div class="product-info">
+            <span class="product-brand">FEATHER ANIME DROP</span>
+            <h3 class="product-title">Sukuna Domain Expansion Heavyweight Tee</h3>
+            <div class="product-price-row">
+              <span class="price-current">₹1,299</span>
+              <span class="price-original">₹1,999</span>
+              <span class="discount-pill">35% OFF</span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+      <article class="product-card" data-id="p_anime_02">
+        <a href="product.html?id=p_anime_02" class="product-card-link">
+          <div class="product-image-wrap">
+            <img src="assets/images/movie-vintage-godfather.png" alt="Gojo Satoru Hollow Purple Boxy Fit Tee" class="product-primary-img" loading="lazy" />
+          </div>
+          <div class="product-info">
+            <span class="product-brand">FEATHER ANIME DROP</span>
+            <h3 class="product-title">Gojo Satoru Hollow Purple Boxy Fit Tee</h3>
+            <div class="product-price-row">
+              <span class="price-current">₹1,349</span>
+              <span class="price-original">₹1,999</span>
+              <span class="discount-pill">32% OFF</span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+      <article class="product-card" data-id="p_plain_01">
+        <a href="product.html?id=p_plain_01" class="product-card-link">
+          <div class="product-image-wrap">
+            <img src="assets/images/plain-minimalist-mockup.png" alt="Obsidian Essential 240 GSM Oversized Drop Tee" class="product-primary-img" loading="lazy" />
+          </div>
+          <div class="product-info">
+            <span class="product-brand">MINIMALIST ESSENTIALS</span>
+            <h3 class="product-title">Obsidian Essential 240 GSM Oversized Drop Tee</h3>
+            <div class="product-price-row">
+              <span class="price-current">₹999</span>
+              <span class="price-original">₹1,499</span>
+              <span class="discount-pill">33% OFF</span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+      <article class="product-card" data-id="p_movie_01">
+        <a href="product.html?id=p_movie_01" class="product-card-link">
+          <div class="product-image-wrap">
+            <img src="assets/images/plain-tee-white.png" alt="Godfather Corleone Vintage Washed Graphic Tee" class="product-primary-img" loading="lazy" />
+          </div>
+          <div class="product-info">
+            <span class="product-brand">CINEMA ARCHIVE</span>
+            <h3 class="product-title">Godfather Corleone Vintage Washed Graphic Tee</h3>
+            <div class="product-price-row">
+              <span class="price-current">₹1,249</span>
+              <span class="price-original">₹1,899</span>
+              <span class="discount-pill">34% OFF</span>
+            </div>
+          </div>
+        </a>
+      </article>
     </div>
   </main>
 
@@ -559,10 +626,10 @@
 
             <!-- Phone Number Input with Country Code and Send OTP -->
             <div class="form-group" style="margin-bottom: 0.85rem;">
-              <label for="checkout-phone">Mobile Phone Number</label>
+              <label for="checkout-phone">Mobile Phone Number (for delivery verification)</label>
               <div class="phone-input-group">
                 <span class="phone-country-code">🇮🇳 +91</span>
-                <input type="tel" id="checkout-phone" required class="form-input phone-input" placeholder="98765 43210" value="98765 43210" maxlength="15" />
+                <input type="tel" id="checkout-phone" required class="form-input phone-input" placeholder="Enter 10-digit number" value="" maxlength="15" />
                 <button type="button" id="send-otp-btn" class="btn-send-otp" onclick="window.FeatherApp.sendCheckoutOtp()">
                   <span>Send OTP</span>
                 </button>
@@ -572,14 +639,16 @@
             <!-- OTP Input -->
             <div class="form-group" style="margin-bottom: 0.5rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                <label for="checkout-otp" style="margin-bottom: 0;">Enter 4-Digit OTP Code</label>
-                <span id="otp-timer-badge" class="otp-status-hint">Code sent to mobile</span>
+                <label for="checkout-otp" style="margin-bottom: 0;">Enter 4-Digit Verification Code</label>
+                <span id="otp-timer-badge" class="otp-status-hint">SMS Verification</span>
               </div>
               <div class="otp-input-wrapper">
-                <input type="text" id="checkout-otp" required class="form-input otp-field" placeholder="• • • •" maxlength="6" value="8921" />
-                <button type="button" class="btn-quick-fill-otp" onclick="window.FeatherApp.fillDemoOtp()" title="Auto-fill Demo Code">
-                  ⚡ Auto-fill Demo (8921)
-                </button>
+                <input type="text" id="checkout-otp" required class="form-input otp-field" placeholder="• • • •" maxlength="6" value="" />
+              </div>
+              <div style="margin-top: 6px; display: flex; justify-content: space-between; align-items: center;">
+                <a href="checkout.html" style="font-size: 0.78rem; color: var(--color-secondary); font-weight: 600; text-decoration: none;">
+                  🚀 Open Fullscreen Checkout Page →
+                </a>
               </div>
             </div>
 
@@ -703,12 +772,11 @@
       <div class="footer-col">
         <h4>Customer Care</h4>
         <ul>
-          <li><a href="#" onclick="window.FeatherApp.openTrackingModal(); return false;">Track Your Order</a></li>
-          <li><a href="#" onclick="window.FeatherApp.openWishlistDrawer(); return false;">Saved Wishlist</a></li>
-          <li><a href="#" onclick="window.FeatherApp.openCartDrawer(); return false;">Shopping Bag</a></li>
-          <li><a href="#" onclick="window.FeatherApp.openAccountModal(); return false;">My Account</a></li>
-          <li><a href="admin.html" style="color: var(--color-secondary); font-weight: 700;">⚡ Admin Command</a></li>
-          <li><a href="#catalog">Size & Fit Guide</a></li>
+          <li><a href="account.html?tab=tracking">Track Your Order</a></li>
+          <li><a href="javascript:void(0)" onclick="window.FeatherApp.openWishlistDrawer()">Saved Wishlist</a></li>
+          <li><a href="javascript:void(0)" onclick="window.FeatherApp.openCartDrawer()">Shopping Bag</a></li>
+          <li><a href="account.html">My Account & Orders</a></li>
+          <li><a href="javascript:void(0)" onclick="window.FeatherApp.openSizeGuideModal('inches')">Size & Fit Guide</a></li>
         </ul>
       </div>
 
@@ -718,8 +786,8 @@
           Subscribe to VIP drop alerts for early access to limited edition anime & movie series releases.
         </p>
         <div style="display: flex; gap: 0.5rem;">
-          <input type="email" placeholder="Your email address" class="form-input" style="height: 42px; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: #fff;" />
-          <button class="btn-primary" style="padding: 0 1rem; height: 42px; font-size: 0.82rem;" onclick="alert('Thank you for subscribing to Feather Fits VIP!')">Join</button>
+          <input type="email" id="footer-newsletter-email" placeholder="Your email address" class="form-input" style="height: 42px; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: #fff;" />
+          <button class="btn-primary" style="padding: 0 1.25rem; height: 42px; font-size: 0.82rem; font-weight: 700;" onclick="window.FeatherApp.handleNewsletterSubscribe()">Join</button>
         </div>
       </div>
 
@@ -727,10 +795,10 @@
 
     <div class="footer-bottom">
       <div>&copy; 2026 Feather Fits Apparel Co. All rights reserved. &bull; CONFIDENCE FITS YOU.</div>
-      <div style="display: flex; gap: 1.5rem;">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">PCI-DSS SAQ A Security</a>
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="security.html">PCI-DSS SAQ A Security</a>
       </div>
     </div>
   </footer>

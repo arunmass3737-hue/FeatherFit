@@ -203,6 +203,27 @@
     state.currentSubcategory = "all";
     state.currentCategory = "all";
 
+    // Dynamic SEO Titles & Meta Description
+    const deptTitles = {
+      all: "Feather Fits — Luxury Streetwear, Graphic Tees, Anime & Film Drops",
+      men: "Men's Streetwear & Graphic Apparel | Feather Fits",
+      women: "Women's Oversized Tees & Co-ords | Feather Fits",
+      kids: "Kids' Streetwear & Anime Graphic Collection | Feather Fits"
+    };
+    const deptDescriptions = {
+      all: "Discover Feather Fits luxury streetwear, pre-shrunk 240 GSM graphic tees, vintage cinema prints, and premium oversized fits.",
+      men: "Shop Men's oversized graphic tees, heavyweight cotton drops, anime streetwear, and minimalist wardrobe essentials.",
+      women: "Explore Women's relaxed fits, crop silhouettes, luxury streetwear aesthetics, and exclusive anime collabs.",
+      kids: "Comfortable, durable 100% cotton streetwear and bold graphic tees designed for active boys & girls."
+    };
+    if (deptTitles[deptId]) {
+      document.title = deptTitles[deptId];
+    }
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && deptDescriptions[deptId]) {
+      metaDesc.setAttribute("content", deptDescriptions[deptId]);
+    }
+
     // If currently on product.html or another page without catalog grid, redirect to index.html with query parameter
     if (!document.getElementById("products-grid")) {
       window.location.href = `index.html?department=${deptId}#catalog-section`;
@@ -1367,12 +1388,14 @@
       otpBadge.style.color = "var(--color-success)";
     }
 
+    state.sessionOtp = Math.floor(1000 + Math.random() * 9000).toString();
     if (otpInput) {
-      otpInput.value = "8921";
+      otpInput.value = "";
+      otpInput.placeholder = "Enter 4-digit code";
       otpInput.focus();
     }
 
-    showToast(`Verification OTP sent to +91 ${phone}! Demo Code: 8921`, "success");
+    showToast(`Verification code dispatched to +91 ${phone}. Please enter OTP to verify.`, "success");
   }
 
   function fillDemoOtp() {
@@ -1429,7 +1452,7 @@
     }
 
     if (!otp || otp.length < 4) {
-      showToast("Please enter the 4-digit OTP sent to your phone (Demo: 8921).", "warning");
+      showToast("Please enter the 4-digit verification OTP sent to your phone.", "warning");
       if (otpInput) otpInput.focus();
       return;
     }
@@ -2652,6 +2675,38 @@
     renderProducts();
   }
 
+  // Newsletter Subscription Handler
+  function handleNewsletterSubscribe(email) {
+    if (!email || typeof email !== 'string') {
+      const input = document.getElementById("footer-newsletter-email");
+      if (input) email = input.value;
+    }
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      showToast("Please enter a valid email address.", "warning");
+      return;
+    }
+
+    try {
+      let subscribers = JSON.parse(localStorage.getItem("ff_newsletter_subscribers") || "[]");
+      if (!Array.isArray(subscribers)) subscribers = [];
+      const exists = subscribers.some(s => (typeof s === 'string' ? s : s.email) === cleanEmail);
+      if (exists) {
+        showToast("You are already subscribed to VIP drop notifications! ✨", "info");
+      } else {
+        subscribers.push({ email: cleanEmail, subscribedAt: new Date().toISOString() });
+        localStorage.setItem("ff_newsletter_subscribers", JSON.stringify(subscribers));
+        showToast("🎉 Welcome to the Feather Fits VIP Club! Watch your inbox for drop alerts.", "success");
+      }
+      const input = document.getElementById("footer-newsletter-email");
+      if (input) input.value = "";
+    } catch (e) {
+      console.error("Newsletter storage error", e);
+      showToast("Thank you for subscribing to Feather Fits VIP alerts!", "success");
+    }
+  }
+
   // Expose Global App API
   window.FeatherApp = {
     setDepartment,
@@ -2702,6 +2757,7 @@
     handleAuthSubmit,
     handleLogout,
     closeModals,
+    handleNewsletterSubscribe,
   };
 
   // Run on DOM ready

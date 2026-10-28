@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCI-DSS Security & Trust Center | Feather Fits</title>
+    <meta name="description" content="Feather Fits Security Architecture, PCI-DSS SAQ A Compliance, and 256-bit Bank-grade Encryption details.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .legal-page-header {
+            padding: 120px 24px 48px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(142, 68, 173, 0.12) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .legal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(39, 174, 96, 0.15);
+            border: 1px solid rgba(39, 174, 96, 0.4);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #2ecc71;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .legal-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .legal-subtitle {
+            color: #a0a0b0;
+            font-size: 0.95rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .legal-content-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 24px 100px;
+        }
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+        .sec-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .sec-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(142, 68, 173, 0.4);
+        }
+        .sec-icon {
+            font-size: 2rem;
+            margin-bottom: 14px;
+            display: inline-block;
+        }
+        .sec-card h3 {
+            font-size: 1.15rem;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .sec-card p {
+            color: #9090a2;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .legal-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 28px;
+        }
+        .legal-section h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            color: #e0d0f5;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .legal-section p, .legal-section li {
+            color: #b8b8cc;
+            font-size: 0.92rem;
+            line-height: 1.75;
+        }
+        .legal-section ul {
+            padding-left: 20px;
+            margin: 12px 0;
+        }
+        .legal-section li {
+            margin-bottom: 8px;
+        }
+        .back-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .back-nav a {
+            color: #c084fc;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+        .back-nav a:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-black text-white antialiased">
+    <!-- Header -->
+    <header class="site-header fixed top-0 w-full z-50">
+        <div class="header-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="brand-logo flex items-center gap-2">
+                <span class="logo-mark font-serif font-black text-2xl tracking-tighter">FEATHER FITS</span>
+            </a>
+            <nav class="header-nav hidden md:flex items-center gap-8">
+                <a href="index.html" class="nav-link text-sm uppercase tracking-widest hover:text-purple-400">Home</a>
+                <a href="index.html?department=men" class="nav-link text-sm uppercase tracking-widest hover:text-purple-400">Men</a>
+                <a href="index.html?department=women" class="nav-link text-sm uppercase tracking-widest hover:text-purple-400">Women</a>
+                <a href="index.html?department=kids" class="nav-link text-sm uppercase tracking-widest hover:text-purple-400">Kids</a>
+            </nav>
+            <div class="header-actions flex items-center gap-4">
+                <a href="index.html" class="btn-outline-sm text-xs px-4 py-2 border border-white/20 rounded-full hover:bg-white/10">Return to Store</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="legal-page-header">
+            <div class="legal-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                PCI-DSS Level 1 Compliant Security Architecture
+            </div>
+            <h1 class="legal-title">Security & Trust Center</h1>
+            <p class="legal-subtitle">How Feather Fits protects your transactions, sensitive payment card data, and digital identities with enterprise bank-grade security protocols.</p>
+        </section>
+
+        <div class="legal-content-wrap">
+            <div class="security-grid">
+                <div class="sec-card">
+                    <span class="sec-icon">🛡️</span>
+                    <h3>PCI-DSS SAQ A Certified</h3>
+                    <p>Cardholder data never touches our web servers. Payments execute directly through encrypted, audited PCI Level-1 gateway tokenizers.</p>
+                </div>
+                <div class="sec-card">
+                    <span class="sec-icon">🔐</span>
+                    <h3>256-bit TLS/SSL Encryption</h3>
+                    <p>All data transmitted between your browser and our servers is secured via ECDSA certificates using high-grade TLS 1.3 encryption.</p>
+                </div>
+                <div class="sec-card">
+                    <span class="sec-icon">⚡</span>
+                    <h3>UPI & Tokenized Vaults</h3>
+                    <p>Instant UPI dynamic QR and 3D Secure 2.0 multi-factor authentication protect every transaction against unauthorized card usage.</p>
+                </div>
+            </div>
+
+            <article class="legal-section">
+                <h2>1. Payment Card Security Architecture</h2>
+                <p>Feather Fits operates under strict compliance with the Payment Card Industry Data Security Standard (PCI-DSS SAQ A). When you purchase apparel on our store:</p>
+                <ul>
+                    <li><strong>Zero Plaintext Storage:</strong> Feather Fits never stores your full 16-digit debit/credit card numbers, expiry dates, or CVV/CVC codes on our databases or web servers.</li>
+                    <li><strong>Direct-to-Gateway Tokenization:</strong> Checkout card details are ingested via iframes hosted directly by regulated payment gateways (Stripe / Razorpay / Cashfree) and tokenized in real time.</li>
+                    <li><strong>3D Secure 2.0 (3DS2):</strong> All electronic card payments are verified with your issuing bank via mandatory OTP or biometrics.</li>
+                </ul>
+            </article>
+
+            <article class="legal-section">
+                <h2>2. Doorstep UPI & Cash on Delivery (COD) Safeguards</h2>
+                <p>For customers selecting Doorstep Payment / COD:</p>
+                <ul>
+                    <li>Orders are validated through phone number SMS OTP verification to stop spam and bot submissions.</li>
+                    <li>Delivery personnel provide an authorized, tamper-evident dynamic QR code at the time of parcel handover for seamless UPI scan-and-pay.</li>
+                    <li>Cash collections are backed by immediate digital SMS receipt generation upon receipt.</li>
+                </ul>
+            </article>
+
+            <article class="legal-section">
+                <h2>3. Network & Infrastructure Defense</h2>
+                <p>Our e-commerce infrastructure features defense-in-depth engineering:</p>
+                <ul>
+                    <li><strong>Cloudflare / Enterprise WAF:</strong> Comprehensive Web Application Firewall with real-time DDoS mitigation, rate-limiting, and bad-bot blocking.</li>
+                    <li><strong>Automated Vulnerability Audits:</strong> Continuous vulnerability scans and dependencies updates to eliminate zero-day risks.</li>
+                    <li><strong>Strict CSP & Security Headers:</strong> Strict Content-Security-Policy (CSP), HSTS, X-Content-Type-Options, and X-Frame-Options headers applied to all responses.</li>
+                </ul>
+            </article>
+
+            <article class="legal-section">
+                <h2>4. Reporting Vulnerabilities (Bug Bounty & Disclosure)</h2>
+                <p>We welcome security researchers to inspect our public endpoints responsibly. If you discover an exploit or vulnerability, please contact our security team immediately at:</p>
+                <p style="color: #c084fc; font-weight: 600;">security@featherfits.com</p>
+                <p>We commit to acknowledging valid security reports within 24 hours and keeping you updated as remediation is deployed.</p>
+            </article>
+
+            <div class="back-nav">
+                <a href="index.html">← Return to Feather Fits Home</a>
+                <a href="privacy.html">Review Privacy Policy →</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer bg-black border-t border-white/10 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+            <p>&copy; 2026 Feather Fits India. All Rights Reserved. Bank-Grade Security & PCI-DSS Certified.</p>
+            <div class="mt-4 flex justify-center gap-6">
+                <a href="privacy.html" class="hover:text-purple-400">Privacy Policy</a>
+                <a href="terms.html" class="hover:text-purple-400">Terms of Service</a>
+                <a href="security.html" class="text-purple-400 font-semibold">Security & PCI-DSS</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

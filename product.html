@@ -645,11 +645,11 @@
       <div class="footer-col">
         <h4>Customer Care</h4>
         <ul>
-          <li><a href="#" onclick="window.FeatherApp.openTrackingModal(); return false;">Track Your Order</a></li>
-          <li><a href="#" onclick="window.FeatherApp.openWishlistDrawer(); return false;">Saved Wishlist</a></li>
-          <li><a href="#" onclick="window.FeatherApp.openCartDrawer(); return false;">Shopping Bag</a></li>
-          <li><a href="#" onclick="window.FeatherApp.openAccountModal(); return false;">My Account</a></li>
-          <li><a href="admin.html" style="color: var(--color-secondary); font-weight: 700;">⚡ Admin Command</a></li>
+          <li><a href="account.html?tab=tracking">Track Your Order</a></li>
+          <li><a href="javascript:void(0)" onclick="window.FeatherApp.openWishlistDrawer()">Saved Wishlist</a></li>
+          <li><a href="javascript:void(0)" onclick="window.FeatherApp.openCartDrawer()">Shopping Bag</a></li>
+          <li><a href="account.html">My Account & Orders</a></li>
+          <li><a href="javascript:void(0)" onclick="window.FeatherApp.openSizeGuideModal('inches')">Size & Fit Guide</a></li>
         </ul>
       </div>
 
@@ -661,6 +661,11 @@
 
     <div class="footer-bottom">
       <div>&copy; 2026 Feather Fits Apparel Co. All rights reserved. &bull; CONFIDENCE FITS YOU.</div>
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="security.html">PCI-DSS SAQ A Security</a>
+      </div>
     </div>
   </footer>
 
