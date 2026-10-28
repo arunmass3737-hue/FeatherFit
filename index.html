@@ -216,33 +216,109 @@
   
 
   
-    <!-- New Arrivals Hero Banner Section -->
-  <section class="hero-section new-arrivals-hero-banner" id="new-arrivals-section" aria-label="New Arrivals Banner" style="margin-top: 1.5rem; margin-bottom: 2rem;">
-    <div class="hero-banner-wrap" style="min-height: 420px; max-height: 480px;">
-      <img src="assets/images/anime-tee-model-wine.jpg" alt="New Arrivals Collection" class="hero-bg-img" style="object-position: center 25% !important;" />
-      <div class="hero-overlay"></div>
+  <!-- New Arrivals Carousel Section (Categorized: Men, Women, Kids) -->
+  <section class="new-arrivals-carousel-section" id="new-arrivals-section" aria-label="New Arrivals Carousel">
+    <div class="new-arrivals-container">
       
-      <div class="hero-content" style="padding: 3rem 1.5rem;">
-        <div class="hero-brand-badge-pill" style="margin-bottom: 1rem;">
-          <span>✨ JUST DROPPED &bull; 2026 COLLECTION</span>
+      <!-- Section Header -->
+      <div class="new-arrivals-header">
+        <div class="new-arrivals-title-group">
+          <div class="new-arrivals-badge">
+            <span class="badge-dot"></span>
+            <span>⚡ FRESH DROPS &bull; 2026 COLLECTION</span>
+          </div>
+          <h2 class="new-arrivals-title">
+            New <span>Arrivals</span>
+          </h2>
+          <p class="new-arrivals-desc">
+            Explore the latest streetwear drops, anime prints, and relaxed fits tailored for you.
+          </p>
         </div>
-        <h2 class="hero-title" style="font-size: clamp(2.4rem, 5.5vw, 4rem); margin-bottom: 0.85rem;">
-          New <span>Arrivals</span>
-        </h2>
-        <p class="hero-subtitle" style="max-width: 540px; margin-bottom: 1.75rem;">
-          Explore the freshest drops in oversized anime prints, casual linen fits, and modern street aesthetics.
-        </p>
-        
-        <div class="hero-cta-group">
-          <a href="#catalog-section" class="btn-primary" style="display: inline-flex;">
-            <span>Shop New Arrivals</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </a>
+
+        <!-- Carousel Navigation Controls (Tabs & Arrows) -->
+        <div class="new-arrivals-controls">
+          <!-- Department Selector Tabs (Men / Women / Kids) -->
+          <div class="new-arrivals-dept-tabs" role="tablist" aria-label="New Arrivals Categories">
+            <button type="button" 
+                    class="dept-carousel-tab active" 
+                    id="new-arr-tab-men" 
+                    role="tab" 
+                    aria-selected="true"
+                    onclick="window.FeatherApp.setNewArrivalsDept('men')">
+              <span class="tab-icon">👔</span>
+              <span class="tab-name">Men</span>
+              <span class="tab-count">9</span>
+            </button>
+            <button type="button" 
+                    class="dept-carousel-tab" 
+                    id="new-arr-tab-women" 
+                    role="tab" 
+                    aria-selected="false"
+                    onclick="window.FeatherApp.setNewArrivalsDept('women')">
+              <span class="tab-icon">👗</span>
+              <span class="tab-name">Women</span>
+              <span class="tab-count">4</span>
+            </button>
+            <button type="button" 
+                    class="dept-carousel-tab" 
+                    id="new-arr-tab-kids" 
+                    role="tab" 
+                    aria-selected="false"
+                    onclick="window.FeatherApp.setNewArrivalsDept('kids')">
+              <span class="tab-icon">🧒</span>
+              <span class="tab-name">Kids</span>
+              <span class="tab-count">4</span>
+            </button>
+          </div>
+
+          <!-- Slider Arrows (Desktop & Tablet) -->
+          <div class="carousel-nav-arrows">
+            <button type="button" 
+                    class="carousel-arrow-btn prev" 
+                    id="new-arr-prev-btn" 
+                    onclick="window.FeatherApp.scrollNewArrivals('prev')" 
+                    aria-label="Previous products">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button type="button" 
+                    class="carousel-arrow-btn next" 
+                    id="new-arr-next-btn" 
+                    onclick="window.FeatherApp.scrollNewArrivals('next')" 
+                    aria-label="Next products">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
+
+      <!-- Carousel Track Container -->
+      <div class="new-arrivals-carousel-wrapper">
+        <div class="new-arrivals-carousel-track" id="new-arrivals-carousel-track" tabindex="0" aria-label="New Arrivals Product List">
+          <!-- Dynamically populated by window.FeatherApp.renderNewArrivalsCarousel() -->
+        </div>
+      </div>
+
+      <!-- Bottom Hint & Shop All Link -->
+      <div class="new-arrivals-footer">
+        <span class="swipe-hint">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+          Scroll or swipe horizontally to view all new drops
+        </span>
+        <a href="#catalog-section" class="btn-link-all" id="new-arr-view-all-link">
+          <span>View All in Catalog</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </div>
+
     </div>
   </section>
 

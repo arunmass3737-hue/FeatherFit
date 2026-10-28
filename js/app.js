@@ -67,6 +67,7 @@
     currentDepartment: "all",
     currentSubcategory: "all",
     currentCategory: "all",
+    newArrivalsDept: "men",
     searchQuery: "",
     sortBy: "featured",
     activePromo: null,
@@ -219,6 +220,7 @@
 
     renderHeroBanner(deptId);
     renderDepartmentPosters(deptId);
+    if (["men", "women", "kids"].includes(deptId)) { setNewArrivalsDept(deptId); }
     renderBreadcrumbs();
     renderCategoryTabs();
     renderProducts();
@@ -322,6 +324,103 @@
           <span>${sCta.label}</span>
         </button>
       `;
+    }
+  }
+
+  
+  // -------------------------------------------------------------
+  // NEW ARRIVALS CATEGORIZED CAROUSEL (MEN, WOMEN, KIDS)
+  // -------------------------------------------------------------
+  function setNewArrivalsDept(dept) {
+    if (!["men", "women", "kids"].includes(dept)) dept = "men";
+    state.newArrivalsDept = dept;
+
+    // Update Tab UI
+    document.querySelectorAll(".dept-carousel-tab").forEach((tab) => {
+      const isMatch = tab.id === `new-arr-tab-${dept}`;
+      tab.classList.toggle("active", isMatch);
+      tab.setAttribute("aria-selected", isMatch ? "true" : "false");
+    });
+
+    renderNewArrivalsCarousel();
+  }
+
+  function renderNewArrivalsCarousel() {
+    const track = document.getElementById("new-arrivals-carousel-track");
+    if (!track) return;
+
+    const allProducts = window.FEATHER_PRODUCTS || state.products || [];
+    const deptProducts = allProducts.filter((p) => p.department === state.newArrivalsDept);
+
+    if (deptProducts.length === 0) {
+      track.innerHTML = `
+        <div class="carousel-empty-state">
+          <p>No new arrivals currently available for this category.</p>
+        </div>
+      `;
+      return;
+    }
+
+    track.innerHTML = deptProducts
+      .map((product) => {
+        const isWishlisted = state.wishlist.includes(product.id);
+        const discount = product.originalPrice
+          ? Math.round(((product.originalPrice - product.basePrice) / product.originalPrice) * 100)
+          : null;
+
+        return `
+          <article class="carousel-card" data-product-id="${product.id}">
+            <div class="carousel-card-img-wrap">
+              <a href="product.html?id=${product.id}" class="carousel-card-img-link" aria-label="${product.name}">
+                <img src="${product.images[0]}" alt="${product.name}" class="carousel-card-img" loading="lazy" />
+              </a>
+              ${product.badge ? `<span class="carousel-badge">${product.badge}</span>` : `<span class="carousel-badge new-tag">⚡ NEW</span>`}
+              <button class="carousel-wishlist-btn ${isWishlisted ? "active" : ""}" 
+                      onclick="event.preventDefault(); event.stopPropagation(); window.FeatherApp.toggleWishlist('${product.id}')"
+                      aria-label="Wishlist">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="${isWishlisted ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="carousel-card-body">
+              <span class="carousel-card-category">${product.categoryName}</span>
+              <h3 class="carousel-card-title">
+                <a href="product.html?id=${product.id}">${product.name}</a>
+              </h3>
+
+              <div class="carousel-card-footer">
+                <div class="carousel-price-wrap">
+                  <span class="carousel-price">₹${product.basePrice.toLocaleString("en-IN")}</span>
+                  ${product.originalPrice ? `<span class="carousel-orig-price">₹${product.originalPrice.toLocaleString("en-IN")}</span>` : ""}
+                  ${discount ? `<span class="carousel-discount-tag">${discount}% OFF</span>` : ""}
+                </div>
+
+                <a href="product.html?id=${product.id}" class="carousel-quick-btn" title="View Fit Details">
+                  <span>View</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    track.scrollTo({ left: 0, behavior: "smooth" });
+  }
+
+  function scrollNewArrivals(direction) {
+    const track = document.getElementById("new-arrivals-carousel-track");
+    if (!track) return;
+    const scrollAmount = 300;
+    if (direction === "prev") {
+      track.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    } else {
+      track.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   }
 
@@ -1050,6 +1149,7 @@
 
     saveState();
     renderProducts();
+    renderNewArrivalsCarousel();
 
     if (updateModal && state.activeModalProduct?.id === productId) {
       renderProductModal();
@@ -2382,6 +2482,7 @@
 
     renderHeroBanner(state.currentDepartment);
     renderDepartmentPosters(state.currentDepartment);
+    renderNewArrivalsCarousel();
     renderBreadcrumbs();
     renderCategoryTabs();
     renderProducts();
@@ -2542,6 +2643,9 @@
   // Expose Global App API
   window.FeatherApp = {
     setDepartment,
+    setNewArrivalsDept,
+    renderNewArrivalsCarousel,
+    scrollNewArrivals,
     setSubcategory,
     setCategory,
     handleSearchInput,
