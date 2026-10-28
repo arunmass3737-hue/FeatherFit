@@ -1,52 +1,77 @@
 /* ==========================================================================
-   FEATHER FITS — ULTRA LUXURY WHITE & PURPLE ADMIN DASHBOARD
-   Theme: Crisp Luminous White, Deep Obsidian Black, Vivid Royal Purple
-   100% Fully Responsive (Mobile, Tablet, Laptop, Desktop)
+   FEATHER FITS — ULTRA LUXURY ADMIN DASHBOARD (BRAND PLUM & CRIMSON PALETTE)
+   Color Palette:
+   - Deep plum (#3B0F4A): Sidebar background, main headings
+   - Plum (#6A1B6E): Primary buttons, important charts
+   - Magenta (#B5258F): Active menu item, links, hover states
+   - Crimson pink (#E0245E): "Add product", "Checkout" main CTA buttons (Logo swoosh)
+   - Coral (#F26D6D): Small badges, highlights, decorative lines
+   - Blush (#FBEAF3): Card hover, table row hover, soft backgrounds
+   - Page background (#FDF7FB): Light pink-white background
    ========================================================================== */
 
 :root {
-  /* Crisp White & Light Slate Base */
-  --admin-bg: #F6F7FB;
+  /* Brand Color Tokens (User Defined) */
+  --color-deep-plum: #3B0F4A;
+  --color-plum: #6A1B6E;
+  --color-magenta: #B5258F;
+  --color-crimson: #E0245E;
+  --color-coral: #F26D6D;
+  --color-blush: #FBEAF3;
+  --color-page-bg: #FDF7FB;
+
+  /* Surfaces & Backgrounds */
+  --admin-bg: #FDF7FB;
   --admin-surface: #FFFFFF;
   --admin-surface-card: #FFFFFF;
-  --admin-surface-light: #F1F3F9;
-  --admin-surface-hover: #F8F7FF;
-  --admin-border: #E2E8F0;
-  --admin-border-subtle: rgba(124, 58, 237, 0.12);
-  --admin-border-focus: #7C3AED;
+  --admin-surface-light: #FBEAF3;
+  --admin-surface-hover: #FBEAF3;
+  --admin-border: #F0D7E7;
+  --admin-border-subtle: rgba(181, 37, 143, 0.18);
+  --admin-border-focus: #B5258F;
 
-  /* Typography: Deep Slate & Pitch Black */
-  --admin-black: #0F172A;
-  --admin-text-main: #1E293B;
-  --admin-text-muted: #64748B;
-  --admin-text-faint: #94A3B8;
+  /* Typography */
+  --admin-black: #3B0F4A;
+  --admin-text-main: #2D1432;
+  --admin-text-muted: #724E79;
+  --admin-text-faint: #A686AD;
   --admin-white: #FFFFFF;
 
-  /* Royal & Vivid Purple Accents */
-  --admin-purple-primary: #7C3AED;
-  --admin-purple-vivid: #8B5CF6;
-  --admin-purple-glow: #A855F7;
-  --admin-purple-dark: #5B21B6;
-  --admin-purple-bg: rgba(124, 58, 237, 0.08);
-  --admin-purple-hover: rgba(124, 58, 237, 0.14);
-  --admin-purple-border: rgba(124, 58, 237, 0.25);
+  /* Primary Plum & Magenta */
+  --admin-purple-primary: #6A1B6E;
+  --admin-purple-vivid: #8B2590;
+  --admin-purple-glow: #B5258F;
+  --admin-purple-dark: #3B0F4A;
+  --admin-purple-bg: rgba(181, 37, 143, 0.08);
+  --admin-purple-hover: rgba(181, 37, 143, 0.16);
+  --admin-purple-border: rgba(181, 37, 143, 0.28);
+
+  /* Main CTA Crimson */
+  --admin-cta-bg: #E0245E;
+  --admin-cta-hover: #C51B50;
+  --admin-cta-shadow: 0 8px 24px rgba(224, 36, 94, 0.35);
+
+  /* Coral Accents */
+  --admin-coral: #F26D6D;
+  --admin-coral-bg: rgba(242, 109, 109, 0.12);
+  --admin-coral-border: rgba(242, 109, 109, 0.35);
 
   /* Status Accents */
   --admin-success: #059669;
   --admin-success-bg: rgba(16, 185, 129, 0.1);
   --admin-warning: #D97706;
   --admin-warning-bg: rgba(245, 158, 11, 0.1);
-  --admin-danger: #DC2626;
-  --admin-danger-bg: rgba(239, 68, 68, 0.1);
-  --admin-info: #2563EB;
-  --admin-info-bg: rgba(37, 99, 235, 0.1);
+  --admin-danger: #E0245E;
+  --admin-danger-bg: rgba(224, 36, 94, 0.1);
+  --admin-info: #6A1B6E;
+  --admin-info-bg: rgba(106, 27, 110, 0.1);
 
-  /* Shadows */
-  --admin-shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --admin-shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.04);
-  --admin-shadow-md: 0 10px 24px rgba(124, 58, 237, 0.08);
-  --admin-shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.12);
-  --admin-purple-shadow: 0 8px 24px rgba(124, 58, 237, 0.28);
+  /* Shadows (Toned with Deep Plum) */
+  --admin-shadow-xs: 0 1px 3px rgba(59, 15, 74, 0.04);
+  --admin-shadow-sm: 0 4px 12px rgba(59, 15, 74, 0.06);
+  --admin-shadow-md: 0 10px 24px rgba(59, 15, 74, 0.09);
+  --admin-shadow-lg: 0 20px 40px rgba(59, 15, 74, 0.15);
+  --admin-purple-shadow: 0 8px 24px rgba(106, 27, 110, 0.28);
 
   /* Radius & Transitions */
   --radius-xs: 6px;
@@ -67,24 +92,24 @@
 
 body.admin-body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: var(--admin-bg);
+  background-color: var(--color-page-bg);
   color: var(--admin-text-main);
   line-height: 1.5;
   min-height: 100vh;
   display: flex;
   overflow-x: hidden;
   background-image: 
-    radial-gradient(circle at 10% 10%, rgba(124, 58, 237, 0.03) 0%, transparent 40%),
-    radial-gradient(circle at 90% 90%, rgba(139, 92, 246, 0.04) 0%, transparent 40%);
+    radial-gradient(circle at 10% 10%, rgba(106, 27, 110, 0.035) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(224, 36, 94, 0.03) 0%, transparent 40%);
 }
 
 /* ==========================================================================
-   SIDEBAR (CLEAN WHITE WITH PURPLE ACCENTS)
+   SIDEBAR (DEEP PLUM #3B0F4A WITH MAGENTA & CORAL ACCENTS)
    ========================================================================== */
 .admin-sidebar {
   width: 270px;
-  background: var(--admin-surface);
-  border-right: 1px solid var(--admin-border);
+  background: var(--color-deep-plum); /* Deep plum sidebar */
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -93,14 +118,14 @@ body.admin-body {
   left: 0;
   z-index: 100;
   transition: transform var(--transition-normal);
-  box-shadow: var(--admin-shadow-sm);
+  box-shadow: 4px 0 24px rgba(59, 15, 74, 0.25);
 }
 
 .admin-sidebar-backdrop {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(59, 15, 74, 0.6);
   backdrop-filter: blur(4px);
   z-index: 95;
 }
@@ -111,7 +136,7 @@ body.admin-body {
 
 .admin-sidebar-header {
   padding: 1.5rem 1.5rem 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--admin-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -128,12 +153,12 @@ body.admin-body {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, var(--admin-purple-primary), var(--admin-purple-vivid));
+  background: linear-gradient(135deg, var(--color-crimson), var(--color-coral));
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--admin-white);
-  box-shadow: var(--admin-purple-shadow);
+  box-shadow: 0 4px 14px rgba(224, 36, 94, 0.45);
   font-weight: 900;
   font-size: 1.2rem;
 }
@@ -142,7 +167,7 @@ body.admin-body {
   font-family: 'Outfit', sans-serif;
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--admin-black);
+  color: #FFFFFF !important;
   letter-spacing: -0.01em;
 }
 
@@ -151,7 +176,7 @@ body.admin-body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--admin-purple-primary);
+  color: var(--color-coral) !important; /* Coral highlight */
 }
 
 /* Sidebar Navigation */
@@ -169,7 +194,7 @@ body.admin-body {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--admin-text-faint);
+  color: rgba(255, 255, 255, 0.55);
   padding: 0.75rem 0.75rem 0.35rem 0.75rem;
 }
 
@@ -179,7 +204,7 @@ body.admin-body {
   gap: 0.85rem;
   padding: 0.75rem 0.95rem;
   border-radius: var(--radius-sm);
-  color: var(--admin-text-muted);
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;
@@ -189,28 +214,28 @@ body.admin-body {
 }
 
 .admin-nav-link:hover {
-  color: var(--admin-purple-primary);
-  background: var(--admin-surface-hover);
-  border-color: var(--admin-border-subtle);
+  color: #FFFFFF;
+  background: rgba(181, 37, 143, 0.25); /* Magenta hover */
+  border-color: rgba(181, 37, 143, 0.4);
 }
 
 .admin-nav-link.active {
-  color: var(--admin-purple-primary);
-  background: var(--admin-purple-bg);
-  border-color: var(--admin-purple-border);
-  box-shadow: inset 3px 0 0 var(--admin-purple-primary);
+  color: #FFFFFF;
+  background: var(--color-magenta); /* Magenta (#B5258F) for active menu item */
+  border-color: var(--color-magenta);
+  box-shadow: 0 4px 16px rgba(181, 37, 143, 0.45);
   font-weight: 700;
 }
 
 .admin-nav-link svg {
-  color: var(--admin-text-faint);
+  color: rgba(255, 255, 255, 0.65);
   transition: color var(--transition-fast);
   flex-shrink: 0;
 }
 
 .admin-nav-link:hover svg,
 .admin-nav-link.active svg {
-  color: var(--admin-purple-primary);
+  color: #FFFFFF;
 }
 
 .admin-nav-badge {
@@ -219,20 +244,20 @@ body.admin-body {
   border-radius: var(--radius-full);
   font-size: 0.72rem;
   font-weight: 800;
-  background: var(--admin-surface-light);
-  color: var(--admin-text-muted);
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
 }
 
 .admin-nav-link.active .admin-nav-badge {
-  background: var(--admin-purple-primary);
+  background: var(--color-crimson); /* Crimson badge on active */
   color: var(--admin-white);
 }
 
 /* Storefront Link */
 .admin-sidebar-footer {
   padding: 1.25rem 1rem;
-  border-top: 1px solid var(--admin-border);
-  background: var(--admin-surface);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-deep-plum);
 }
 
 .btn-storefront-link {
@@ -243,9 +268,9 @@ body.admin-body {
   width: 100%;
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
-  background: var(--admin-surface-light);
-  border: 1px solid var(--admin-border);
-  color: var(--admin-black);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 700;
@@ -253,9 +278,9 @@ body.admin-body {
 }
 
 .btn-storefront-link:hover {
-  background: var(--admin-purple-bg);
-  border-color: var(--admin-purple-border);
-  color: var(--admin-purple-primary);
+  background: var(--color-magenta);
+  border-color: var(--color-magenta);
+  color: #FFFFFF;
 }
 
 .admin-profile-snippet {
@@ -288,12 +313,12 @@ body.admin-body {
 .admin-user-name {
   font-size: 0.88rem;
   font-weight: 700;
-  color: var(--admin-black);
+  color: #FFFFFF;
 }
 
 .admin-user-role {
   font-size: 0.75rem;
-  color: var(--admin-purple-primary);
+  color: var(--color-coral);
   font-weight: 700;
 }
 
@@ -1480,4 +1505,58 @@ body.admin-body {
   .kpi-value {
     font-size: 1.75rem;
   }
+}
+
+/* ==========================================================================
+   CRIMSON PINK (#E0245E) MAIN CTA BUTTONS (ADD PRODUCT, PUBLISH, CHECKOUT)
+   ========================================================================== */
+.btn-cta-crimson,
+.btn-add-product,
+button[onclick*="add-product-modal"] {
+  background: linear-gradient(135deg, var(--color-crimson) 0%, var(--color-coral) 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 8px 24px rgba(224, 36, 94, 0.35) !important;
+}
+
+.btn-cta-crimson:hover,
+.btn-add-product:hover,
+button[onclick*="add-product-modal"]:hover {
+  background: linear-gradient(135deg, #C51B50 0%, var(--color-crimson) 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px rgba(224, 36, 94, 0.45) !important;
+}
+
+.btn-primary-purple {
+  background: linear-gradient(135deg, var(--color-plum) 0%, var(--color-magenta) 100%);
+  color: #FFFFFF;
+  box-shadow: 0 8px 20px rgba(106, 27, 110, 0.28);
+}
+
+.btn-primary-purple:hover {
+  background: linear-gradient(135deg, #501353 0%, var(--color-plum) 100%);
+  box-shadow: 0 10px 24px rgba(106, 27, 110, 0.35);
+}
+
+/* Blush (#FBEAF3) Table Row Hover & Card Hover */
+.admin-table tbody tr:hover {
+  background-color: var(--color-blush) !important;
+}
+
+.admin-card:hover,
+.admin-kpi-card:hover {
+  border-color: #F0D7E7;
+  background: #FFFFFF;
+}
+
+/* Coral (#F26D6D) Accents on KPI cards & badges */
+.admin-kpi-card::before {
+  background: linear-gradient(90deg, var(--color-coral), var(--color-crimson)) !important;
+}
+
+.badge-coral,
+.badge-purple {
+  background: var(--admin-coral-bg) !important;
+  border: 1px solid var(--admin-coral-border) !important;
+  color: var(--color-crimson) !important;
 }

@@ -60,7 +60,7 @@ require_once __DIR__ . '/data/products.php';
           <polyline points="21 15 16 10 5 21"></polyline>
         </svg>
         <span>Banners & CMS</span>
-        <span class="admin-nav-badge" style="background: rgba(124, 58, 237, 0.1); color: var(--admin-purple-primary); font-weight: 800;">LIVE</span>
+        <span class="admin-nav-badge" style="background: rgba(242, 109, 109, 0.2); color: #F26D6D; font-weight: 800;">LIVE</span>
       </a>
 
       <a class="admin-nav-link" data-section="products" onclick="window.FeatherAdmin.setSection('products')">

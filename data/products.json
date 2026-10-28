@@ -813,51 +813,5 @@
             "Sky Pastel Blue-8-9Y": 10,
             "Sky Pastel Blue-10-11Y": 5
         }
-    },
-    {
-        "id": "ff-kids-03",
-        "department": "kids",
-        "category": "kids-sets",
-        "categoryName": "Kids' Play Set",
-        "name": "Kids' Kanji Streetwear Graphic Tee & Jogger Set",
-        "basePrice": 1399,
-        "originalPrice": 1899,
-        "rating": 5,
-        "reviewsCount": 62,
-        "badge": "2-Piece Set",
-        "description": "Complete 2-piece streetwear combo. Includes an oversized anime graphic tee plus comfortable fleece-lined drawstring joggers with deep side pockets.",
-        "images": [
-            "assets/images/kids-hero-banner.jpg",
-            "assets/images/kids-anime-poster.jpg"
-        ],
-        "colors": [
-            {
-                "name": "Cyber Plum & Black",
-                "hex": "#2D0B34"
-            },
-            {
-                "name": "Heather Grey & Teal",
-                "hex": "#5D6268"
-            }
-        ],
-        "sizes": [
-            "4-5Y",
-            "6-7Y",
-            "8-9Y",
-            "10-11Y",
-            "12-13Y"
-        ],
-        "stock": {
-            "Cyber Plum & Black-4-5Y": 10,
-            "Cyber Plum & Black-6-7Y": 20,
-            "Cyber Plum & Black-8-9Y": 18,
-            "Cyber Plum & Black-10-11Y": 12,
-            "Cyber Plum & Black-12-13Y": 6,
-            "Heather Grey & Teal-4-5Y": 8,
-            "Heather Grey & Teal-6-7Y": 16,
-            "Heather Grey & Teal-8-9Y": 14,
-            "Heather Grey & Teal-10-11Y": 9,
-            "Heather Grey & Teal-12-13Y": 4
-        }
     }
 ]
