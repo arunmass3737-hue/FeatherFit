@@ -13,7 +13,8 @@ if (file_exists($credentialsPath)) {
     require_once $credentialsPath;
 }
 
-function getDBConnection() {
+function getDBConnection()
+{
     static $pdoInstance = null;
     static $hasAttempted = false;
 
@@ -28,9 +29,9 @@ function getDBConnection() {
     $hasAttempted = true;
 
     $host = defined('DB_HOST') ? DB_HOST : (getenv('DB_HOST') ?: 'localhost');
-    $db   = defined('DB_NAME') ? DB_NAME : (getenv('DB_NAME') ?: '');
-    $user = defined('DB_USER') ? DB_USER : (getenv('DB_USER') ?: '');
-    $pass = defined('DB_PASS') ? DB_PASS : (getenv('DB_PASS') ?: '');
+    $db = defined('DB_NAME') ? DB_NAME : (getenv('DB_NAME') ?: 'u191467446_featherfits');
+    $user = defined('DB_USER') ? DB_USER : (getenv('DB_USER') ?: 'u191467446_featherfits');
+    $pass = defined('DB_PASS') ? DB_PASS : (getenv('DB_PASS') ?: 'f6G7ow4:8T');
     $port = defined('DB_PORT') ? DB_PORT : (getenv('DB_PORT') ?: '3306');
 
     // If database credentials are still default placeholders, return null (fallback mode)
@@ -41,9 +42,9 @@ function getDBConnection() {
     try {
         $dsn = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
         $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_EMULATE_PREPARES => false,
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
         ];
 
@@ -55,6 +56,7 @@ function getDBConnection() {
     }
 }
 
-function isMySQLActive() {
+function isMySQLActive()
+{
     return getDBConnection() !== null;
 }
