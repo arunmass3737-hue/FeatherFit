@@ -1,12 +1,15 @@
 /**
- * FEATHER FITS — DEDICATED MEMBER MINI DASHBOARD CONTROLLER
+ * FEATHER FITS — EXECUTIVE MEMBER DASHBOARD & AUTH SYSTEM
  * Controls account.html:
- * - Executive KPI summary cards
- * - Real-time package milestone tracking
- * - Address book management
- * - Feather Coins wallet & transactions
- * - Size & Fit profile auto-sync with PDP
- * - WhatsApp & SMS notifications toggle
+ * - Dedicated User Authentication Portal (Sign In / Sign Up / One-click Demo Users)
+ * - True Executive Dashboard with Left Navigation Sidebar + Rich Main Workspace
+ * - Overview Hub with Live Package Spotlight & KPI Cards
+ * - Order Tracking & Milestone Timeline with Blue Dart integration
+ * - Saved Delivery Addresses management
+ * - Wishlist direct grid with Add-to-Cart
+ * - Feather Coins wallet & transaction history
+ * - Smart Size & Fit aesthetic auto-sync
+ * - Profile details editing & Notification preferences
  */
 
 (function () {
@@ -19,50 +22,80 @@
     ORDERS: "ff_orders_v1",
   };
 
-  const defaultMember = {
-    id: "usr_feather_091",
-    email: "arun.kumar@featherfits.com",
-    firstName: "Arun",
-    lastName: "Kumar",
-    phone: "98765 43210",
-    memberSince: "2024",
-    tier: "Feather VIP Member",
-    coins: 450,
-    preferredSize: "L",
-    preferredFit: "Oversized Streetwear",
-    whatsappUpdates: true,
-    smsAlerts: true,
-    addresses: [
-      {
-        id: "addr_1",
-        tag: "Home",
-        isDefault: true,
-        name: "Arun Kumar",
-        phone: "+91 98765 43210",
-        line1: "42, Gandhi Road, T. Nagar",
-        city: "Chennai",
-        state: "Tamil Nadu",
-        postalCode: "600017",
-      },
-      {
-        id: "addr_2",
-        tag: "Office",
-        isDefault: false,
-        name: "Arun Kumar",
-        phone: "+91 98765 43210",
-        line1: "Unit 402, RMZ Millenia Business Park, Perungudi",
-        city: "Chennai",
-        state: "Tamil Nadu",
-        postalCode: "600096",
-      },
-    ],
+  const DEMO_USERS = {
+    arun: {
+      id: "usr_feather_091",
+      email: "arun.kumar@featherfits.com",
+      firstName: "Arun",
+      lastName: "Kumar",
+      phone: "98765 43210",
+      memberSince: "2024",
+      tier: "Feather VIP Member",
+      coins: 450,
+      preferredSize: "L",
+      preferredFit: "Oversized Streetwear",
+      whatsappUpdates: true,
+      smsAlerts: true,
+      addresses: [
+        {
+          id: "addr_1",
+          tag: "Home",
+          isDefault: true,
+          name: "Arun Kumar",
+          phone: "+91 98765 43210",
+          line1: "42, Gandhi Road, T. Nagar",
+          city: "Chennai",
+          state: "Tamil Nadu",
+          postalCode: "600017",
+        },
+        {
+          id: "addr_2",
+          tag: "Office",
+          isDefault: false,
+          name: "Arun Kumar",
+          phone: "+91 98765 43210",
+          line1: "Unit 402, RMZ Millenia Business Park, Perungudi",
+          city: "Chennai",
+          state: "Tamil Nadu",
+          postalCode: "600096",
+        },
+      ],
+    },
+    priya: {
+      id: "usr_feather_108",
+      email: "priya.sharma@featherfits.com",
+      firstName: "Priya",
+      lastName: "Sharma",
+      phone: "98401 23456",
+      memberSince: "2025",
+      tier: "Gold Street Member",
+      coins: 600,
+      preferredSize: "M",
+      preferredFit: "Relaxed Boxy Fit",
+      whatsappUpdates: true,
+      smsAlerts: true,
+      addresses: [
+        {
+          id: "addr_p1",
+          tag: "Home",
+          isDefault: true,
+          name: "Priya Sharma",
+          phone: "+91 98401 23456",
+          line1: "Flat 3B, Ceebros Heights, Velachery",
+          city: "Chennai",
+          state: "Tamil Nadu",
+          postalCode: "600042",
+        }
+      ]
+    }
   };
 
-  let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || "null") || defaultMember;
+  // State
+  let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || "null") || DEMO_USERS.arun;
   let userOrders = JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || "[]");
   let wishlist = JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST) || "[]");
 
-  // Ensure sample live order exists
+  // Ensure initial sample order exists if none present
   if (userOrders.length === 0) {
     userOrders.push({
       orderNumber: "FF-89214",
@@ -73,6 +106,7 @@
       estimatedDelivery: "In 2 Days",
       items: [
         {
+          id: "ff-anime-01",
           name: "Demon Slayer Tanjiro Oversized Graphic Tee",
           color: "Obsidian Black",
           size: "L",
@@ -98,18 +132,19 @@
   }
 
   // Active state
-  let activeTab = "tracking";
+  let activeTab = "overview";
   let activeTrackingNum = userOrders[0]?.orderNumber || "FF-89214";
   let showAddAddress = false;
+  let authMode = "signin"; // 'signin' or 'signup'
 
   function initAccountPage() {
     const root = document.getElementById("account-page-root");
     if (!root) return;
 
-    // Check URL search params for ?tab=...
+    // Check URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get("tab");
-    if (tabParam && ["tracking", "addresses", "coins", "fit", "settings"].includes(tabParam)) {
+    if (tabParam && ["overview", "tracking", "wishlist", "addresses", "coins", "fit", "profile", "settings"].includes(tabParam)) {
       activeTab = tabParam;
     }
     const orderParam = urlParams.get("order");
@@ -118,154 +153,622 @@
       activeTab = "tracking";
     }
 
-    renderDashboard();
+    renderView();
   }
 
   function saveUser() {
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currentUser));
   }
 
-  function renderDashboard() {
+  function renderView() {
     const root = document.getElementById("account-page-root");
     if (!root) return;
 
+    // If user is logged out, render the dedicated authentication screen
     if (!currentUser) {
-      renderSignInView(root);
+      renderAuthView(root);
       return;
     }
 
+    // Render full executive dashboard
+    renderDashboard(root);
+  }
+
+  // -------------------------------------------------------------
+  // DEDICATED USER AUTHENTICATION VIEW ("user thaniya aa vanum")
+  // -------------------------------------------------------------
+  function renderAuthView(root) {
+    root.innerHTML = `
+      <div class="account-auth-container">
+        
+        <!-- Left Visual Side: Brand & VIP Perks -->
+        <div class="auth-visual-side">
+          <div class="auth-visual-header">
+            <img src="assets/images/feather-fits-logo.png" alt="Feather Fits" class="auth-brand-logo" />
+            <h1 class="auth-visual-title">Confidence Fits You. <span>Join The VIP Club.</span></h1>
+            <p class="auth-visual-subtitle">
+              Sign in to manage your drops, track live Blue Dart shipments, redeem Feather Coins, and sync your smart size profile across devices.
+            </p>
+          </div>
+
+          <div class="auth-perks-list">
+            <div class="auth-perk-item">
+              <div class="auth-perk-icon">🪙</div>
+              <div class="auth-perk-text">
+                <strong>+200 Feather Coins Welcome Bonus</strong>
+                <span>Instant ₹200 store credit applied on signup</span>
+              </div>
+            </div>
+            <div class="auth-perk-item">
+              <div class="auth-perk-icon">🚚</div>
+              <div class="auth-perk-text">
+                <strong>Live Package Radar & Milestone Updates</strong>
+                <span>Real-time dispatch tracking with Blue Dart courier integration</span>
+              </div>
+            </div>
+            <div class="auth-perk-item">
+              <div class="auth-perk-icon">📏</div>
+              <div class="auth-perk-text">
+                <strong>1-Tap Smart Size Profile</strong>
+                <span>Auto-selects your tailored size across Men, Women & Kids drops</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Form Side: Login / Register / Demo Switcher -->
+        <div class="auth-form-side">
+          
+          <!-- Tab Toggle (Sign In / Create Account) -->
+          <div class="auth-tabs-toggle">
+            <button 
+              type="button" 
+              class="auth-tab-pill ${authMode === 'signin' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.setAuthMode('signin')"
+            >
+              Sign In to Account
+            </button>
+            <button 
+              type="button" 
+              class="auth-tab-pill ${authMode === 'signup' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.setAuthMode('signup')"
+            >
+              Create New Account
+            </button>
+          </div>
+
+          <!-- Quick 1-Click Demo Profiles -->
+          <div class="auth-demo-accounts-box">
+            <div class="auth-demo-accounts-title">
+              <span>⚡ One-Click Instant Sign-In:</span>
+            </div>
+            <div class="auth-demo-chips">
+              <button type="button" class="auth-demo-chip" onclick="window.FeatherAccount.loginDemo('arun')">
+                <span>👤 Arun Kumar (VIP • 450 Coins)</span>
+              </button>
+              <button type="button" class="auth-demo-chip" onclick="window.FeatherAccount.loginDemo('priya')">
+                <span>👤 Priya Sharma (Gold • 600 Coins)</span>
+              </button>
+            </div>
+          </div>
+
+          ${authMode === 'signin' ? `
+            <!-- Sign In Form -->
+            <form onsubmit="window.FeatherAccount.handleLogin(event)">
+              <div class="auth-form-group">
+                <label class="auth-form-label">Email or Mobile Number</label>
+                <input 
+                  type="text" 
+                  id="auth-login-email" 
+                  class="auth-form-input" 
+                  placeholder="name@featherfits.com or 9876543210" 
+                  value="arun.kumar@featherfits.com" 
+                  required 
+                />
+              </div>
+
+              <div class="auth-form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <label class="auth-form-label" style="margin-bottom: 0;">Password</label>
+                  <a href="#" onclick="alert('Demo password is auto-filled! Click Sign In.'); return false;" style="font-size: 0.78rem; color: var(--color-secondary); font-weight: 700;">Forgot?</a>
+                </div>
+                <input 
+                  type="password" 
+                  id="auth-login-pass" 
+                  class="auth-form-input" 
+                  placeholder="••••••••" 
+                  value="confidence2026" 
+                  required 
+                />
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem;">
+                <input type="checkbox" id="auth-remember" checked style="accent-color: var(--color-secondary); cursor: pointer;" />
+                <label for="auth-remember" style="font-size: 0.82rem; color: var(--color-text-muted); cursor: pointer;">Remember this browser session</label>
+              </div>
+
+              <button type="submit" class="auth-submit-btn">
+                <span>Sign In to Member Dashboard →</span>
+              </button>
+            </form>
+          ` : `
+            <!-- Create Account Form -->
+            <form onsubmit="window.FeatherAccount.handleRegister(event)">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                <div>
+                  <label class="auth-form-label">First Name</label>
+                  <input type="text" id="reg-fname" class="auth-form-input" placeholder="Arun" required />
+                </div>
+                <div>
+                  <label class="auth-form-label">Last Name</label>
+                  <input type="text" id="reg-lname" class="auth-form-input" placeholder="Kumar" required />
+                </div>
+              </div>
+
+              <div class="auth-form-group">
+                <label class="auth-form-label">Email Address</label>
+                <input type="email" id="reg-email" class="auth-form-input" placeholder="arun@example.com" required />
+              </div>
+
+              <div class="auth-form-group">
+                <label class="auth-form-label">Mobile Number</label>
+                <input type="tel" id="reg-phone" class="auth-form-input" placeholder="98765 43210" required />
+              </div>
+
+              <div class="auth-form-group">
+                <label class="auth-form-label">Preferred Standard Size</label>
+                <select id="reg-size" class="auth-form-input" style="height: 48px;">
+                  <option value="S">S — Small</option>
+                  <option value="M">M — Medium</option>
+                  <option value="L" selected>L — Large (Standard Relaxed)</option>
+                  <option value="XL">XL — Extra Large</option>
+                  <option value="XXL">XXL — Oversized</option>
+                </select>
+              </div>
+
+              <div class="auth-form-group">
+                <label class="auth-form-label">Password</label>
+                <input type="password" id="reg-pass" class="auth-form-input" placeholder="At least 6 characters" required />
+              </div>
+
+              <button type="submit" class="auth-submit-btn">
+                <span>Create VIP Account (+200 Coins) →</span>
+              </button>
+            </form>
+          `}
+
+        </div>
+      </div>
+    `;
+  }
+
+  // -------------------------------------------------------------
+  // DEDICATED EXECUTIVE DASHBOARD ("dash board mari erknum")
+  // -------------------------------------------------------------
+  function renderDashboard(root) {
     const u = currentUser;
     const activeOrder = userOrders.find((o) => o.orderNumber.toUpperCase() === activeTrackingNum.toUpperCase()) || userOrders[0];
+    const userWishlist = JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST) || "[]");
 
     root.innerHTML = `
-      <div class="account-dashboard-wrapper">
+      <div class="dash-app-layout">
         
-        <!-- Profile Hero Banner -->
-        <div class="dashboard-hero-banner">
-          <div class="dashboard-hero-left">
-            <div class="dashboard-avatar-circle">
+        <!-- ============================================== -->
+        <!-- LEFT SIDEBAR: User Card & Navigation Menu     -->
+        <!-- ============================================== -->
+        <aside class="dash-sidebar" aria-label="Dashboard Navigation">
+          
+          <!-- User Profile Card in Sidebar -->
+          <div class="dash-user-card">
+            <div class="dash-avatar-ring">
               ${(u.firstName?.[0] || "A") + (u.lastName?.[0] || "K")}
             </div>
-            <div class="dashboard-profile-info">
-              <div class="dashboard-name-row">
-                <h1>${u.firstName} ${u.lastName}</h1>
-                <span class="dashboard-vip-pill">★ ${u.tier || "VIP Member"}</span>
+            <div class="dash-user-meta">
+              <div class="dash-user-name">${u.firstName} ${u.lastName}</div>
+              <span class="dash-vip-tag">★ ${u.tier || "VIP Member"}</span>
+              <div class="dash-user-coins-pill">
+                <span>🪙 <strong>₹${u.coins || 450}</strong> Coins Available</span>
               </div>
-              <p class="dashboard-email-row">${u.email} &bull; +91 ${u.phone || "98765 43210"} &bull; Member since ${u.memberSince || "2024"}</p>
             </div>
           </div>
-          <div class="dashboard-hero-actions">
-            <button type="button" class="dashboard-signout-btn" onclick="window.FeatherAccount.signOut()">
-              Sign Out
+
+          <!-- Main Navigation Links with Badges -->
+          <nav class="dash-nav-menu" role="navigation">
+            
+            <button 
+              type="button" 
+              class="dash-nav-item ${activeTab === 'overview' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.switchTab('overview')"
+            >
+              <div class="dash-nav-item-left">
+                <span class="dash-nav-item-icon">📊</span>
+                <span>Dashboard Hub</span>
+              </div>
+            </button>
+
+            <button 
+              type="button" 
+              class="dash-nav-item ${activeTab === 'tracking' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.switchTab('tracking')"
+            >
+              <div class="dash-nav-item-left">
+                <span class="dash-nav-item-icon">📦</span>
+                <span>Orders & Live Tracking</span>
+              </div>
+              <span class="dash-nav-badge">${userOrders.length}</span>
+            </button>
+
+            <button 
+              type="button" 
+              class="dash-nav-item ${activeTab === 'wishlist' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.switchTab('wishlist')"
+            >
+              <div class="dash-nav-item-left">
+                <span class="dash-nav-item-icon">💖</span>
+                <span>Saved Wishlist</span>
+              </div>
+              <span class="dash-nav-badge">${userWishlist.length}</span>
+            </button>
+
+            <button 
+              type="button" 
+              class="dash-nav-item ${activeTab === 'addresses' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.switchTab('addresses')"
+            >
+              <div class="dash-nav-item-left">
+                <span class="dash-nav-item-icon">📍</span>
+                <span>Saved Addresses</span>
+              </div>
+              <span class="dash-nav-badge">${(u.addresses || []).length}</span>
+            </button>
+
+            <button 
+              type="button" 
+              class="dash-nav-item ${activeTab === 'coins' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.switchTab('coins')"
+            >
+              <div class="dash-nav-item-left">
+                <span class="dash-nav-item-icon">🪙</span>
+                <span>Coins & Wallet</span>
+              </div>
+              <span class="dash-nav-badge">₹${u.coins || 450}</span>
+            </button>
+
+            <button 
+              type="button" 
+              class="dash-nav-item ${activeTab === 'fit' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.switchTab('fit')"
+            >
+              <div class="dash-nav-item-left">
+                <span class="dash-nav-item-icon">📏</span>
+                <span>Smart Size & Fit</span>
+              </div>
+              <span class="dash-nav-badge">${u.preferredSize || 'L'}</span>
+            </button>
+
+            <button 
+              type="button" 
+              class="dash-nav-item ${activeTab === 'profile' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.switchTab('profile')"
+            >
+              <div class="dash-nav-item-left">
+                <span class="dash-nav-item-icon">👤</span>
+                <span>Profile & Security</span>
+              </div>
+            </button>
+
+            <button 
+              type="button" 
+              class="dash-nav-item ${activeTab === 'settings' ? 'active' : ''}" 
+              onclick="window.FeatherAccount.switchTab('settings')"
+            >
+              <div class="dash-nav-item-left">
+                <span class="dash-nav-item-icon">🔔</span>
+                <span>WhatsApp & Alerts</span>
+              </div>
+            </button>
+
+          </nav>
+
+          <!-- Sidebar Footer: Switch User / Sign Out -->
+          <div class="dash-sidebar-footer">
+            <button type="button" class="dash-signout-btn" onclick="window.FeatherAccount.signOut()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span>Switch User / Sign Out</span>
             </button>
           </div>
-        </div>
 
-        <!-- 4 Executive KPI Metric Cards (Mini Dashboard Highlights) -->
-        <div class="dashboard-kpi-grid">
+        </aside>
+
+        <!-- ============================================== -->
+        <!-- RIGHT MAIN CONTENT PANEL                      -->
+        <!-- ============================================== -->
+        <main class="dash-main-content">
           
-          <!-- KPI 1: Coins -->
-          <div class="dashboard-kpi-card" onclick="window.FeatherAccount.switchTab('coins')">
-            <div class="kpi-icon-wrap gold">
-              🪙
+          <!-- Top Greeting & Context Bar -->
+          <div class="dash-header-bar">
+            <div>
+              <h1 class="dash-header-title">
+                ${activeTab === 'overview' ? `Welcome back, ${u.firstName}! 👋` : getTabTitle(activeTab)}
+              </h1>
+              <p class="dash-header-subtitle">
+                ${getTabSubtitle(activeTab, u)}
+              </p>
             </div>
-            <div class="kpi-details">
-              <span class="kpi-label">Feather Coins Balance</span>
-              <div class="kpi-value gold">₹${u.coins || 450}</div>
-              <span class="kpi-subtext">450 coins ready to redeem at checkout</span>
+
+            <div class="dash-header-actions">
+              <a href="index.html#catalog-section" class="btn-primary" style="height: 44px; padding: 0 1.25rem;">
+                <span>Shop New Drops →</span>
+              </a>
             </div>
           </div>
 
-          <!-- KPI 2: Active Delivery -->
-          <div class="dashboard-kpi-card" onclick="window.FeatherAccount.switchTab('tracking')">
-            <div class="kpi-icon-wrap blue">
-              🚚
-            </div>
-            <div class="kpi-details">
-              <span class="kpi-label">Live Delivery Status</span>
-              <div class="kpi-value">${activeOrder ? activeOrder.status : 'No Active'}</div>
-              <span class="kpi-subtext">${activeOrder ? `${activeOrder.carrier} &bull; ${activeOrder.estimatedDelivery}` : 'Browse new drops'}</span>
+          <!-- Dynamic Tab Content Panel -->
+          <div class="dashboard-main-card">
+            <div class="dashboard-tab-panel">
+              ${renderTabContent(activeTab)}
             </div>
           </div>
 
-          <!-- KPI 3: Size Profile -->
-          <div class="dashboard-kpi-card" onclick="window.FeatherAccount.switchTab('fit')">
-            <div class="kpi-icon-wrap purple">
-              📏
-            </div>
-            <div class="kpi-details">
-              <span class="kpi-label">Smart Fit Preference</span>
-              <div class="kpi-value">Size ${u.preferredSize || 'L'}</div>
-              <span class="kpi-subtext">${u.preferredFit || 'Oversized Streetwear'} &bull; Auto-syncs</span>
-            </div>
-          </div>
-
-          <!-- KPI 4: Wishlist -->
-          <div class="dashboard-kpi-card" onclick="window.FeatherApp && window.FeatherApp.openWishlistDrawer()">
-            <div class="kpi-icon-wrap pink">
-              💖
-            </div>
-            <div class="kpi-details">
-              <span class="kpi-label">Saved Wishlist</span>
-              <div class="kpi-value">${wishlist.length} Items</div>
-              <span class="kpi-subtext">Click to view exclusive saved drops</span>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Main Mini Dashboard Tabs & Workspace -->
-        <div class="dashboard-main-card">
-          
-          <!-- Tab Navigation Bar -->
-          <div class="dashboard-tabs-bar">
-            <button type="button" class="dash-tab-btn ${activeTab === 'tracking' ? 'active' : ''}" onclick="window.FeatherAccount.switchTab('tracking')">
-              <span>🚚 Live Tracking & Orders</span>
-            </button>
-            <button type="button" class="dash-tab-btn ${activeTab === 'addresses' ? 'active' : ''}" onclick="window.FeatherAccount.switchTab('addresses')">
-              <span>📍 Saved Addresses (${(u.addresses || []).length})</span>
-            </button>
-            <button type="button" class="dash-tab-btn ${activeTab === 'coins' ? 'active' : ''}" onclick="window.FeatherAccount.switchTab('coins')">
-              <span>🪙 Coins & Wallet</span>
-            </button>
-            <button type="button" class="dash-tab-btn ${activeTab === 'fit' ? 'active' : ''}" onclick="window.FeatherAccount.switchTab('fit')">
-              <span>📏 Size & Fit (${u.preferredSize || 'L'})</span>
-            </button>
-            <button type="button" class="dash-tab-btn ${activeTab === 'settings' ? 'active' : ''}" onclick="window.FeatherAccount.switchTab('settings')">
-              <span>⚙️ WhatsApp & Alerts</span>
-            </button>
-          </div>
-
-          <!-- Tab Content Display -->
-          <div class="dashboard-tab-panel">
-            ${renderTabContent(activeTab)}
-          </div>
-
-        </div>
+        </main>
 
       </div>
     `;
   }
 
+  function getTabTitle(tab) {
+    const titles = {
+      overview: "Member Dashboard Overview",
+      tracking: "My Orders & Live Tracking",
+      wishlist: "Saved Wishlist",
+      addresses: "Delivery Addresses",
+      coins: "Feather Coins & Wallet Rewards",
+      fit: "Smart Fit & Size Profile",
+      profile: "Personal Information & Account",
+      settings: "WhatsApp & SMS Notifications",
+    };
+    return titles[tab] || "Member Dashboard";
+  }
+
+  function getTabSubtitle(tab, u) {
+    const subtitles = {
+      overview: `VIP Member #${u.id} • Registered ${u.memberSince || '2024'} • Everything at a glance.`,
+      tracking: "Track real-time Blue Dart courier milestones and access GST tax invoices.",
+      wishlist: "Your curated list of premium streetwear, anime graphics, and casual fits.",
+      addresses: "Manage default shipping addresses for fast 1-tap Blue Dart deliveries.",
+      coins: "Earn 5% cashback on prepaid orders & redeem directly during checkout.",
+      fit: "Your selected size auto-syncs with product pages for instant fits.",
+      profile: "Update your personal details, email, contact number, and login credentials.",
+      settings: "Stay in the loop with instant WhatsApp dispatch alerts and delivery OTPs.",
+    };
+    return subtitles[tab] || "";
+  }
+
   function renderTabContent(tab) {
     switch (tab) {
+      case "overview":
+        return renderOverviewTab();
       case "tracking":
         return renderTrackingTab();
+      case "wishlist":
+        return renderWishlistTab();
       case "addresses":
         return renderAddressesTab();
       case "coins":
         return renderCoinsTab();
       case "fit":
         return renderFitTab();
+      case "profile":
+        return renderProfileTab();
       case "settings":
         return renderSettingsTab();
       default:
-        return renderTrackingTab();
+        return renderOverviewTab();
     }
   }
 
   // -------------------------------------------------------------
-  // TAB 1: Live Tracking & Orders
+  // TAB 1: OVERVIEW HUB (Executive Dashboard Center)
+  // -------------------------------------------------------------
+  function renderOverviewTab() {
+    const u = currentUser;
+    const activeOrder = userOrders.find((o) => o.orderNumber.toUpperCase() === activeTrackingNum.toUpperCase()) || userOrders[0];
+    const userWishlist = JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST) || "[]");
+
+    return `
+      <div>
+        
+        <!-- 4 High-Impact KPI Stat Cards -->
+        <div class="dashboard-kpi-grid" style="margin-bottom: 2rem;">
+          
+          <!-- Card 1: Feather Coins -->
+          <div class="dashboard-kpi-card" onclick="window.FeatherAccount.switchTab('coins')">
+            <div class="kpi-icon-wrap gold">🪙</div>
+            <div class="kpi-details">
+              <span class="kpi-label">Wallet Balance</span>
+              <div class="kpi-value gold">₹${u.coins || 450}</div>
+              <span class="kpi-subtext">450 Coins ready to redeem</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Live Shipment -->
+          <div class="dashboard-kpi-card" onclick="window.FeatherAccount.switchTab('tracking')">
+            <div class="kpi-icon-wrap blue">🚚</div>
+            <div class="kpi-details">
+              <span class="kpi-label">Active Delivery</span>
+              <div class="kpi-value">${activeOrder ? activeOrder.status : 'None'}</div>
+              <span class="kpi-subtext">${activeOrder ? activeOrder.estimatedDelivery : 'No active orders'}</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Saved Wishlist -->
+          <div class="dashboard-kpi-card" onclick="window.FeatherAccount.switchTab('wishlist')">
+            <div class="kpi-icon-wrap pink">💖</div>
+            <div class="kpi-details">
+              <span class="kpi-label">Saved Wishlist</span>
+              <div class="kpi-value">${userWishlist.length} Items</div>
+              <span class="kpi-subtext">Click to view drops</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Smart Fit -->
+          <div class="dashboard-kpi-card" onclick="window.FeatherAccount.switchTab('fit')">
+            <div class="kpi-icon-wrap purple">📏</div>
+            <div class="kpi-details">
+              <span class="kpi-label">Smart Size Fit</span>
+              <div class="kpi-value">Size ${u.preferredSize || 'L'}</div>
+              <span class="kpi-subtext">${u.preferredFit || 'Oversized Streetwear'}</span>
+            </div>
+          </div>
+
+        </div>
+
+        ${activeOrder ? `
+          <!-- Active Shipment Spotlight Card -->
+          <div class="dash-spotlight-box" style="margin-bottom: 2rem;">
+            <div class="dash-spotlight-top">
+              <div>
+                <span class="dash-spotlight-badge">🚚 Live In-Transit Shipment</span>
+                <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--color-primary); margin-top: 0.35rem;">
+                  Order ${activeOrder.orderNumber} &bull; ${activeOrder.items[0]?.name || 'Apparel Order'}
+                </h3>
+              </div>
+              <button type="button" class="btn-primary" onclick="window.FeatherAccount.switchTab('tracking')" style="height: 42px; padding: 0 1.25rem;">
+                <span>View Full Timeline →</span>
+              </button>
+            </div>
+
+            <div class="dash-courier-stats" style="margin-bottom: 1.25rem;">
+              <div class="stat-cell">
+                <span class="stat-label">Courier Partner:</span>
+                <strong>${activeOrder.carrier || "Blue Dart Express"}</strong>
+              </div>
+              <div class="stat-cell">
+                <span class="stat-label">AWB Tracking Number:</span>
+                <strong style="font-family: monospace;">${activeOrder.trackingNumber || "BD-9402849182"}</strong>
+              </div>
+              <div class="stat-cell">
+                <span class="stat-label">Estimated Delivery:</span>
+                <strong style="color: var(--color-success);">${activeOrder.estimatedDelivery || "In 2 Days"}</strong>
+              </div>
+              <div class="stat-cell">
+                <span class="stat-label">Delivery Destination:</span>
+                <strong>${activeOrder.shippingAddress?.city || 'Chennai'}, ${activeOrder.shippingAddress?.postalCode || '600017'}</strong>
+              </div>
+            </div>
+
+            <!-- Mini Progress Bar -->
+            <div style="background: var(--color-border); height: 8px; border-radius: 9999px; overflow: hidden;">
+              <div style="width: 75%; height: 100%; background: linear-gradient(90deg, var(--color-secondary), var(--color-accent)); border-radius: 9999px;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--color-text-muted); margin-top: 0.45rem;">
+              <span>Verified</span>
+              <span>Packed & Inspected</span>
+              <span style="font-weight: 800; color: var(--color-secondary);">In Transit (Chennai Hub)</span>
+              <span>Delivered</span>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- 4 Quick Actions Grid -->
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-primary); margin-bottom: 1rem;">
+          Quick Dashboard Shortcuts
+        </h3>
+        
+        <div class="dash-quick-grid" style="margin-bottom: 2rem;">
+          
+          <div class="dash-quick-card" onclick="window.location.href='index.html#catalog-section'">
+            <div class="dash-quick-icon">🔥</div>
+            <div class="dash-quick-title">Explore New Drops</div>
+            <div class="dash-quick-desc">Discover the latest limited edition heavyweight anime & streetwear collections.</div>
+            <span class="dash-quick-cta">Browse Store →</span>
+          </div>
+
+          <div class="dash-quick-card" onclick="window.FeatherAccount.switchTab('addresses')">
+            <div class="dash-quick-icon">📍</div>
+            <div class="dash-quick-title">Manage Addresses</div>
+            <div class="dash-quick-desc">Add new home or office delivery points for instant express checkout.</div>
+            <span class="dash-quick-cta">Address Book →</span>
+          </div>
+
+          <div class="dash-quick-card" onclick="window.FeatherAccount.switchTab('fit')">
+            <div class="dash-quick-icon">📏</div>
+            <div class="dash-quick-title">Tune Smart Fit</div>
+            <div class="dash-quick-desc">Current: Size ${u.preferredSize || 'L'}. Auto-syncs across T-shirts, Shirts & Sets.</div>
+            <span class="dash-quick-cta">Update Size →</span>
+          </div>
+
+          <div class="dash-quick-card" onclick="window.FeatherAccount.switchTab('coins')">
+            <div class="dash-quick-icon">🎁</div>
+            <div class="dash-quick-title">Earn More Coins</div>
+            <div class="dash-quick-desc">Get 5% cashback on prepaid orders & invite friends for 200 free coins.</div>
+            <span class="dash-quick-cta">View Rewards →</span>
+          </div>
+
+        </div>
+
+        <!-- Recent Orders Snapshot -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-primary); margin: 0;">
+            Recent Orders Snapshot
+          </h3>
+          <button type="button" class="btn-order-action primary" onclick="window.FeatherAccount.switchTab('tracking')">
+            View All Orders (${userOrders.length}) →
+          </button>
+        </div>
+
+        <div class="dash-orders-list">
+          ${userOrders.slice(0, 2).map((o) => `
+            <div class="order-card-item">
+              <div class="order-card-header">
+                <div>
+                  <strong style="font-size: 1.05rem; color: var(--color-primary);">${o.orderNumber}</strong>
+                  <span style="font-size: 0.8rem; color: var(--color-text-muted); margin-left: 0.75rem;">
+                    ${new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+                <div>
+                  <span style="color: var(--color-accent); font-weight: 800; font-size: 1.15rem;">₹${Math.round(o.total).toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; margin: 0.75rem 0;">
+                ${o.items.map((i) => `
+                  <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.88rem;">
+                    <img src="${i.image || 'assets/images/anime-tee-model-front.jpg'}" style="width: 44px; height: 52px; object-fit: cover; border-radius: var(--radius-sm); object-position: top center;" alt="${i.name}" />
+                    <div style="flex: 1;">
+                      <div style="font-weight: 700; color: var(--color-primary);">${i.name}</div>
+                      <div style="font-size: 0.8rem; color: var(--color-text-muted);">
+                        Size: <strong>${i.size}</strong> &bull; Qty: ${i.quantity}
+                      </div>
+                    </div>
+                    <strong>₹${Math.round((i.price || 1299) * i.quantity).toLocaleString('en-IN')}</strong>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="order-actions-bar">
+                <button type="button" class="btn-order-action primary" onclick="window.FeatherAccount.searchOrder('${o.orderNumber}')">
+                  Track Package
+                </button>
+                <button type="button" class="btn-order-action" onclick="window.FeatherApp && window.FeatherApp.showInvoice ? window.FeatherApp.showInvoice('${o.orderNumber}') : alert('Invoice FF-89214 downloaded')">
+                  GST Invoice
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+      </div>
+    `;
+  }
+
+  // -------------------------------------------------------------
+  // TAB 2: LIVE TRACKING & ORDERS
   // -------------------------------------------------------------
   function renderTrackingTab() {
     const activeOrder = userOrders.find((o) => o.orderNumber.toUpperCase() === activeTrackingNum.toUpperCase()) || userOrders[0];
@@ -374,7 +877,6 @@
                 </div>
               </div>
 
-              <!-- Items in order -->
               <div style="display: flex; flex-direction: column; gap: 0.75rem; margin: 0.75rem 0;">
                 ${o.items.map((i) => `
                   <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.88rem;">
@@ -390,13 +892,12 @@
                 `).join('')}
               </div>
 
-              <!-- Order Action Buttons -->
               <div class="order-actions-bar">
                 <button type="button" class="btn-order-action primary" onclick="window.FeatherAccount.searchOrder('${o.orderNumber}')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                   <span>Track Live Package</span>
                 </button>
-                <button type="button" class="btn-order-action" onclick="window.FeatherApp.showInvoice('${o.orderNumber}')">
+                <button type="button" class="btn-order-action" onclick="window.FeatherApp && window.FeatherApp.showInvoice ? window.FeatherApp.showInvoice('${o.orderNumber}') : alert('GST Invoice for #${o.orderNumber}')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                   <span>Download GST Invoice</span>
                 </button>
@@ -413,7 +914,89 @@
   }
 
   // -------------------------------------------------------------
-  // TAB 2: Saved Delivery Addresses
+  // TAB 3: SAVED WISHLIST DIRECT GRID
+  // -------------------------------------------------------------
+  function renderWishlistTab() {
+    const userWishlist = JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST) || "[]");
+    const productsCatalog = window.FEATHER_PRODUCTS || [];
+
+    // Map wishlist IDs to actual products if available
+    let wishlistItems = [];
+    if (userWishlist.length > 0) {
+      wishlistItems = userWishlist.map(id => {
+        const prod = productsCatalog.find(p => p.id === id);
+        if (prod) return prod;
+        return {
+          id,
+          name: "Feather Fits Graphic Streetwear Drop",
+          basePrice: 1299,
+          images: ["assets/images/anime-tee-model-front.jpg"]
+        };
+      });
+    }
+
+    if (wishlistItems.length === 0) {
+      return `
+        <div style="text-align: center; padding: 3rem 1rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">💖</div>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--color-primary); margin-bottom: 0.5rem;">Your Wishlist is Empty</h3>
+          <p style="color: var(--color-text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto 1.5rem auto;">
+            Save your favorite anime graphics, linen overshirts, and oversized tees for quick ordering later.
+          </p>
+          <a href="index.html#catalog-section" class="btn-primary" style="display: inline-flex; height: 46px; padding: 0 1.5rem;">
+            Explore Collections →
+          </a>
+        </div>
+      `;
+    }
+
+    return `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary);">Saved Drops (${wishlistItems.length})</h3>
+            <p style="font-size: 0.85rem; color: var(--color-text-muted);">Items saved to your VIP wishlist. Ready for instant checkout.</p>
+          </div>
+          <a href="index.html#catalog-section" class="btn-order-action primary">
+            + Discover More Drops
+          </a>
+        </div>
+
+        <div class="dash-wishlist-grid">
+          ${wishlistItems.map(item => `
+            <div class="dash-wishlist-card">
+              <div class="dash-wishlist-img-wrap">
+                <img src="${(item.images && item.images[0]) || 'assets/images/anime-tee-model-front.jpg'}" alt="${item.name}" />
+                <button 
+                  type="button" 
+                  class="dash-wishlist-remove-btn" 
+                  title="Remove from wishlist" 
+                  onclick="window.FeatherAccount.removeFromWishlist('${item.id}')"
+                >
+                  ✕
+                </button>
+              </div>
+              <div class="dash-wishlist-body">
+                <h4 class="dash-wishlist-title">${item.name}</h4>
+                <div class="dash-wishlist-price">₹${item.basePrice || 1299}</div>
+                <button 
+                  type="button" 
+                  class="btn-primary" 
+                  style="width: 100%; height: 40px; font-size: 0.85rem;" 
+                  onclick="window.FeatherAccount.moveToCart('${item.id}')"
+                >
+                  Move to Shopping Bag
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // -------------------------------------------------------------
+  // TAB 4: SAVED DELIVERY ADDRESSES
   // -------------------------------------------------------------
   function renderAddressesTab() {
     const addresses = currentUser.addresses || [];
@@ -516,7 +1099,7 @@
   }
 
   // -------------------------------------------------------------
-  // TAB 3: Feather Coins & Wallet Rewards
+  // TAB 5: FEATHER COINS & REWARDS WALLET
   // -------------------------------------------------------------
   function renderCoinsTab() {
     const coins = currentUser.coins || 450;
@@ -528,7 +1111,7 @@
             <div>
               <span style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.85;">Feather Member Wallet</span>
               <div class="wallet-coins-val">🪙 ${coins} Coins</div>
-              <div style="font-size: 0.95rem; opacity: 0.9;">Total Value: <strong>₹${coins}</strong> in Feather Credits</div>
+              <div style="font-size: 0.95rem; opacity: 0.9;">Total Value: <strong>₹${coins}</strong> in Feather Store Credits</div>
             </div>
             <div>
               <a href="index.html#catalog-section" class="btn-primary" style="background: #FFFFFF; color: var(--color-primary); font-weight: 800;">
@@ -583,7 +1166,7 @@
   }
 
   // -------------------------------------------------------------
-  // TAB 4: Smart Fit & Size Profile
+  // TAB 6: SMART FIT & SIZE PROFILE
   // -------------------------------------------------------------
   function renderFitTab() {
     const currentSize = currentUser.preferredSize || "L";
@@ -631,7 +1214,7 @@
           `).join('')}
         </div>
 
-        <div style="background: var(--color-bg); padding: 1rem 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--color-border); font-size: 0.85rem; color: var(--color-text-main);">
+        <div style="background: var(--color-bg); padding: 1rem 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--color-border); font-size: 0.85rem; color: var(--color-text-main); margin-top: 1.5rem;">
           💡 <strong>Auto-Fit Engine:</strong> When you browse any T-Shirt, Shirt, or Set on Feather Fits, size <strong>${currentSize}</strong> will be pre-selected for 1-tap checkout.
         </div>
       </div>
@@ -639,7 +1222,77 @@
   }
 
   // -------------------------------------------------------------
-  // TAB 5: WhatsApp & Notifications Settings
+  // TAB 7: PROFILE & SECURITY (Edit Details)
+  // -------------------------------------------------------------
+  function renderProfileTab() {
+    const u = currentUser;
+
+    return `
+      <div>
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary); margin-bottom: 0.35rem;">My Profile & Personal Details</h3>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">
+          Update your contact details, delivery identity, and security preferences.
+        </p>
+
+        <form onsubmit="window.FeatherAccount.saveProfileDetails(event)">
+          <div class="dash-profile-grid">
+            <div>
+              <label class="auth-form-label">First Name</label>
+              <input type="text" id="prof-fname" class="auth-form-input" value="${u.firstName}" required />
+            </div>
+            <div>
+              <label class="auth-form-label">Last Name</label>
+              <input type="text" id="prof-lname" class="auth-form-input" value="${u.lastName}" required />
+            </div>
+          </div>
+
+          <div class="dash-profile-grid">
+            <div>
+              <label class="auth-form-label">Email Address</label>
+              <input type="email" id="prof-email" class="auth-form-input" value="${u.email}" required />
+            </div>
+            <div>
+              <label class="auth-form-label">Mobile Number</label>
+              <input type="tel" id="prof-phone" class="auth-form-input" value="${u.phone || '98765 43210'}" required />
+            </div>
+          </div>
+
+          <div class="dash-profile-grid">
+            <div>
+              <label class="auth-form-label">Member Tier</label>
+              <input type="text" class="auth-form-input" value="${u.tier || 'Feather VIP Member'}" disabled style="background: var(--color-bg); opacity: 0.8;" />
+            </div>
+            <div>
+              <label class="auth-form-label">Member ID</label>
+              <input type="text" class="auth-form-input" value="${u.id || 'usr_feather_091'}" disabled style="background: var(--color-bg); opacity: 0.8; font-family: monospace;" />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="submit" class="btn-primary" style="height: 48px; padding: 0 1.75rem;">
+              Save Profile Changes
+            </button>
+            <button type="button" class="btn-order-action" style="height: 48px;" onclick="window.FeatherAccount.switchTab('overview')">
+              Cancel
+            </button>
+          </div>
+        </form>
+
+        <div style="margin-top: 2.5rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+          <h4 style="font-size: 1rem; font-weight: 800; color: #DC2626; margin-bottom: 0.35rem;">Sign Out Session</h4>
+          <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 1rem;">
+            Signing out will switch your session back to the sign-in portal. Your orders and coins will remain safely stored.
+          </p>
+          <button type="button" class="dash-signout-btn" style="max-width: 220px;" onclick="window.FeatherAccount.signOut()">
+            Log Out of Feather Fits
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // -------------------------------------------------------------
+  // TAB 8: WHATSAPP & SMS SETTINGS
   // -------------------------------------------------------------
   function renderSettingsTab() {
     return `
@@ -682,43 +1335,6 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
-
-        <div style="margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
-          <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-primary); margin-bottom: 0.5rem;">Account Security</h4>
-          <p style="font-size: 0.82rem; color: var(--color-text-muted); margin-bottom: 1rem;">Logged in as ${currentUser.email}</p>
-          <button type="button" class="btn-order-action" onclick="window.FeatherAccount.signOut()">
-            Sign Out of Feather Fits
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  // Sign In fallback view
-  function renderSignInView(root) {
-    root.innerHTML = `
-      <div style="max-width: 480px; margin: 3rem auto; padding: 2.5rem 2rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.06); text-align: center;">
-        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--color-secondary), var(--color-accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto; color: #fff; font-size: 1.5rem;">
-          👤
-        </div>
-        <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--color-primary);">Sign In to Member Dashboard</h2>
-        <p style="color: var(--color-text-muted); font-size: 0.88rem; margin: 0.5rem 0 1.5rem 0;">
-          Access your live package tracking, 450 Feather Coins, and saved addresses.
-        </p>
-
-        <form onsubmit="window.FeatherAccount.handleLogin(event)">
-          <div style="text-align: left; margin-bottom: 1rem;">
-            <label style="font-size: 0.8rem; font-weight: 700;">Email</label>
-            <input type="email" id="login-email" class="form-input" required value="arun.kumar@featherfits.com" />
-          </div>
-          <div style="text-align: left; margin-bottom: 1.5rem;">
-            <label style="font-size: 0.8rem; font-weight: 700;">Password</label>
-            <input type="password" id="login-pass" class="form-input" required value="confidence2026" />
-          </div>
-          <button type="submit" class="btn-primary" style="width: 100%; height: 48px; justify-content: center;">
-            Sign In to Dashboard
-          </button>
-        </form>
       </div>
     `;
   }
@@ -727,28 +1343,135 @@
   // CONTROLLER METHODS EXPOSED TO WINDOW
   // -------------------------------------------------------------
   window.FeatherAccount = {
+    setAuthMode(mode) {
+      authMode = mode;
+      renderView();
+    },
+
+    loginDemo(profileKey) {
+      if (DEMO_USERS[profileKey]) {
+        currentUser = JSON.parse(JSON.stringify(DEMO_USERS[profileKey]));
+        saveUser();
+        activeTab = "overview";
+        renderView();
+        if (window.FeatherApp && window.FeatherApp.showToast) {
+          window.FeatherApp.showToast(`Logged in as ${currentUser.firstName} ${currentUser.lastName} (${currentUser.tier})`);
+        }
+      }
+    },
+
+    handleLogin(e) {
+      if (e) e.preventDefault();
+      const email = document.getElementById("auth-login-email")?.value.trim() || "arun.kumar@featherfits.com";
+      currentUser = {
+        ...DEMO_USERS.arun,
+        email: email,
+        firstName: email.includes("priya") ? "Priya" : "Arun",
+        lastName: email.includes("priya") ? "Sharma" : "Kumar",
+      };
+      saveUser();
+      activeTab = "overview";
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
+        window.FeatherApp.showToast(`Welcome back, ${currentUser.firstName}! Dashboard ready.`);
+      }
+    },
+
+    handleRegister(e) {
+      if (e) e.preventDefault();
+      const fname = document.getElementById("reg-fname")?.value.trim() || "New";
+      const lname = document.getElementById("reg-lname")?.value.trim() || "Member";
+      const email = document.getElementById("reg-email")?.value.trim() || "member@featherfits.com";
+      const phone = document.getElementById("reg-phone")?.value.trim() || "9876543210";
+      const size = document.getElementById("reg-size")?.value || "L";
+
+      currentUser = {
+        id: "usr_feather_" + Math.floor(100 + Math.random() * 900),
+        email,
+        firstName: fname,
+        lastName: lname,
+        phone,
+        memberSince: "2026",
+        tier: "Feather VIP Member",
+        coins: 200, // Welcome gift!
+        preferredSize: size,
+        preferredFit: "Oversized Streetwear",
+        whatsappUpdates: true,
+        smsAlerts: true,
+        addresses: [
+          {
+            id: "addr_reg1",
+            tag: "Home",
+            isDefault: true,
+            name: `${fname} ${lname}`,
+            phone: `+91 ${phone}`,
+            line1: "10, Express Avenue Way",
+            city: "Chennai",
+            state: "Tamil Nadu",
+            postalCode: "600002"
+          }
+        ]
+      };
+
+      saveUser();
+      activeTab = "overview";
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
+        window.FeatherApp.showToast(`Welcome to Feather Fits VIP, ${fname}! +200 Coins credited 🎉`);
+      }
+    },
+
+    saveProfileDetails(e) {
+      if (e) e.preventDefault();
+      const fname = document.getElementById("prof-fname")?.value.trim();
+      const lname = document.getElementById("prof-lname")?.value.trim();
+      const email = document.getElementById("prof-email")?.value.trim();
+      const phone = document.getElementById("prof-phone")?.value.trim();
+
+      if (!fname || !email) {
+        alert("First name and email are required.");
+        return;
+      }
+
+      currentUser.firstName = fname;
+      currentUser.lastName = lname || "";
+      currentUser.email = email;
+      currentUser.phone = phone || currentUser.phone;
+
+      saveUser();
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
+        window.FeatherApp.showToast("Personal profile details updated successfully!");
+      }
+    },
+
     switchTab(tab) {
       activeTab = tab;
-      renderDashboard();
+      renderView();
+      window.scrollTo({ top: 100, behavior: 'smooth' });
     },
+
     searchOrder(orderNum) {
       if (!orderNum) return;
       activeTrackingNum = orderNum.trim();
       activeTab = "tracking";
-      renderDashboard();
-      if (window.FeatherApp) {
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
         window.FeatherApp.showToast(`Found tracking timeline for #${activeTrackingNum}`);
       }
     },
+
     requestExchange(orderNumber) {
-      if (window.FeatherApp) {
-        window.FeatherApp.showToast(`Exchange ticket #EX-${Math.floor(10000 + Math.random() * 90000)} initiated for Order ${orderNumber}! Blue Dart courier will pick up item for free size replacement.`);
+      if (window.FeatherApp && window.FeatherApp.showToast) {
+        window.FeatherApp.showToast(`Exchange ticket #EX-${Math.floor(10000 + Math.random() * 90000)} initiated for Order ${orderNumber}! Free Blue Dart doorstep replacement.`);
       }
     },
+
     toggleAddressForm() {
       showAddAddress = !showAddAddress;
-      renderDashboard();
+      renderView();
     },
+
     saveNewAddress(e) {
       if (e) e.preventDefault();
       const tag = document.getElementById("new-addr-tag")?.value || "Home";
@@ -780,77 +1503,118 @@
       currentUser.addresses.push(newAddr);
       saveUser();
       showAddAddress = false;
-      renderDashboard();
+      renderView();
 
-      if (window.FeatherApp) {
+      if (window.FeatherApp && window.FeatherApp.showToast) {
         window.FeatherApp.showToast("New delivery address saved!");
       }
     },
+
     setDefaultAddress(addrId) {
       if (!currentUser.addresses) return;
       currentUser.addresses.forEach((a) => {
         a.isDefault = a.id === addrId;
       });
       saveUser();
-      renderDashboard();
-      if (window.FeatherApp) {
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
         window.FeatherApp.showToast("Default delivery address updated.");
       }
     },
+
     deleteAddress(addrId) {
       if (!currentUser.addresses) return;
       currentUser.addresses = currentUser.addresses.filter((a) => a.id !== addrId);
       saveUser();
-      renderDashboard();
-      if (window.FeatherApp) {
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
         window.FeatherApp.showToast("Address removed.");
       }
     },
+
+    removeFromWishlist(prodId) {
+      let wl = JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST) || "[]");
+      wl = wl.filter(id => id !== prodId);
+      localStorage.setItem(STORAGE_KEYS.WISHLIST, JSON.stringify(wl));
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
+        window.FeatherApp.showToast("Item removed from wishlist.");
+      }
+    },
+
+    moveToCart(prodId) {
+      const products = window.FEATHER_PRODUCTS || [];
+      const product = products.find(p => p.id === prodId) || {
+        id: prodId,
+        name: "Demon Slayer Tanjiro Oversized Graphic Tee",
+        basePrice: 1299,
+        images: ["assets/images/anime-tee-model-front.jpg"]
+      };
+
+      if (window.FeatherApp && window.FeatherApp.addToCart) {
+        window.FeatherApp.addToCart(product.id, currentUser.preferredSize || "L", product.colors?.[0]?.name || "Standard", 1);
+      } else {
+        // Fallback cart add
+        let cart = JSON.parse(localStorage.getItem(STORAGE_KEYS.CART) || "[]");
+        cart.push({
+          productId: product.id,
+          name: product.name,
+          price: product.basePrice || 1299,
+          size: currentUser.preferredSize || "L",
+          color: "Standard",
+          quantity: 1,
+          image: product.images?.[0] || "assets/images/anime-tee-model-front.jpg"
+        });
+        localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
+      }
+
+      this.removeFromWishlist(prodId);
+      if (window.FeatherApp && window.FeatherApp.showToast) {
+        window.FeatherApp.showToast(`Moved ${product.name} to your cart! 🛍️`);
+      }
+    },
+
     updateSize(size) {
       currentUser.preferredSize = size;
       saveUser();
-      renderDashboard();
-      if (window.FeatherApp) {
-        window.FeatherApp.showToast(`Preferred size updated to ${size} (synced with catalog & PDP)`);
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
+        window.FeatherApp.showToast(`Preferred size updated to ${size} (auto-synced with catalog & PDP)`);
       }
     },
+
     updateFit(fit) {
       currentUser.preferredFit = fit;
       saveUser();
-      renderDashboard();
-      if (window.FeatherApp) {
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
         window.FeatherApp.showToast(`Style aesthetic updated to ${fit}`);
       }
     },
+
     toggleWhatsApp(checked) {
       currentUser.whatsappUpdates = checked;
       saveUser();
-      if (window.FeatherApp) {
+      if (window.FeatherApp && window.FeatherApp.showToast) {
         window.FeatherApp.showToast(checked ? "WhatsApp delivery alerts enabled." : "WhatsApp alerts paused.");
       }
     },
+
     toggleSMS(checked) {
       currentUser.smsAlerts = checked;
       saveUser();
-      if (window.FeatherApp) {
+      if (window.FeatherApp && window.FeatherApp.showToast) {
         window.FeatherApp.showToast(checked ? "SMS dispatch updates enabled." : "SMS updates paused.");
       }
     },
-    handleLogin(e) {
-      if (e) e.preventDefault();
-      currentUser = { ...defaultMember };
-      saveUser();
-      renderDashboard();
-      if (window.FeatherApp) {
-        window.FeatherApp.showToast("Signed in to Member Dashboard.");
-      }
-    },
+
     signOut() {
       currentUser = null;
-      saveUser();
-      renderDashboard();
-      if (window.FeatherApp) {
-        window.FeatherApp.showToast("You have been signed out.");
+      localStorage.removeItem(STORAGE_KEYS.USER);
+      authMode = "signin";
+      renderView();
+      if (window.FeatherApp && window.FeatherApp.showToast) {
+        window.FeatherApp.showToast("You have been signed out. Please sign in or create an account.");
       }
     }
   };
