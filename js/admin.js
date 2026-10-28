@@ -241,6 +241,49 @@
     }
   }
 
+  // Dynamically update order filter pills and transit radar badges
+  function updateOrderFilterBadges() {
+    const orders = state.orders || [];
+    let inTransit = 0;
+    let delayed = 0;
+    let delivered = 0;
+    let pending = 0;
+    let noTracking = 0;
+    let rto = 0;
+
+    orders.forEach(o => {
+      const s = (o.status || '').toLowerCase();
+      const isDel = isOrderDelayed(o);
+      if (s === 'shipped' || s === 'out for delivery') inTransit++;
+      if (isDel) delayed++;
+      if (s === 'delivered') delivered++;
+      if (s === 'pending' || s === 'processing') pending++;
+      if ((s === 'shipped' || s === 'out for delivery') && (!o.trackingNumber || o.trackingNumber === 'Pending' || !o.trackingNumber.trim())) noTracking++;
+      if (s === 'rto') rto++;
+    });
+
+    const elAll = document.getElementById('count-filter-all');
+    const elShipped = document.getElementById('count-filter-shipped');
+    const elPending = document.getElementById('count-filter-pending');
+    const elDelivered = document.getElementById('count-filter-delivered');
+    const elNoTrack = document.getElementById('count-filter-notracking');
+    const elDelayed = document.getElementById('count-filter-delayed');
+    const elRto = document.getElementById('count-filter-rto');
+
+    if (elAll) elAll.textContent = orders.length;
+    if (elShipped) elShipped.textContent = inTransit;
+    if (elPending) elPending.textContent = pending;
+    if (elDelivered) elDelivered.textContent = delivered;
+    if (elNoTrack) elNoTrack.textContent = noTracking;
+    if (elDelayed) elDelayed.textContent = delayed;
+    if (elRto) elRto.textContent = rto;
+
+    const kpiTransit = document.getElementById('kpi-transit-count');
+    const kpiDelayed = document.getElementById('kpi-delayed-count');
+    if (kpiTransit) kpiTransit.textContent = inTransit;
+    if (kpiDelayed) kpiDelayed.textContent = delayed;
+  }
+
   // Load orders
   function loadOrders() {
     const local = localStorage.getItem(STORAGE_KEYS.ORDERS);
@@ -257,10 +300,27 @@
       localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(ordersList));
     }
     state.orders = ordersList;
+    updateOrderFilterBadges();
+
+    // Sync live from server backend (data/orders.json)
+    fetch('api/shipping.php?action=get_orders')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && Array.isArray(data.orders) && data.orders.length > 0) {
+          state.orders = data.orders;
+          localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(data.orders));
+          updateOrderFilterBadges();
+          renderKpiStats();
+          renderRecentOrdersTable();
+          renderOrdersFullTable();
+        }
+      })
+      .catch(err => console.warn('Could not sync live orders from backend', err));
   }
 
   function saveOrders() {
     localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(state.orders));
+    updateOrderFilterBadges();
     renderRecentOrdersTable();
     renderOrdersFullTable();
     renderKpiStats();
@@ -269,17 +329,16 @@
   // Calculate & Render Executive KPI Stats
   function renderKpiStats() {
     const totalRev = state.orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
-    const cumulativeRev = totalRev + 174500;
-    const totalOrdersCount = state.orders.length + 137;
+    const totalOrdersCount = state.orders.length;
     const productsCount = state.products.length;
-    const aov = Math.round(cumulativeRev / totalOrdersCount);
+    const aov = totalOrdersCount > 0 ? Math.round(totalRev / totalOrdersCount) : 0;
 
     const revEl = document.getElementById("kpi-total-revenue");
     const ordersEl = document.getElementById("kpi-total-orders");
     const prodsEl = document.getElementById("kpi-total-products");
     const aovEl = document.getElementById("kpi-aov");
 
-    if (revEl) revEl.textContent = `₹${cumulativeRev.toLocaleString("en-IN")}`;
+    if (revEl) revEl.textContent = `₹${Math.round(totalRev).toLocaleString("en-IN")}`;
     if (ordersEl) ordersEl.textContent = `${totalOrdersCount}`;
     if (prodsEl) prodsEl.textContent = `${productsCount} Fits`;
     if (aovEl) aovEl.textContent = `₹${aov.toLocaleString("en-IN")}`;
@@ -287,12 +346,12 @@
     const prodBadge = document.getElementById("badge-nav-products");
     const orderBadge = document.getElementById("badge-nav-orders");
     if (prodBadge) prodBadge.textContent = productsCount;
-    if (orderBadge) orderBadge.textContent = state.orders.length;
+    if (orderBadge) orderBadge.textContent = totalOrdersCount;
 
     const mobProdBadge = document.getElementById("mobile-badge-products");
     if (mobProdBadge) mobProdBadge.textContent = productsCount;
     const mobOrderBadge = document.getElementById("mobile-badge-orders");
-    if (mobOrderBadge) mobOrderBadge.textContent = state.orders.length;
+    if (mobOrderBadge) mobOrderBadge.textContent = totalOrdersCount;
 
     const menCount = state.products.filter(p => p.department === "men").length;
     const womenCount = state.products.filter(p => p.department === "women").length;

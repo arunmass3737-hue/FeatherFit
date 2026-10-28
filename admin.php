@@ -194,7 +194,7 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
           </svg>
         </span>
         <span>Orders</span>
-        <span class="admin-nav-badge" id="badge-nav-orders">5</span>
+        <span class="admin-nav-badge" id="badge-nav-orders">6</span>
       </a>
 
       <a class="admin-nav-link" data-section="customers" onclick="window.FeatherAdmin.setSection('customers')">
@@ -330,9 +330,9 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
                 </span>
               </div>
             </div>
-            <div class="kpi-value" id="kpi-total-revenue">₹2,14,350</div>
+            <div class="kpi-value" id="kpi-total-revenue">₹18,450</div>
             <div class="kpi-trend positive">
-              <span>+18.4% this month</span>
+              <span>Verified Store Revenue</span>
             </div>
           </div>
 
@@ -350,9 +350,9 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
                 </span>
               </div>
             </div>
-            <div class="kpi-value" id="kpi-total-orders">143</div>
+            <div class="kpi-value" id="kpi-total-orders">6</div>
             <div class="kpi-trend positive">
-              <span>+12 today</span>
+              <span>Active Orders</span>
             </div>
           </div>
 
@@ -386,9 +386,9 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
                 </span>
               </div>
             </div>
-            <div class="kpi-value" id="kpi-aov">₹1,302</div>
+            <div class="kpi-value" id="kpi-aov">₹3,075</div>
             <div class="kpi-trend positive">
-              <span>+6.2% high value</span>
+              <span>Average Order Value</span>
             </div>
           </div>
 
@@ -487,10 +487,9 @@ $isAdminLoggedIn = !empty($_SESSION['admin_user']);
                 <tr>
                   <th>Order ID</th>
                   <th>Customer & Destination</th>
-                  <th>Items</th>
-                  <th>Total</th>
+                  <th>Items & Total</th>
                   <th>Tracking & Carrier</th>
-                  <th>Status</th>
+                  <th>Status & Age</th>
                   <th>Dispatch Actions</th>
                 </tr>
               </thead>
