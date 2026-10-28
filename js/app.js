@@ -169,16 +169,16 @@
     const userBtn = document.getElementById("user-action-btn");
 
     const totalCartQty = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-    if (cartCountEl) {
-      cartCountEl.textContent = totalCartQty;
-      cartCountEl.style.display = totalCartQty > 0 ? "flex" : "none";
-    }
+    document.querySelectorAll("#cart-badge-count, #mobile-cart-badge-count").forEach(el => {
+      el.textContent = totalCartQty;
+      el.style.display = totalCartQty > 0 ? "flex" : "none";
+    });
 
     const totalWishlistCount = state.wishlist.length;
-    if (wishlistCountEl) {
-      wishlistCountEl.textContent = totalWishlistCount;
-      wishlistCountEl.style.display = totalWishlistCount > 0 ? "flex" : "none";
-    }
+    document.querySelectorAll("#wishlist-badge-count, #mobile-wishlist-badge-count").forEach(el => {
+      el.textContent = totalWishlistCount;
+      el.style.display = totalWishlistCount > 0 ? "flex" : "none";
+    });
 
     if (userBtn) {
       if (state.user) {

@@ -309,44 +309,56 @@
     </div>
   </div>
 
-  <!-- Sticky Mobile Bottom Navigation Bar -->
+  <!-- Sticky Mobile App Bottom Navigation Bar -->
   <nav class="mobile-bottom-nav" aria-label="Mobile Bottom Navigation">
-    <a href="index.php#catalog-section" class="mobile-nav-item" onclick="if(window.FeatherApp){window.FeatherApp.setCategory('all');}">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-      </svg>
+    <a href="index.php#catalog-section" class="mobile-nav-item <?php echo (($currentPage ?? '') === 'home' || empty($currentPage)) ? 'active' : ''; ?>" onclick="if(window.FeatherApp){window.FeatherApp.setCategory('all');}">
+      <span class="lottie-icon" data-lottie-icon="storefront" data-lottie-primary="#3B0F4A" data-lottie-secondary="#E0245E" style="width: 22px; height: 22px;">
+        <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        </svg>
+      </span>
       <span>Shop</span>
     </a>
 
-    <button type="button" class="mobile-nav-item" onclick="window.FeatherApp.openTrackingModal();">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <polyline points="12 6 12 12 16 14"></polyline>
-      </svg>
+    <button type="button" class="mobile-nav-item" onclick="if(window.FeatherApp){window.FeatherApp.openTrackingModal();}">
+      <span class="lottie-icon" data-lottie-icon="orders" data-lottie-primary="#3B0F4A" data-lottie-secondary="#E0245E" style="width: 22px; height: 22px;">
+        <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </span>
       <span>Track</span>
     </button>
 
-    <button type="button" class="mobile-nav-item" onclick="window.FeatherApp.openWishlistDrawer();">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-      </svg>
+    <button type="button" class="mobile-nav-item" onclick="if(window.FeatherApp){window.FeatherApp.openWishlistDrawer();}">
+      <span class="lottie-icon" data-lottie-icon="wishlist" data-lottie-primary="#E0245E" data-lottie-secondary="#F26D6D" style="width: 22px; height: 22px;">
+        <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </span>
+      <span class="mobile-nav-badge" id="mobile-wishlist-badge-count" style="display: none;">0</span>
       <span>Wishlist</span>
     </button>
 
-    <button type="button" class="mobile-nav-item" onclick="window.FeatherApp.openCartDrawer();">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="9" cy="21" r="1"></circle>
-        <circle cx="20" cy="21" r="1"></circle>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-      </svg>
+    <button type="button" class="mobile-nav-item" onclick="if(window.FeatherApp){window.FeatherApp.openCartDrawer();}">
+      <span class="lottie-icon" data-lottie-icon="cart" data-lottie-primary="#2D1432" data-lottie-secondary="#E0245E" style="width: 22px; height: 22px;">
+        <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+      </span>
+      <span class="mobile-nav-badge" id="mobile-cart-badge-count" style="display: none;">0</span>
       <span>Cart</span>
     </button>
 
-    <a href="account.php" class="mobile-nav-item">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
+    <a href="account.php" class="mobile-nav-item <?php echo (($currentPage ?? '') === 'account') ? 'active' : ''; ?>">
+      <span class="lottie-icon" data-lottie-icon="customers" data-lottie-primary="#3B0F4A" data-lottie-secondary="#6A1B6E" style="width: 22px; height: 22px;">
+        <svg class="fallback-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </span>
       <span>Account</span>
     </a>
   </nav>

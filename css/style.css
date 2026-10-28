@@ -2012,11 +2012,30 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 768px) {
-  .mobile-bottom-nav {
-    display: flex;
+  /* HIDE TOP NAV BAR ON MOBILE DEVICES AS REQUESTED */
+  .site-header {
+    display: none !important;
   }
+
+  /* SHOW LUXURY APP-LIKE BOTTOM NAV BAR */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 64px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(59, 15, 74, 0.12) !important;
+    z-index: 1000 !important;
+    box-shadow: 0 -4px 24px rgba(59, 15, 74, 0.08) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
   body {
-    padding-bottom: 60px;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 8px)) !important;
   }
 }
 
@@ -2025,17 +2044,55 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  color: var(--color-text-muted);
-  font-size: 0.7rem;
-  font-weight: 600;
+  gap: 3px;
+  color: #724E79;
+  font-size: 0.72rem;
+  font-weight: 700;
   position: relative;
   flex: 1;
   height: 100%;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.mobile-nav-item.active, .mobile-nav-item:hover {
-  color: var(--color-accent);
+.mobile-nav-item.active,
+.mobile-nav-item:hover {
+  color: #E0245E !important;
+}
+
+.mobile-nav-item.active::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: #E0245E;
+}
+
+.mobile-nav-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 18px);
+  min-width: 17px;
+  height: 17px;
+  background: #E0245E;
+  color: #FFFFFF;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 1.5px solid #FFFFFF;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(224, 36, 94, 0.4);
 }
 
 /* ==========================================================================
